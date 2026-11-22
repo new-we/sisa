@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sisa — Aplikasi</title>
+<meta name="description" content="Sisa: perencana gajian. Isi gaji dan tanggal gajian, lihat jatah hari ini supaya cukup sampai gajian berikutnya.">
+<style>
+:root{
+  --bg:#F3F1EA; --card:#FFFFFF; --ink:#14213D; --muted:#4B5A75; --line:#D3DBE8;
+  --accent:#8A6D00; --accent-soft:#FBF3DF; --ok:#1E7F5C; --warn:#8A6D00; --bad:#B3261E;
+  --field:#FFFFFF; --btn:#14213D; --btn-text:#FFFFFF;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1626; --card:#18223A; --ink:#EAF0FA; --muted:#A3B0C7; --line:#2A3856;
+    --accent:#F2C14E; --accent-soft:#2A2410; --ok:#5FD3A3; --warn:#F2C14E; --bad:#FF8A78;
+    --field:#1B2742; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1626; --card:#18223A; --ink:#EAF0FA; --muted:#A3B0C7; --line:#2A3856;
+  --accent:#F2C14E; --accent-soft:#2A2410; --ok:#5FD3A3; --warn:#F2C14E; --bad:#FF8A78;
+  --field:#1B2742; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);font-variant-numeric:tabular-nums;padding-bottom:92px}
+h1,h2,h3{line-height:1.2;margin:0;letter-spacing:-.01em}
+h1{font-size:1.55rem;font-weight:800}
+h2{font-size:1.25rem;font-weight:800;margin-bottom:10px}
+h3{font-size:1rem;font-weight:700}
+p{margin:0 0 1em}
+a{color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.phone{max-width:480px;margin:0 auto;padding:0 16px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0 4px}
+.topbar a{color:var(--muted);text-decoration:none;font-weight:700}
+.topbar button{background:none;border:1.5px solid var(--line);border-radius:6px;color:var(--muted);font:600 .85rem var(--sans);padding:7px 10px;cursor:pointer}
+.dateline{color:var(--muted);font-size:.9rem;margin:0 0 2px}
+.kicker{font:600 .72rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.kicker b{color:var(--accent);font-weight:600}
+section{padding:22px 0 4px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:18px}
+.card + .card{margin-top:12px}
+label{display:block;font-weight:700;margin:0 0 6px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:6px;padding:11px 13px;margin-bottom:12px}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
+input[type="date"]{min-height:44px}
+button{font-family:var(--sans)}
+.btn{display:inline-block;background:var(--btn);color:var(--btn-text);font-size:1rem;font-weight:700;border:0;border-radius:6px;padding:13px 22px;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn-ghost{display:inline-block;background:var(--card);color:var(--ink);font-size:1rem;font-weight:700;border:1.5px solid var(--line);border-radius:6px;padding:12px 20px;cursor:pointer;text-decoration:none}
+.btn-block{width:100%;text-align:center}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row .btn,.row .btn-ghost{flex:1;white-space:nowrap}
+.msg{margin:10px 0 0;font-weight:600}
+.msg.err{color:var(--bad)}
+.msg.ok{color:var(--ok)}
+.msg.warn{color:var(--warn)}
+.hint{color:var(--muted);font-size:.9rem}
+.privasi{color:var(--muted);font-size:.92rem;border-left:3px solid var(--accent);padding-left:10px;margin:4px 0 14px}
+/* 01 Beranda */
+.jatah-card{background:var(--card);border:1.5px solid var(--line);border-left:6px solid var(--accent);border-radius:8px;padding:20px;margin:14px 0}
+.jatah-card .lbl{font:600 .78rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.jatah-big{font-size:3rem;font-weight:800;line-height:1.05;margin:2px 0 12px;letter-spacing:-.02em}
+.jatah-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:12px}
+.jatah-row div span{display:block;font-size:.82rem;color:var(--muted)}
+.jatah-row div b{font-size:1.12rem}
+.siklus-line{color:var(--muted);font-size:.88rem;margin:12px 0 0}
+details.hitung{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.hitung summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.hitung-tabel{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
+.hitung-tabel td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.hitung-tabel td:last-child{text-align:right;white-space:nowrap;font-weight:700}
+.hitung-tabel tr.total td{border-bottom:0;font-weight:800}
+.bar{height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--accent)}
+/* Banner gajian */
+.banner{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:8px;padding:18px;margin:14px 0}
+.banner h2{margin-bottom:6px}
+/* Chips kategori */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{border:1.5px solid var(--line);background:var(--field);color:var(--ink);border-radius:6px;padding:10px 14px;font-size:.95rem;font-weight:600;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
+/* Peta Uang */
+.donut-wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.donut text{font-family:var(--sans)}
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.95rem;width:100%}
+.legend button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:6px;color:var(--ink);font-size:.95rem;padding:6px 8px;cursor:pointer}
+.legend button:hover,.legend button.on{border-color:var(--line);background:var(--bg)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px;flex:none}
+.legend .pct{color:var(--muted);white-space:nowrap}
+table.ringkas{width:100%;border-collapse:collapse;font-size:.95rem;margin-top:14px}
+table.ringkas th,table.ringkas td{padding:7px 0;border-bottom:1px solid var(--line);text-align:left}
+table.ringkas th:last-child,table.ringkas td:last-child{text-align:right;white-space:nowrap}
+table.ringkas td:nth-child(2){text-align:right;white-space:nowrap}
+.disisihkan{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:.95rem}
+.disisihkan b{font-size:1.05rem}
+/* Insight */
+.insight{border-left:4px solid var(--accent);padding:2px 0 2px 14px;margin-bottom:16px}
+.insight:last-child{margin-bottom:0}
+.insight p{margin:0 0 6px}
+.insight p:last-child{margin-bottom:0}
+.insight .tag{font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+/* Riwayat */
+.riwayat{list-style:none;margin:0;padding:0}
+.riwayat li{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.97rem;align-items:flex-start}
+.riwayat li:last-child{border-bottom:0}
+.riwayat .rk{font-weight:700}
+.riwayat .rk small{display:block;font-weight:400;color:var(--muted)}
+.riwayat .rj{text-align:right;white-space:nowrap;font-weight:700}
+.riwayat .rj button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0 0 0 8px;text-decoration:underline}
+.riwayat .qris-badge{display:inline-block;font:600 .72rem var(--mono);letter-spacing:.06em;background:var(--accent-soft);border:1px solid var(--accent);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+.riwayat .qris-thumb{width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px;border:1px solid var(--line)}
+table.ringkas tbody tr{cursor:pointer}
+table.ringkas tbody tr:hover{background:var(--bg)}
+.filterbar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:.92rem}
+.filterbar button{background:none;border:0;color:var(--ink);cursor:pointer;font-weight:700;text-decoration:underline;padding:0}
+/* Atur */
+.atur-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:.97rem}
+.atur-item:last-child{border-bottom:0}
+.atur-item .nm{font-weight:700}
+.atur-item .nm small{display:block;font-weight:400;color:var(--muted)}
+.atur-item .aksi{white-space:nowrap}
+.atur-item .aksi button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.88rem;padding:0 0 0 8px;text-decoration:underline}
+.toggle{display:flex;gap:8px;margin-bottom:12px}
+.toggle button{flex:1;padding:10px;border-radius:6px;border:1.5px solid var(--line);background:var(--field);font-size:.95rem;font-weight:700;color:var(--ink);cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
+.peringatan{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:6px;padding:12px 14px;font-weight:600;margin:12px 0}
+.rumus-line{font-size:.95rem;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+/* Arsip */
+.arsip{list-style:none;margin:0;padding:0}
+.arsip li{padding:10px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.arsip li:last-child{border-bottom:0}
+.arsip b{display:block}
+.arsip span{color:var(--muted)}
+/* Footer + nav + toast */
+footer{padding:26px 0 8px;color:var(--muted);font-size:.88rem;text-align:center}
+footer a{color:var(--muted)}
+footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;font:inherit}
+.reset-pilihan{margin-top:12px}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10}
+.bottomnav .nav-in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px))}
+.bottomnav a{text-align:center;text-decoration:none;color:var(--muted);font-size:.85rem;font-weight:700;padding:6px 0}
+.bottomnav a.on{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:20;background:var(--btn);color:var(--btn-text);border-radius:6px;padding:12px 16px;font-size:.95rem;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px)}
+#toast button{background:none;border:0;color:var(--btn-text);font-weight:800;cursor:pointer;text-decoration:underline;padding:0}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<noscript><p style="padding:16px">Aplikasi ini membutuhkan JavaScript untuk menghitung jatah harianmu.</p></noscript>
+<div class="phone">
+  <header class="topbar">
+    <a href="index.html">&larr; Sisa</a>
+    <button id="tema" type="button">Mode gelap</button>
+  </header>
+  <p class="dateline" id="tanggal"></p>
+
+  <!-- Banner konfirmasi gaji: tampil pada tanggal gajian -->
+  <div id="banner-gaji" class="banner" hidden>
+    <p class="kicker"><b>01</b> &middot; Siklus baru</p>
+    <h2>Hari ini gajian</h2>
+    <p id="banner-teks"></p>
+    <div class="row">
+      <button class="btn" id="banner-pakai" type="button">Pakai angka ini</button>
+      <button class="btn-ghost" id="banner-ubah" type="button">Ubah gaji</button>
+    </div>
+  </div>
+
+  <!-- 00 Onboarding -->
+  <section id="onboarding" hidden>
+    <p class="kicker"><b>00</b> &middot; Mulai</p>
+    <h1>Atur gajianmu, tahu jatah harianmu</h1>
+    <p style="margin-top:10px">Isi dua angka ini, dan Sisa menghitung berapa yang boleh kamu pakai hari ini supaya cukup sampai gajian berikutnya.</p>
+    <form id="form-onboarding" class="card" novalidate>
+      <label for="ob-gaji">Gaji bulanan (Rp)</label>
+      <input id="ob-gaji" inputmode="numeric" autocomplete="off" placeholder="5.000.000">
+      <label for="ob-tgl">Tanggal gajian (1&ndash;31)</label>
+      <input id="ob-tgl" inputmode="numeric" autocomplete="off" placeholder="12">
+      <p class="privasi">Tanpa akses rekening. Data tidak dibagikan.</p>
+      <button class="btn btn-block" type="submit">Mulai pakai Sisa</button>
+      <div style="height:10px"></div>
+      <button class="btn-ghost btn-block" id="ob-contoh" type="button">Coba data contoh</button>
+      <p class="hint" style="margin:10px 0 0">Data contoh memakai siklus 12 Nov &ndash; 12 Des 2026: gaji Rp5.000.000, tagihan tetap Rp1.500.000, target tabungan Rp500.000, dan 13 catatan.</p>
+      <p class="msg" id="ob-pesan" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- Aplikasi -->
+  <main id="app" hidden>
+
+    <!-- 01 Beranda -->
+    <section id="beranda">
+      <p class="kicker"><b>01</b> &middot; Beranda</p>
+      <div class="jatah-card">
+        <span class="lbl">Jatah hari ini</span>
+        <div class="jatah-big" id="jatah">Rp0</div>
+        <div class="jatah-row">
+          <div><span>Sisa sampai gajian</span><b id="sisa-uang">Rp0</b></div>
+          <div style="text-align:right"><span>Sisa hari menuju gajian</span><b id="sisa-hari">0 hari</b></div>
+        </div>
+        <p class="siklus-line" id="siklus-line"></p>
+        <p class="msg warn" id="pesan-negatif" hidden>Uang bebasmu sudah terpakai. Yuk lihat sisa hari menuju gajian.</p>
+        <details class="hitung">
+          <summary>Lihat cara hitung</summary>
+          <table class="hitung-tabel">
+            <tr><td>Gaji</td><td id="h-gaji">Rp0</td></tr>
+            <tr><td>&minus; Tagihan tetap</td><td id="h-tagihan">Rp0</td></tr>
+            <tr><td>&minus; Target tabungan</td><td id="h-target">Rp0</td></tr>
+            <tr class="total"><td>= Uang bebas</td><td id="h-bebas">Rp0</td></tr>
+            <tr><td>&minus; Pengeluaran siklus</td><td id="h-keluar">Rp0</td></tr>
+            <tr class="total"><td>= Sisa uang bebas</td><td id="h-sisa">Rp0</td></tr>
+            <tr><td>&divide; Sisa hari</td><td id="h-hari">0 hari</td></tr>
+            <tr class="total"><td>= Jatah hari ini</td><td id="h-jatah">Rp0</td></tr>
+          </table>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>Progres hari ini</h3>
+        <div class="bar" role="img" aria-label="Progres pengeluaran hari ini terhadap jatah"><i id="progres-bar" style="width:0%"></i></div>
+        <p style="margin:0" id="progres-teks"></p>
+      </div>
+
+      <div class="card" id="prediksi-card">
+        <h3>Prediksi tanggal habis</h3>
+        <p style="margin:0" id="prediksi-teks"></p>
+      </div>
+    </section>
+
+    <!-- 02 Catat Kilat -->
+    <section id="catat">
+      <p class="kicker"><b>02</b> &middot; Catat Kilat</p>
+      <h2>Catat pengeluaran</h2>
+      <form class="card" id="form-catat" novalidate>
+        <label for="f-jumlah">Jumlah (Rp)</label>
+        <input id="f-jumlah" inputmode="numeric" autocomplete="off" placeholder="25.000">
+        <label>Kategori</label>
+        <div class="chips" id="f-chips" role="group" aria-label="Kategori pengeluaran"></div>
+        <label for="f-tanggal">Tanggal</label>
+        <input id="f-tanggal" type="date">
+        <label for="f-catatan">Catatan (opsional)</label>
+        <input id="f-catatan" autocomplete="off" placeholder="Contoh: Nasi padang">
+        <label for="f-qris">Bukti QRIS (opsional)</label>
+        <input id="f-qris" type="file" accept="image/*">
+        <p class="hint" style="margin:6px 0 0">Unggah foto struk/bukti bayar QRIS. Nominal &amp; merchant tetap kamu cek sendiri sebelum simpan &mdash; aplikasi ini tidak membaca isi gambar.</p>
+        <div id="f-qris-preview" style="margin-top:8px" hidden><img id="f-qris-img" alt="Bukti QRIS" style="max-width:100%;border-radius:8px;border:1px solid var(--line)"><button class="btn-ghost" type="button" id="f-qris-hapus" style="margin-top:6px">Hapus bukti</button></div>
+        <button class="btn btn-block" type="submit" id="f-simpan">Simpan catatan</button>
+        <button class="btn-ghost btn-block" type="button" id="f-batal" hidden>Batalkan ubahan</button>
+        <p class="msg" id="f-pesan" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- 03 Paham -->
+    <section id="paham">
+      <p class="kicker"><b>03</b> &middot; Paham</p>
+      <h2>Gambaran dari datamu</h2>
+      <div class="card" id="insight-list"></div>
+    </section>
+
+    <!-- 04 Peta Uang -->
+    <section id="peta">
+      <p class="kicker"><b>04</b> &middot; Peta Uang</p>
+      <h2>Ke mana uangmu pergi</h2>
+      <div class="card">
+        <div id="peta-kosong" hidden>
+          <p style="margin:0">Belum ada pengeluaran di siklus ini. Catat pengeluaran pertamamu lewat Catat Kilat di atas.</p>
+        </div>
+        <div id="peta-isi">
+          <div class="donut-wrap">
+            <svg class="donut" width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="Donut pengeluaran per kategori untuk siklus berjalan">
+              <circle cx="85" cy="85" r="70" fill="none" stroke="var(--bg)" stroke-width="26"></circle>
+              <g id="donut-seg"></g>
+              <text x="85" y="80" text-anchor="middle" font-size="15" font-weight="800" fill="var(--ink)" id="donut-total">Rp0</text>
+              <text x="85" y="100" text-anchor="middle" font-size="11" fill="var(--muted)">terpakai</text>
+            </svg>
+            <ul class="legend" id="legend"></ul>
+          </div>
+          <table class="ringkas" id="tabel-ringkas">
+            <thead><tr><th>Kategori</th><th>Nominal</th><th>Porsi</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="disisihkan" id="disisihkan"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Atur -->
+    <section id="atur">
+      <p class="kicker"><b>05</b> &middot; Atur</p>
+      <h2>Gaji, tagihan &amp; tabungan</h2>
+
+      <div class="card">
+        <h3>Gaji &amp; tanggal gajian</h3>
+        <label for="set-gaji">Gaji bulanan (Rp)</label>
+        <input id="set-gaji" inputmode="numeric" autocomplete="off">
+        <label for="set-tgl">Tanggal gajian (1&ndash;31)</label>
+        <input id="set-tgl" inputmode="numeric" autocomplete="off">
+        <button class="btn" id="set-simpan" type="button">Simpan gaji &amp; tanggal</button>
+        <p class="hint" style="margin:10px 0 0">Riwayat transaksi tidak hilang saat gaji atau tanggal gajian diubah.</p>
+        <p class="msg" id="set-pesan" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="card">
+        <h3>Tagihan tetap</h3>
+        <div id="tagihan-list"></div>
+        <div style="height:12px"></div>
+        <label for="at-nama">Nama tagihan</label>
+        <input id="at-nama" autocomplete="off" placeholder="Contoh: Kos">
+        <label for="at-nominal">Nominal (Rp)</label>
+        <input id="at-nominal" inputmode="numeric" autocomplete="off" placeholder="1.000.000">
+        <div class="row">
+          <button class="btn" id="at-tambah" type="button">Tambah tagihan</button>
+          <button class="btn-ghost" id="at-batal" type="button" hidden>Batal</button>
+        </div>
+        <p class="msg" id="at-pesan" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="card">
+        <h3>Target tabungan</h3>
+        <div class="toggle" role="group" aria-label="Jenis target tabungan">
+          <button type="button" id="tab-nominal" aria-pressed="true">Nominal (Rp)</button>
+          <button type="button" id="tab-persen" aria-pressed="false">% dari gaji</button>
+        </div>
+        <label for="tab-nilai" id="tab-label">Target tabungan (Rp)</label>
+        <input id="tab-nilai" inputmode="numeric" autocomplete="off" placeholder="500.000">
+        <button class="btn" id="tab-simpan" type="button">Simpan target</button>
+        <p class="hint" style="margin:10px 0 0" id="tab-saat-ini"></p>
+        <p class="msg" id="tab-pesan" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="peringatan" id="peringatan" hidden></div>
+      <p class="rumus-line" id="rumus-line"></p>
+    </section>
+
+    <!-- 06 Riwayat -->
+    <section id="riwayat">
+      <p class="kicker"><b>06</b> &middot; Riwayat</p>
+      <h2>Catatanmu</h2>
+      <div class="filterbar" id="filterbar" hidden>
+        <span id="filter-teks"></span>
+        <button type="button" id="filter-hapus">Tampilkan semua</button>
+      </div>
+      <div class="card"><ul class="riwayat" id="riwayat-list"></ul></div>
+    </section>
+
+    <!-- 07 Siklus -->
+    <section id="siklus">
+      <p class="kicker"><b>07</b> &middot; Siklus</p>
+      <h2>Siklus gajian</h2>
+      <div class="card">
+        <p id="siklus-aktif" style="margin:0 0 12px"></p>
+        <h3 style="margin-bottom:6px">Arsip siklus sebelumnya</h3>
+        <ul class="arsip" id="arsip-list"></ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Data tersimpan di browser ini saja (demo).<br>
+      <button id="reset" type="button">Reset data demo</button> &middot; <a href="index.html">Kembali ke landing page</a></p>
+      <div class="reset-pilihan" id="reset-pilihan" hidden>
+        <div class="row">
+          <button class="btn-ghost" id="reset-kosong" type="button">Mulai kosong</button>
+          <button class="btn-ghost" id="reset-contoh" type="button">Muat data contoh</button>
+        </div>
+        <div style="height:8px"></div>
+        <button id="reset-batal" type="button">Batal</button>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<nav class="bottomnav"><div class="nav-in">
+  <a href="#beranda" class="on">Beranda</a>
+  <a href="#atur">Atur</a>
+  <a href="#peta">Peta Uang</a>
+  <a href="#riwayat">Riwayat</a>
+</div></nav>
+
+<div id="toast" hidden><span id="toast-teks"></span><button type="button" id="toast-urungkan">Urungkan</button></div>
+<script>
+(function(){
+"use strict";
+/* ===== PURE-START: rumus & data (tanpa DOM — dipakai juga untuk cek node) ===== */
+var KEY="sisa-app-v2";
+var KATEGORI=["Belanja","Transportasi","Tagihan Langganan","BBM","Makan","Tabungan","Lainnya"];
+var BULAN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+var HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+
+function pad(n){return (n<10?"0":"")+n;}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parseISO(s){var p=String(s).split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function clampPayday(y,m,day){return new Date(y,m,Math.min(day,daysInMonth(y,m)));}
+function lastPayday(day,ref){var c=clampPayday(ref.getFullYear(),ref.getMonth(),day);if(c<=ref)return c;return clampPayday(ref.getFullYear(),ref.getMonth()-1,day);}
+function nextPayday(day,ref){var c=clampPayday(ref.getFullYear(),ref.getMonth(),day);if(c>ref)return c;return clampPayday(ref.getFullYear(),ref.getMonth()+1,day);}
+function addDays(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function diffDays(a,b){return Math.round((b.getTime()-a.getTime())/86400000);}
+/* Hari ini jam 00:00 waktu setempat — semua hitung kalender memakai ini, supaya
+   jam berapa pun aplikasi dibuka, selisih harinya tetap sama. */
+function hariIni(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function tengahMalam(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+
+function seedState(){
+  var rows=[
+    ["2026-11-12","Belanja","Belanja bulanan",850000],
+    ["2026-11-13","Tagihan Langganan","WiFi kos",100000],
+    ["2026-11-14","Makan","Nasi padang",25000],
+    ["2026-11-15","Transportasi","Ojek online",30000],
+    ["2026-11-16","BBM","Bensin motor",50000],
+    ["2026-11-17","Makan","Makan bareng teman",85000],
+    ["2026-11-18","Belanja","Sabun & sampo",35000],
+    ["2026-11-19","Transportasi","Bus kampus",20000],
+    ["2026-11-20","Makan","Kopi susu",18000],
+    ["2026-11-21","Belanja","Pulsa",50000],
+    ["2026-11-21","Makan","Es teh",7000],
+    ["2026-11-22","Makan","Nasi goreng",30000],
+    ["2026-11-15","Tabungan","Tabungan minggu ini",125000]
+  ];
+  var tx=rows.map(function(r,i){return {id:i+1,tanggal:r[0],kategori:r[1],catatan:r[2],nominal:r[3]};});
+  return {
+    gaji:5000000, tanggalGajian:12,
+    tagihanTetap:[{id:1,nama:"Kos",nominal:1000000},{id:2,nama:"Langganan",nominal:500000}],
+    targetTabungan:{tipe:"nominal",nilai:500000},
+    transaksi:tx, siklusMulai:"2026-11-12", arsip:[], nextId:14
+  };
+}
+function targetAmount(st){return st.targetTabungan.tipe==="persen"?Math.round(st.gaji*st.targetTabungan.nilai/100):st.targetTabungan.nilai;}
+function totalTagihan(st){return st.tagihanTetap.reduce(function(s,t){return s+t.nominal;},0);}
+function uangBebas(st){return st.gaji-totalTagihan(st)-targetAmount(st);}
+function cycleTx(st,ref){
+  ref=tengahMalam(ref);
+  var s=st.siklusMulai, e=iso(nextPayday(st.tanggalGajian,ref));
+  return st.transaksi.filter(function(t){return t.tanggal>=s&&t.tanggal<e;});
+}
+function calcAll(st,ref){
+  ref=tengahMalam(ref);
+  var next=nextPayday(st.tanggalGajian,ref);
+  var start=parseISO(st.siklusMulai);
+  var sisaHari=Math.max(1,diffDays(ref,next));
+  var tagihan=totalTagihan(st);
+  var target=targetAmount(st);
+  var bebas=st.gaji-tagihan-target;
+  var cyc=cycleTx(st,ref);
+  var keluar=0, keluarHariIni=0, perKat={}, disisihkan=0, distinct={};
+  var refISO=iso(ref);
+  cyc.forEach(function(t){
+    distinct[t.tanggal]=1;
+    if(t.kategori==="Tabungan"){disisihkan+=t.nominal;return;}
+    keluar+=t.nominal;
+    perKat[t.kategori]=(perKat[t.kategori]||0)+t.nominal;
+    if(t.tanggal===refISO)keluarHariIni+=t.nominal;
+  });
+  var sisaUang=bebas-keluar;
+  var jatah=Math.floor(Math.max(0,sisaUang)/sisaHari);
+  var hariBerjalan=Math.max(1,diffDays(start,ref)+1);
+  var laju=keluar/hariBerjalan;
+  return {next:next, nextISO:iso(next), sisaHari:sisaHari, tagihan:tagihan, target:target,
+    bebas:bebas, keluar:keluar, keluarHariIni:keluarHariIni, sisaUang:sisaUang, jatah:jatah,
+    hariBerjalan:hariBerjalan, laju:laju, perKat:perKat, disisihkan:disisihkan,
+    jumlahCatatan:cyc.length, hariData:Object.keys(distinct).length};
+}
+/* Prediksi tanggal habis (PRD §9.3): hanya bila >=3 hari data ATAU >=5 catatan. */
+function prediksi(st,ref,c){
+  ref=tengahMalam(ref);
+  if(!(c.hariData>=3||c.jumlahCatatan>=5))return null;
+  if(c.laju<=0||c.sisaUang<=0)return null;
+  var hariHabis=Math.floor(c.sisaUang/c.laju);
+  var tglHabis=addDays(ref,hariHabis);
+  return {n:c.jumlahCatatan, hariHabis:hariHabis, tglHabis:tglHabis,
+    aman:tglHabis>=c.next, selisih:diffDays(tglHabis,c.next)};
+}
+/* Rollover: bila tanggal gajian terakhir sudah lewat dari siklusMulai, arsipkan siklus lama. */
+function rollover(st,ref){
+  ref=tengahMalam(ref);
+  var expected=iso(lastPayday(st.tanggalGajian,ref));
+  if(st.siklusMulai<expected){
+    var keluar=0;
+    st.transaksi.forEach(function(t){
+      if(t.kategori!=="Tabungan"&&t.tanggal>=st.siklusMulai&&t.tanggal<expected)keluar+=t.nominal;
+    });
+    st.arsip.unshift({gaji:st.gaji,mulai:st.siklusMulai,selesai:iso(addDays(parseISO(expected),-1)),pengeluaran:keluar,uangBebas:uangBebas(st)});
+    st.siklusMulai=expected;
+    return true;
+  }
+  return false;
+}
+/* ===== PURE-END ===== */
+
+var WARNA={"Belanja":"#8B5CF6","Transportasi":"#3B82F6","Tagihan Langganan":"#C0392B","BBM":"#B7791F","Makan":"#1E7F5C","Tabungan":"#0E7490","Lainnya":"#64748B"};
+var $=function(id){return document.getElementById(id);};
+var rp=function(n){return "Rp"+new Intl.NumberFormat("id-ID").format(Math.round(n));};
+var rpSingkat=function(n){return n>=1000000?("Rp"+(n/1000000).toLocaleString("id-ID",{maximumFractionDigits:1})+" jt"):("Rp"+Math.round(n/1000)+" rb");};
+var num=function(v){var n=parseInt(String(v==null?"":v).replace(/\D/g,""),10);return isNaN(n)?0:n;};
+var fmtNum=function(n){return n?new Intl.NumberFormat("id-ID").format(n):"";};
+var fmtTgl=function(d){return d.getDate()+" "+BULAN[d.getMonth()]+" "+d.getFullYear();};
+var fmtTglISO=function(s){return fmtTgl(parseISO(s));};
+var esc=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");};
+
+var state=null;
+var filterKat=null;
+var editingId=null;
+var editingTagihanId=null;
+var tabTipe="nominal";
+var toastTimer=null;
+var lastDeleted=null;
+
+function load(){
+  try{state=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){state=null;}
+  if(state&&typeof state.gaji!=="number")state=null;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ---------- Tema ---------- */
+function temaEfektif(){
+  var s=null;try{s=localStorage.getItem("sisa-tema");}catch(e){}
+  if(s==="light"||s==="dark")return s;
+  return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+}
+function terapkanTema(){
+  var t=temaEfektif();
+  document.documentElement.setAttribute("data-theme",t);
+  $("tema").textContent=t==="dark"?"Mode terang":"Mode gelap";
+}
+$("tema").addEventListener("click",function(){
+  var next=temaEfektif()==="dark"?"light":"dark";
+  try{localStorage.setItem("sisa-tema",next);}catch(e){}
+  terapkanTema();
+});
+
+/* ---------- Onboarding ---------- */
+function tampilkanOnboarding(){
+  $("onboarding").hidden=false;
+  $("app").hidden=true;
+  $("banner-gaji").hidden=true;
+}
+function tampilkanApp(){
+  $("onboarding").hidden=true;
+  $("app").hidden=false;
+}
+$("form-onboarding").addEventListener("submit",function(e){
+  e.preventDefault();
+  var gaji=num($("ob-gaji").value), tgl=num($("ob-tgl").value);
+  if(!gaji||gaji<=0){$("ob-pesan").textContent="Isi gaji bulananmu dengan angka lebih dari Rp0.";$("ob-pesan").className="msg err";return;}
+  if(tgl<1||tgl>31){$("ob-pesan").textContent="Tanggal gajian harus 1 sampai 31.";$("ob-pesan").className="msg err";return;}
+  var ref=hariIni();
+  state={gaji:gaji,tanggalGajian:tgl,tagihanTetap:[],targetTabungan:{tipe:"nominal",nilai:0},
+    transaksi:[],siklusMulai:iso(lastPayday(tgl,ref)),arsip:[],nextId:1};
+  save();tampilkanApp();render();
+});
+$("ob-contoh").addEventListener("click",function(){
+  state=seedState();save();tampilkanApp();render();
+  $("ob-pesan").textContent="";$("ob-pesan").className="msg";
+});
+["ob-gaji"].forEach(function(id){
+  $(id).addEventListener("input",function(){var n=num(this.value);this.value=n?fmtNum(n):"";});
+});
+
+/* ---------- Banner gajian ---------- */
+function cekBanner(){
+  var ref=hariIni();
+  var hariIniISO=iso(ref);
+  var paydayHariIni=iso(lastPayday(state.tanggalGajian,ref))===hariIniISO;
+  var sudah=null;
+  try{sudah=sessionStorage.getItem("sisa-gaji-ok-"+hariIniISO);}catch(e){}
+  if(paydayHariIni&&!sudah){
+    $("banner-teks").textContent="Siklus baru dimulai hari ini. Gajimu masih "+rp(state.gaji)+"?";
+    $("banner-gaji").hidden=false;
+  }else{
+    $("banner-gaji").hidden=true;
+  }
+}
+function tutupBanner(){
+  try{sessionStorage.setItem("sisa-gaji-ok-"+iso(hariIni()),"1");}catch(e){}
+  $("banner-gaji").hidden=true;
+}
+$("banner-pakai").addEventListener("click",tutupBanner);
+$("banner-ubah").addEventListener("click",function(){
+  tutupBanner();
+  var el=$("atur");if(el)el.scrollIntoView({behavior:"smooth"});
+  $("set-gaji").focus();
+});
+
+/* ---------- Render utama ---------- */
+function render(){
+  var ref=hariIni();
+  rollover(state,ref);
+  save();
+  cekBanner();
+  var c=calcAll(state,ref);
+  $("tanggal").textContent=HARI[ref.getDay()]+", "+fmtTgl(ref);
+
+  /* Dashboard */
+  $("jatah").textContent=rp(c.jatah);
+  $("sisa-uang").textContent=rp(c.sisaUang);
+  $("sisa-hari").textContent=c.sisaHari+" hari";
+  $("siklus-line").textContent="Siklus berjalan: "+fmtTglISO(state.siklusMulai)+" – "+fmtTgl(addDays(c.next,-1))+" · Gajian berikutnya "+fmtTgl(c.next);
+  $("pesan-negatif").hidden=!(c.sisaUang<0);
+  $("h-gaji").textContent=rp(state.gaji);
+  $("h-tagihan").textContent=rp(c.tagihan);
+  $("h-target").textContent=rp(c.target);
+  $("h-bebas").textContent=rp(c.bebas);
+  $("h-keluar").textContent=rp(c.keluar);
+  $("h-sisa").textContent=rp(c.sisaUang);
+  $("h-hari").textContent=c.sisaHari+" hari";
+  $("h-jatah").textContent=rp(c.jatah);
+
+  /* Progres hari ini */
+  var pct=c.jatah>0?Math.round(c.keluarHariIni/c.jatah*100):(c.keluarHariIni>0?100:0);
+  $("progres-bar").style.width=Math.min(100,pct)+"%";
+  var prog="Hari ini sudah keluar "+rp(c.keluarHariIni)+" dari jatah "+rp(c.jatah)+" ("+pct+"%).";
+  if(c.jatah>0&&c.keluarHariIni>c.jatah)prog+=" Sudah melewati jatah hari ini — pencatatan tetap bisa dilanjutkan.";
+  if(c.jatah===0&&c.keluarHariIni>0)prog="Hari ini sudah keluar "+rp(c.keluarHariIni)+" dan jatah hari ini Rp0.";
+  $("progres-teks").textContent=prog;
+
+  /* Prediksi */
+  var p=prediksi(state,ref,c);
+  if(!p){
+    if((c.hariData>=3||c.jumlahCatatan>=5)&&c.sisaUang<=0){
+      $("prediksi-teks").textContent="Uang bebasmu sudah terpakai, jadi tidak ada prediksi tanggal habis untuk siklus ini.";
+    }else{
+      $("prediksi-teks").textContent="Prediksi muncul setelah ada minimal 3 hari data atau 5 catatan di siklus ini.";
+    }
+  }else if(p.aman){
+    $("prediksi-teks").textContent="Dengan laju ini, uangmu cukup sampai gajian. (berdasarkan "+p.n+" catatan)";
+  }else if(p.hariHabis<=0){
+    $("prediksi-teks").textContent="Dengan laju ini, uang bebasmu diperkirakan habis hari ini, "+Math.max(0,c.sisaHari)+" hari sebelum gajian "+fmtTgl(c.next)+". (berdasarkan "+p.n+" catatan)";
+  }else{
+    $("prediksi-teks").textContent="Dengan laju ini, uang bebasmu diperkirakan habis "+fmtTgl(p.tglHabis)+", "+p.selisih+" hari sebelum gajian "+fmtTgl(c.next)+". (berdasarkan "+p.n+" catatan)";
+  }
+
+  renderPeta(c);
+  renderInsight(c,p);
+  renderRiwayat();
+  renderAtur(c);
+  renderArsip(c);
+  renderFormDefault();
+}
+
+function renderPeta(c){
+  var kosong=c.keluar<=0;
+  $("peta-kosong").hidden=!kosong;
+  $("peta-isi").hidden=kosong;
+  if(kosong)return;
+  var C=2*Math.PI*70, off=0, seg=$("donut-seg");
+  seg.innerHTML="";
+  KATEGORI.forEach(function(k){
+    if(k==="Tabungan")return;
+    var v=c.perKat[k]||0;if(!v)return;
+    var len=C*v/c.keluar;
+    var el=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    el.setAttribute("cx","85");el.setAttribute("cy","85");el.setAttribute("r","70");
+    el.setAttribute("fill","none");el.setAttribute("stroke",WARNA[k]);el.setAttribute("stroke-width","26");
+    el.setAttribute("stroke-dasharray",len+" "+(C-len));
+    el.setAttribute("stroke-dashoffset",-off);
+    el.setAttribute("transform","rotate(-90 85 85)");
+    seg.appendChild(el);off+=len;
+  });
+  $("donut-total").textContent=rpSingkat(c.keluar);
+  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
+    .sort(function(a,b){return (c.perKat[b]||0)-(c.perKat[a]||0);});
+  $("legend").innerHTML=urut.map(function(k){
+    var v=c.perKat[k], pct=Math.round(v/c.keluar*100);
+    return '<li><button type="button" data-kat="'+esc(k)+'" class="'+(filterKat===k?"on":"")+'">'+
+      '<span><i style="background:'+WARNA[k]+'"></i>'+esc(k)+'</span>'+
+      '<span class="pct">'+rpSingkat(v)+' · '+pct+'%</span></button></li>';
+  }).join("");
+  $("tabel-ringkas").querySelector("tbody").innerHTML=urut.map(function(k){
+    var v=c.perKat[k], pct=(v/c.keluar*100).toLocaleString("id-ID",{maximumFractionDigits:1});
+    return '<tr data-kat="'+esc(k)+'"><td>'+esc(k)+'</td><td>'+rp(v)+'</td><td>'+pct+'%</td></tr>';
+  }).join("");
+  $("disisihkan").innerHTML=c.disisihkan>0
+    ? "Tabungan — disisihkan: <b>"+rp(c.disisihkan)+"</b><br><span style=\"color:var(--muted)\">Tabungan tidak dihitung sebagai pengeluaran, karena sudah dipisahkan di awal lewat target tabungan.</span>"
+    : "Tabungan — disisihkan: <b>Rp0</b><br><span style=\"color:var(--muted)\">Catatan berkategori Tabungan tampil di sini, bukan sebagai pengeluaran.</span>";
+}
+$("legend").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-kat]");if(!b)return;
+  setFilter(b.getAttribute("data-kat"));
+});
+$("tabel-ringkas").addEventListener("click",function(e){
+  var tr=e.target.closest("tr[data-kat]");if(!tr)return;
+  setFilter(tr.getAttribute("data-kat"));
+});
+function setFilter(k){
+  filterKat=k;
+  renderPeta(calcAll(state,hariIni()));
+  renderRiwayat();
+  var el=$("riwayat");if(el)el.scrollIntoView({behavior:"smooth"});
+}
+$("filter-hapus").addEventListener("click",function(){
+  filterKat=null;
+  renderPeta(calcAll(state,hariIni()));
+  renderRiwayat();
+});
+
+/* ---------- Paham (insight) ---------- */
+function renderInsight(c,p){
+  var box=$("insight-list");
+  var cyc=cycleTx(state,hariIni()).filter(function(t){return t.kategori!=="Tabungan";});
+  if(cyc.length<3){
+    box.innerHTML="<p style=\"margin:0\">Catat minimal 3 pengeluaran supaya Sisa bisa memberi gambaran dari datamu. Saat ini ada "+cyc.length+" catatan di siklus ini.</p>";
+    return;
+  }
+  var urutK=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
+    .sort(function(a,b){return (c.perKat[b]||0)-(c.perKat[a]||0);});
+  var big=urutK[0], bigTotal=c.perKat[big], bigPct=Math.round(bigTotal/c.keluar*100);
+  var proyBig=Math.round(bigTotal+(bigTotal/c.hariBerjalan)*c.sisaHari);
+
+  var insLaju, insKat, insTab;
+  if(c.laju>c.jatah&&c.jatah>0){
+    insLaju={tag:"Laju vs jatah",
+      fakta:"Laju pengeluaranmu "+rp(Math.round(c.laju))+"/hari, di atas jatah "+rp(c.jatah)+".",
+      proyeksi:p?("Dengan laju ini, uang bebasmu diperkirakan habis "+fmtTgl(p.tglHabis)+", "+p.selisih+" hari sebelum gajian "+fmtTgl(c.next)+"."):"Dengan laju ini, uang bebasmu habis sebelum gajian.",
+      tindakan:"Coba kurangi sekitar "+rp(Math.round(c.laju-c.jatah))+" per hari supaya cukup sampai gajian."};
+  }else{
+    insLaju={tag:"Laju vs jatah",
+      fakta:"Laju pengeluaranmu "+rp(Math.round(c.laju))+"/hari, di bawah jatah "+rp(c.jatah)+".",
+      proyeksi:"Dengan laju ini, uangmu cukup sampai gajian.",
+      tindakan:"Pertahankan ritme ini sampai gajian."};
+  }
+  insKat={tag:"Kategori terbesar",
+    fakta:big+" adalah kategori terbesarmu di siklus ini: "+rp(bigTotal)+" ("+bigPct+"% dari pengeluaran).",
+    proyeksi:"Dengan laju yang sama, "+big+" mencapai sekitar "+rp(proyBig)+" sampai gajian.",
+    tindakan:"Coba catat setiap pembelian "+big+" minggu ini untuk melihat polanya."};
+  if(c.target>0){
+    var pctTab=Math.round(c.target/state.gaji*100);
+    insTab={tag:"Tabungan",
+      fakta:"Target tabunganmu "+rp(c.target)+" ("+pctTab+"% dari gaji) sudah dipisahkan di awal.",
+      proyeksi:"Jatah harianmu tetap "+rp(c.jatah)+" karena tabungan tidak ikut terpakai.",
+      tindakan:"Cek lagi target ini di Atur bila gajimu berubah."};
+  }else{
+    insTab={tag:"Tabungan",
+      fakta:"Kamu belum menetapkan target tabungan di siklus ini.",
+      proyeksi:"Tanpa target, seluruh gaji masuk ke uang bebas dan jatah harianmu "+rp(c.jatah)+".",
+      tindakan:"Coba tetapkan target tabungan di Atur, misalnya 10% dari gaji."};
+  }
+  var list=(c.laju>c.jatah&&c.jatah>0)?[insLaju,insKat,insTab]:[insKat,insLaju,insTab];
+  box.innerHTML=list.map(function(x){
+    return '<div class="insight"><p class="tag">'+esc(x.tag)+'</p>'+
+      "<p><b>Fakta:</b> "+esc(x.fakta)+"</p>"+
+      "<p><b>Proyeksi:</b> "+esc(x.proyeksi)+"</p>"+
+      "<p><b>Tindakan:</b> "+esc(x.tindakan)+"</p></div>";
+  }).join("");
+}
+
+/* ---------- Riwayat ---------- */
+function urutanTx(){
+  return state.transaksi.slice().sort(function(a,b){
+    if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
+    return b.id-a.id;
+  });
+}
+function renderRiwayat(){
+  var list=urutanTx();
+  var tampil=filterKat?list.filter(function(t){return t.kategori===filterKat;}):list;
+  $("filterbar").hidden=!filterKat;
+  if(filterKat)$("filter-teks").textContent="Menampilkan kategori: "+filterKat+" ("+tampil.length+" catatan)";
+  if(!tampil.length){
+    $("riwayat-list").innerHTML="<li>"+(filterKat?"Tidak ada catatan untuk kategori ini di siklus ini.":"Belum ada catatan. Catat pengeluaran pertamamu lewat Catat Kilat.")+"</li>";
+    return;
+  }
+  $("riwayat-list").innerHTML=tampil.map(function(t){
+    var ket=t.catatan||t.kategori;
+    return '<li><div class="rk">'+esc(t.kategori)+'<small>'+fmtTglISO(t.tanggal)+' &middot; '+esc(ket)+(t.qris?' <span class="qris-badge">QRIS</span>':'')+'</small></div>'+
+      '<div class="rj"><div>'+(t.qris?'<img class="qris-thumb" src="'+t.qris+'" alt="Bukti QRIS">':'')+rp(t.nominal)+'</div>'+
+      '<button type="button" data-ubah="'+t.id+'">Ubah</button>'+
+      '<button type="button" data-hapus="'+t.id+'">Hapus</button></div></li>';
+  }).join("");
+}
+$("riwayat-list").addEventListener("click",function(e){
+  var ub=e.target.closest("[data-ubah]"), hp=e.target.closest("[data-hapus]");
+  if(ub){mulaiUbah(+ub.getAttribute("data-ubah"));return;}
+  if(hp){hapusTx(+hp.getAttribute("data-hapus"));}
+});
+function mulaiUbah(id){
+  var t=null;state.transaksi.forEach(function(x){if(x.id===id)t=x;});
+  if(!t)return;
+  editingId=id;
+  $("f-jumlah").value=fmtNum(t.nominal);
+  pilihChip(t.kategori);
+  $("f-tanggal").value=t.tanggal;
+  $("f-catatan").value=t.catatan||"";
+  $("f-simpan").textContent="Simpan perubahan";
+  $("f-batal").hidden=false;
+  qrisBaru=t.qris||null;tampilkanQris();
+  $("f-pesan").textContent="Mengubah catatan "+fmtTglISO(t.tanggal)+" — "+rp(t.nominal)+".";
+  $("f-pesan").className="msg";
+  var el=$("catat");if(el)el.scrollIntoView({behavior:"smooth"});
+  $("f-jumlah").focus();
+}
+function hapusTx(id){
+  var idx=-1, item=null;
+  state.transaksi.forEach(function(x,i){if(x.id===id){idx=i;item=x;}});
+  if(idx<0)return;
+  state.transaksi.splice(idx,1);
+  save();
+  if(editingId===id)batalUbah();
+  lastDeleted={item:item,index:idx};
+  render();
+  $("toast-teks").textContent="Catatan "+rp(item.nominal)+" dihapus.";
+  $("toast").hidden=false;
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){$("toast").hidden=true;lastDeleted=null;},5000);
+}
+$("toast-urungkan").addEventListener("click",function(){
+  if(!lastDeleted)return;
+  state.transaksi.splice(Math.min(lastDeleted.index,state.transaksi.length),0,lastDeleted.item);
+  save();lastDeleted=null;
+  $("toast").hidden=true;
+  if(toastTimer)clearTimeout(toastTimer);
+  render();
+});
+
+/* ---------- Catat Kilat ---------- */
+var chipTerpilih="Makan";
+function bangunChips(){
+  $("f-chips").innerHTML=KATEGORI.map(function(k){
+    return '<button type="button" class="chip" data-kat="'+esc(k)+'" aria-pressed="'+(k===chipTerpilih)+'">'+esc(k)+'</button>';
+  }).join("");
+}
+function pilihChip(k){
+  chipTerpilih=k;
+  var btns=$("f-chips").querySelectorAll(".chip");
+  btns.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-kat")===k?"true":"false");});
+}
+$("f-chips").addEventListener("click",function(e){
+  var b=e.target.closest(".chip");if(!b)return;
+  pilihChip(b.getAttribute("data-kat"));
+});
+function renderFormDefault(){
+  if(editingId!==null)return;
+  if(!$("f-tanggal").value)$("f-tanggal").value=iso(hariIni());
+}
+$("f-jumlah").addEventListener("input",function(){var n=num(this.value);this.value=n?fmtNum(n):"";});
+/* ---------- Bukti QRIS ---------- */
+var qrisBaru=null;
+function tampilkanQris(){
+  $("f-qris-preview").hidden=!qrisBaru;
+  if(qrisBaru)$("f-qris-img").src=qrisBaru;
+}
+function prosesBukti(file){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var MAX=800,w=img.width,h=img.height;
+      if(w>MAX||h>MAX){var sc=Math.min(MAX/w,MAX/h);w=Math.round(w*sc);h=Math.round(h*sc);}
+      var cv=document.createElement("canvas");cv.width=w;cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      qrisBaru=cv.toDataURL("image/jpeg",0.78);
+      tampilkanQris();
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+$("f-qris").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  if(f.size>8*1024*1024){$("f-pesan").textContent="Foto terlalu besar (maks 8 MB).";$("f-pesan").className="msg err";this.value="";return;}
+  prosesBukti(f);
+});
+$("f-qris-hapus").addEventListener("click",function(){
+  qrisBaru=null;$("f-qris").value="";tampilkanQris();
+});
+function batalUbah(){
+  qrisBaru=null;tampilkanQris();$("f-qris").value="";
+  editingId=null;
+  $("f-simpan").textContent="Simpan catatan";
+  $("f-batal").hidden=true;
+  $("form-catat").reset();
+  pilihChip("Makan");
+  $("f-tanggal").value=iso(hariIni());
+  $("f-pesan").textContent="";
+}
+$("f-batal").addEventListener("click",batalUbah);
+$("form-catat").addEventListener("submit",function(e){
+  e.preventDefault();
+  var jml=num($("f-jumlah").value);
+  if(!jml||jml<=0){
+    $("f-pesan").textContent="Isi jumlahnya dulu dengan angka lebih dari Rp0.";
+    $("f-pesan").className="msg err";return;
+  }
+  var tgl=$("f-tanggal").value||iso(hariIni());
+  var ket=$("f-catatan").value.trim();
+  if(editingId!==null){
+    state.transaksi.forEach(function(x){
+      if(x.id===editingId){x.nominal=jml;x.kategori=chipTerpilih;x.tanggal=tgl;x.catatan=ket;x.qris=qrisBaru;}
+    });
+    save();
+    var katSimpan=chipTerpilih;
+    batalUbah();
+    $("f-pesan").textContent="Catatan diperbarui: "+rp(jml)+" ("+katSimpan+").";
+    $("f-pesan").className="msg ok";
+  }else{
+    state.transaksi.push({id:state.nextId++,tanggal:tgl,kategori:chipTerpilih,catatan:ket,nominal:jml,qris:qrisBaru});
+    save();
+    $("f-pesan").textContent="Tercatat: "+rp(jml)+" ("+chipTerpilih+").";
+    $("f-pesan").className="msg ok";
+    $("form-catat").reset();
+    qrisBaru=null;tampilkanQris();
+    pilihChip("Makan");
+    $("f-tanggal").value=iso(hariIni());
+  }
+  render();
+});
+
+/* ---------- Atur ---------- */
+function renderAtur(c){
+  $("set-gaji").value=fmtNum(state.gaji);
+  $("set-tgl").value=state.tanggalGajian;
+  /* Tagihan tetap */
+  if(!state.tagihanTetap.length){
+    $("tagihan-list").innerHTML="<p class=\"hint\" style=\"margin:0\">Belum ada tagihan tetap. Tambahkan di bawah bila ada kewajiban rutin seperti kos atau langganan.</p>";
+  }else{
+    $("tagihan-list").innerHTML=state.tagihanTetap.map(function(t){
+      return '<div class="atur-item"><div class="nm">'+esc(t.nama)+'<small>'+rp(t.nominal)+'</small></div>'+
+        '<div class="aksi"><button type="button" data-tag-ubah="'+t.id+'">Ubah</button>'+
+        '<button type="button" data-tag-hapus="'+t.id+'">Hapus</button></div></div>';
+    }).join("");
+  }
+  /* Target tabungan */
+  tabTipe=state.targetTabungan.tipe;
+  $("tab-nominal").setAttribute("aria-pressed",tabTipe==="nominal"?"true":"false");
+  $("tab-persen").setAttribute("aria-pressed",tabTipe==="persen"?"true":"false");
+  $("tab-label").textContent=tabTipe==="persen"?"Target tabungan (% dari gaji)":"Target tabungan (Rp)";
+  if(document.activeElement!==$("tab-nilai"))$("tab-nilai").value=fmtNum(state.targetTabungan.nilai);
+  var pctTab=state.gaji>0?Math.round(c.target/state.gaji*100):0;
+  $("tab-saat-ini").textContent="Saat ini: "+rp(c.target)+(state.gaji>0?" ("+pctTab+"% dari gaji)":"")+".";
+  /* Peringatan + rumus */
+  var total=c.tagihan+c.target;
+  if(total>state.gaji){
+    $("peringatan").hidden=false;
+    $("peringatan").textContent="Tagihan tetap dan target tabungan ("+rp(total)+") melebihi gajimu ("+rp(state.gaji)+"). Uang bebas jadi negatif — periksa lagi angkanya.";
+  }else{
+    $("peringatan").hidden=true;
+    $("peringatan").textContent="";
+  }
+  $("rumus-line").textContent="Gaji "+rp(state.gaji)+" − tagihan tetap "+rp(c.tagihan)+" − target tabungan "+rp(c.target)+" = uang bebas "+rp(c.bebas)+".";
+}
+$("set-simpan").addEventListener("click",function(){
+  var g=num($("set-gaji").value), t=num($("set-tgl").value);
+  if(!g||g<=0){$("set-pesan").textContent="Isi gaji dengan angka lebih dari Rp0.";$("set-pesan").className="msg err";return;}
+  if(t<1||t>31){$("set-pesan").textContent="Tanggal gajian harus 1 sampai 31.";$("set-pesan").className="msg err";return;}
+  state.gaji=g;state.tanggalGajian=t;
+  state.siklusMulai=iso(lastPayday(t,hariIni()));
+  save();render();
+  $("set-pesan").textContent="Tersimpan. Jatah dihitung ulang.";
+  $("set-pesan").className="msg ok";
+});
+$("at-nominal").addEventListener("input",function(){var n=num(this.value);this.value=n?fmtNum(n):"";});
+$("tagihan-list").addEventListener("click",function(e){
+  var ub=e.target.closest("[data-tag-ubah]"), hp=e.target.closest("[data-tag-hapus]");
+  if(ub){
+    var t=null;state.tagihanTetap.forEach(function(x){if(x.id===+ub.getAttribute("data-tag-ubah"))t=x;});
+    if(!t)return;
+    editingTagihanId=t.id;
+    $("at-nama").value=t.nama;$("at-nominal").value=fmtNum(t.nominal);
+    $("at-tambah").textContent="Simpan perubahan";
+    $("at-batal").hidden=false;
+    $("at-nama").focus();
+    return;
+  }
+  if(hp){
+    state.tagihanTetap=state.tagihanTetap.filter(function(x){return x.id!==+hp.getAttribute("data-tag-hapus");});
+    save();render();
+  }
+});
+$("at-tambah").addEventListener("click",function(){
+  var nama=$("at-nama").value.trim(), nominal=num($("at-nominal").value);
+  if(!nama){$("at-pesan").textContent="Isi nama tagihannya dulu.";$("at-pesan").className="msg err";return;}
+  if(!nominal||nominal<=0){$("at-pesan").textContent="Isi nominal tagihan dengan angka lebih dari Rp0.";$("at-pesan").className="msg err";return;}
+  if(editingTagihanId!==null){
+    state.tagihanTetap.forEach(function(x){if(x.id===editingTagihanId){x.nama=nama;x.nominal=nominal;}});
+    editingTagihanId=null;
+    $("at-tambah").textContent="Tambah tagihan";
+    $("at-batal").hidden=true;
+    $("at-pesan").textContent="Tagihan diperbarui.";
+  }else{
+    var nid=1;state.tagihanTetap.forEach(function(x){nid=Math.max(nid,x.id+1);});
+    state.tagihanTetap.push({id:nid,nama:nama,nominal:nominal});
+    $("at-pesan").textContent="Tagihan ditambahkan.";
+  }
+  $("at-pesan").className="msg ok";
+  $("at-nama").value="";$("at-nominal").value="";
+  save();render();
+});
+$("at-batal").addEventListener("click",function(){
+  editingTagihanId=null;
+  $("at-nama").value="";$("at-nominal").value="";
+  $("at-tambah").textContent="Tambah tagihan";
+  $("at-batal").hidden=true;
+  $("at-pesan").textContent="";
+});
+$("tab-nominal").addEventListener("click",function(){
+  tabTipe="nominal";
+  $("tab-nominal").setAttribute("aria-pressed","true");
+  $("tab-persen").setAttribute("aria-pressed","false");
+  $("tab-label").textContent="Target tabungan (Rp)";
+  $("tab-nilai").value=fmtNum(state.targetTabungan.tipe==="nominal"?state.targetTabungan.nilai:0);
+});
+$("tab-persen").addEventListener("click",function(){
+  tabTipe="persen";
+  $("tab-persen").setAttribute("aria-pressed","true");
+  $("tab-nominal").setAttribute("aria-pressed","false");
+  $("tab-label").textContent="Target tabungan (% dari gaji)";
+  $("tab-nilai").value=fmtNum(state.targetTabungan.tipe==="persen"?state.targetTabungan.nilai:0);
+});
+$("tab-simpan").addEventListener("click",function(){
+  var v=num($("tab-nilai").value);
+  if(tabTipe==="persen"&&(v<0||v>100)){$("tab-pesan").textContent="Persentase harus 0 sampai 100.";$("tab-pesan").className="msg err";return;}
+  if(v<0){$("tab-pesan").textContent="Isi target tabungan dengan angka 0 atau lebih.";$("tab-pesan").className="msg err";return;}
+  state.targetTabungan={tipe:tabTipe,nilai:v};
+  save();render();
+  $("tab-pesan").textContent="Target tabungan tersimpan.";
+  $("tab-pesan").className="msg ok";
+});
+
+/* ---------- Siklus / arsip ---------- */
+function renderArsip(c){
+  $("siklus-aktif").textContent="Siklus aktif: "+fmtTglISO(state.siklusMulai)+" – "+fmtTgl(addDays(c.next,-1))+" · Gaji "+rp(state.gaji)+" · Pengeluaran siklus "+rp(c.keluar)+" · Uang bebas "+rp(c.bebas)+".";
+  if(!state.arsip.length){
+    $("arsip-list").innerHTML="<li><span>Belum ada siklus yang selesai.</span></li>";
+    return;
+  }
+  $("arsip-list").innerHTML=state.arsip.map(function(a){
+    return "<li><b>"+fmtTglISO(a.mulai)+" – "+fmtTglISO(a.selesai)+"</b>"+
+      "<span>Gaji "+rp(a.gaji)+" · Pengeluaran "+rp(a.pengeluaran)+" · Uang bebas "+rp(a.uangBebas)+"</span></li>";
+  }).join("");
+}
+
+/* ---------- Reset ---------- */
+$("reset").addEventListener("click",function(){
+  $("reset-pilihan").hidden=!$("reset-pilihan").hidden;
+});
+$("reset-batal").addEventListener("click",function(){$("reset-pilihan").hidden=true;});
+$("reset-kosong").addEventListener("click",function(){
+  try{localStorage.removeItem(KEY);}catch(e){}
+  state=null;filterKat=null;editingId=null;
+  $("reset-pilihan").hidden=true;
+  tampilkanOnboarding();
+});
+$("reset-contoh").addEventListener("click",function(){
+  state=seedState();save();
+  $("reset-pilihan").hidden=true;
+  tampilkanApp();render();
+});
+
+/* ---------- Nav aktif ---------- */
+var navLinks=document.querySelectorAll(".bottomnav a");
+navLinks.forEach(function(a){
+  a.addEventListener("click",function(){
+    navLinks.forEach(function(x){x.classList.remove("on");});
+    a.classList.add("on");
+  });
+});
+
+/* ---------- Mulai ---------- */
+terapkanTema();
+bangunChips();
+(function(){var d=hariIni();$("tanggal").textContent=HARI[d.getDay()]+", "+fmtTgl(d);})();
+load();
+if(!state){
+  tampilkanOnboarding();
+}else{
+  tampilkanApp();
+  render();
+}
+})();
+</script>
+</body>
+</html>
