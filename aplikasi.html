@@ -226,7 +226,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
       <form id="form-buat-akun" novalidate>
         <label for="ba-email">Email</label>
         <input id="ba-email" type="email" autocomplete="username" placeholder="nama@email.com">
-        <label for="ba-pass">Kata sandi (min. 4 karakter)</label>
+        <label for="ba-pass">Kata sandi (min. 6 karakter)</label>
         <div class="auth-pass-wrap">
           <input id="ba-pass" type="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
           <button id="ba-mata" class="auth-eye" type="button" aria-label="Lihat kata sandi"><span class="mata-buka"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="mata-tutup" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span></button>
@@ -236,7 +236,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         <button class="auth-btn-hitam" type="submit">Buat akun &amp; masuk</button>
         <p class="msg" id="ba-pesan" role="status" aria-live="polite"></p>
       </form>
-      <p class="auth-privasi">Pendaftaran akun memakai Supabase Auth &mdash; segera hadir.</p>
+      <p class="auth-privasi">Akunmu disimpan aman di Supabase.</p>
     </div>
     <p class="auth-hapus"><button id="ke-masuk" type="button">Sudah punya akun? Masuk</button></p>
   </section>
@@ -263,10 +263,30 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         <button class="auth-btn-ghost" id="kirim-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> Kirim link masuk ke email</button>
         <p class="msg" id="lg-pesan" role="status" aria-live="polite"></p>
       </form>
-      <p class="auth-privasi">Login memakai Supabase Auth &mdash; segera hadir. Sementara ini, pakai demo di bawah.</p>
+      <p class="auth-privasi">Login aman memakai Supabase Auth.</p>
     </div>
     <p class="auth-hapus"><button id="ke-daftar" type="button">Belum punya akun? Daftar</button></p>
-    <p class="auth-hapus"><button id="masuk-demo" type="button">Lihat demo dulu (tanpa login &mdash; sementara)</button></p>
+  </section>
+
+  <!-- 00c Atur ulang kata sandi (dari tautan reset email) -->
+  <section id="reset-sandi" hidden>
+    <div class="auth-card">
+      <div class="auth-logo" aria-hidden="true">S</div>
+      <h1 class="auth-judul">Buat kata sandi baru</h1>
+      <p class="auth-sub">Masukkan kata sandi barumu untuk akun ini.</p>
+      <form id="form-reset-sandi" novalidate>
+        <label for="rs-pass">Kata sandi baru (min. 6 karakter)</label>
+        <div class="auth-pass-wrap">
+          <input id="rs-pass" type="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+          <button id="rs-mata" class="auth-eye" type="button" aria-label="Lihat kata sandi"><span class="mata-buka"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="mata-tutup" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span></button>
+        </div>
+        <label for="rs-pass2">Ulangi kata sandi baru</label>
+        <input id="rs-pass2" type="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+        <button class="auth-btn-hitam" type="submit">Simpan kata sandi baru</button>
+        <p class="msg" id="rs-pesan" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+    <p class="auth-hapus"><button id="rs-ke-masuk" type="button">Kembali masuk</button></p>
   </section>
 
   <!-- 00 Onboarding -->
@@ -496,6 +516,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 <button id="fab" type="button" aria-label="Catat pengeluaran" hidden>+</button>
 
 <div id="toast" hidden><span id="toast-teks"></span><button type="button" id="toast-urungkan">Urungkan</button></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -647,22 +668,64 @@ $("tema").addEventListener("click",function(){
   terapkanTema();
 });
 
-/* ---------- Auth (Supabase Auth ASLI + GitHub OAuth — DITUNDA) ----------
-   Keputusan ARIEF 25 Nov 2026: login pakai Supabase Auth asli, BUKAN login
-   lokal. Logika auth (supabase.auth.signInWithPassword, signInWithOtp untuk
-   magic link, resetPasswordForEmail, signInWithOAuth provider github) BELUM
-   ditulis — menunggu Project URL + anon key Supabase dari ARIEF.
-   TIDAK ADA lagi kata sandi di localStorage (kunci sisa-pass DIHAPUS).
-   Sementara Supabase disiapkan, tombol "Lihat demo dulu" membuka aplikasi
-   sebagai demo (sessionStorage sisa-demo) supaya dashboard tetap bisa dipakai
-   dan diuji. Hapus jalur demo itu saat Supabase Auth sudah tersambung. */
-function sudahDemo(){
-  try{return sessionStorage.getItem("sisa-demo")==="1";}catch(e){return false;}
+/* ---------- Auth (Supabase Auth ASLI) ----------
+   Proyek "sisa" (uafgngzeneeqqgbkepxv), anon key publik di bawah — BOLEH ada di
+   kode klien (bukan service_role key; JANGAN pernah pakai service_role di sini).
+   Alur: signUp (Confirm email AKTIF -> cek email dulu, belum bisa masuk),
+   signInWithPassword, signInWithOtp (magic link), resetPasswordForEmail,
+   signInWithOAuth provider github. Sesi disimpan Supabase (localStorage sb-*);
+   data aplikasi tetap localStorage, kunci per user id bila login. */
+var SUPABASE_URL="https://uafgngzeneeqqgbkepxv.supabase.co";
+var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhZmduZ3plbmVlcXFnYmtlcHh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODcyNjMsImV4cCI6MjExMTE2MzI2M30.qrWT975_Rvq-4h1u-maGo1G1pHSsaGAG_wyd-t5pJXw";
+var REDIRECT_URL="https://new-we.github.io/sisa/aplikasi.html";
+var sb=null;
+try{ sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null; }catch(e){ sb=null; }
+/* Tautan reset sandi terdeteksi SINKRON dari hash URL saat skrip jalan — klien
+   Supabase membersihkan hash itu sendiri setelah memprosesnya (async), jadi
+   pengecekan hash BELAKANGAN (setelah await) bisa kehilangan jejaknya. */
+var pemulihanSandi=false;
+try{pemulihanSandi=new URLSearchParams(location.hash.slice(1)).get("type")==="recovery";}catch(e){}
+function emailValid(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+function pesanAuth(err){
+  if(!err)return "";
+  var m=String((err&&err.message)||err);
+  if(/Invalid login credentials/i.test(m))return "Email atau kata sandi salah. Coba lagi.";
+  if(/Email not confirmed/i.test(m))return "Email belum dikonfirmasi. Cek kotak masukmu untuk tautan konfirmasi.";
+  if(/User already registered/i.test(m))return "Email ini sudah terdaftar. Coba masuk, atau atur ulang kata sandimu.";
+  if(/Password should be at least/i.test(m))return "Kata sandi minimal 6 karakter.";
+  if(/valid email|invalid format/i.test(m))return "Isi email yang benar, contoh: nama@email.com.";
+  if(/rate limit/i.test(m))return "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.";
+  if(/Failed to fetch|NetworkError|network|Load failed|fetch failed/i.test(m))return "Tidak dapat terhubung ke layanan login. Periksa koneksi internetmu.";
+  return m;
 }
-function tandaiDemo(){try{sessionStorage.setItem("sisa-demo","1");}catch(e){}}
-function tampilkanBuatAkun(){
-  $("buat-akun").hidden=false;
+function authGagalMuat(el){
+  el.textContent="Layanan login tidak dapat dimuat. Periksa koneksi internet, lalu muat ulang halaman.";
+  el.className="msg err";
+}
+/* Kunci data per user id bila login; tanpa login pakai kunci biasa. */
+function aturKunciData(uid){ KEY=uid?("sisa-app-v2:"+uid):"sisa-app-v2"; }
+function bersihkanHashAuth(){
+  try{
+    if(location.hash&&/access_token|type=recovery|type=signup|type=magiclink|type=invite|type=email_change/.test(location.hash)){
+      history.replaceState(null,"",location.pathname+location.search);
+    }
+  }catch(e){}
+}
+async function masukDenganSesi(session){
+  if(!session){tampilkanLogin();return;}
+  aturKunciData(session.user&&session.user.id);
+  bersihkanHashAuth();
+  load();
+  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
+}
+function sembunyikanAkun(){
+  $("buat-akun").hidden=true;
   $("login").hidden=true;
+  $("reset-sandi").hidden=true;
+}
+function tampilkanBuatAkun(){
+  sembunyikanAkun();
+  $("buat-akun").hidden=false;
   $("onboarding").hidden=true;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
@@ -673,7 +736,7 @@ function tampilkanBuatAkun(){
   $("ba-pesan").className="msg";
 }
 function tampilkanLogin(){
-  $("buat-akun").hidden=true;
+  sembunyikanAkun();
   $("login").hidden=false;
   $("onboarding").hidden=true;
   $("app").hidden=true;
@@ -688,36 +751,94 @@ function tampilkanLogin(){
   var mb=document.querySelector("#lg-mata .mata-buka"), mt=document.querySelector("#lg-mata .mata-tutup");
   if(mb)mb.hidden=false;if(mt)mt.hidden=true;
 }
-function masukDemo(){
-  tandaiDemo();
-  load();
-  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
+function tampilkanResetSandi(){
+  sembunyikanAkun();
+  $("reset-sandi").hidden=false;
+  $("onboarding").hidden=true;
+  $("app").hidden=true;
+  $("banner-gaji").hidden=true;
+  $("fab").hidden=true;
+  $("keluar").hidden=true;
+  $("bottomnav").hidden=true;
+  $("rs-pesan").textContent="";
+  $("rs-pesan").className="msg";
+  $("rs-pass").value="";$("rs-pass2").value="";
 }
-/* Pesan jujur: auth Supabase sedang disiapkan — tombol belum bisa dipakai. */
-var PESAN_AUTH="Login Supabase sedang disiapkan — segera hadir.";
-$("form-buat-akun").addEventListener("submit",function(e){
+/* Daftar: Confirm email AKTIF -> belum ada sesi; tampilkan pesan cek email. */
+$("form-buat-akun").addEventListener("submit",async function(e){
   e.preventDefault();
-  $("ba-pesan").textContent="Pendaftaran Supabase sedang disiapkan — segera hadir.";
-  $("ba-pesan").className="msg";
+  var email=$("ba-email").value.trim();
+  var p1=$("ba-pass").value, p2=$("ba-pass2").value;
+  if(!emailValid(email)){$("ba-pesan").textContent="Isi email yang benar, contoh: nama@email.com.";$("ba-pesan").className="msg err";return;}
+  if(p1.length<6){$("ba-pesan").textContent="Kata sandi minimal 6 karakter.";$("ba-pesan").className="msg err";return;}
+  if(p1!==p2){$("ba-pesan").textContent="Ulangi kata sandi belum sama dengan kata sandi.";$("ba-pesan").className="msg err";return;}
+  if(!sb){authGagalMuat($("ba-pesan"));return;}
+  $("ba-pesan").textContent="Mendaftarkan…";$("ba-pesan").className="msg";
+  var r=await sb.auth.signUp({email:email.toLowerCase(),password:p1});
+  if(r.error){$("ba-pesan").textContent=pesanAuth(r.error);$("ba-pesan").className="msg err";return;}
+  if(r.data&&r.data.session){await masukDenganSesi(r.data.session);return;}
+  $("ba-pesan").textContent="Akun dibuat. Cek email "+email+" untuk konfirmasi, lalu masuk.";
+  $("ba-pesan").className="msg ok";
 });
-$("form-login").addEventListener("submit",function(e){
+/* Masuk dengan email + kata sandi. */
+$("form-login").addEventListener("submit",async function(e){
   e.preventDefault();
-  $("lg-pesan").textContent=PESAN_AUTH;
-  $("lg-pesan").className="msg";
+  var email=$("lg-email").value.trim();
+  var pass=$("lg-pass").value;
+  if(!emailValid(email)){$("lg-pesan").textContent="Isi email yang benar, contoh: nama@email.com.";$("lg-pesan").className="msg err";return;}
+  if(!pass){$("lg-pesan").textContent="Isi kata sandimu.";$("lg-pesan").className="msg err";return;}
+  if(!sb){authGagalMuat($("lg-pesan"));return;}
+  $("lg-pesan").textContent="Memeriksa…";$("lg-pesan").className="msg";
+  var r=await sb.auth.signInWithPassword({email:email.toLowerCase(),password:pass});
+  if(r.error){$("lg-pesan").textContent=pesanAuth(r.error);$("lg-pesan").className="msg err";return;}
+  await masukDenganSesi(r.data.session);
 });
-$("github-login").addEventListener("click",function(){
-  $("lg-pesan").textContent="Masuk dengan GitHub butuh Supabase Auth — segera hadir.";
-  $("lg-pesan").className="msg";
+/* Masuk dengan GitHub (OAuth). */
+$("github-login").addEventListener("click",async function(){
+  if(!sb){authGagalMuat($("lg-pesan"));return;}
+  $("lg-pesan").textContent="Membuka GitHub…";$("lg-pesan").className="msg";
+  var r=await sb.auth.signInWithOAuth({provider:"github",options:{redirectTo:REDIRECT_URL}});
+  if(r.error){$("lg-pesan").textContent=pesanAuth(r.error);$("lg-pesan").className="msg err";return;}
+  if(r.data&&r.data.url){window.location.assign(r.data.url);}
 });
-$("lupa-pass").addEventListener("click",function(){
-  $("lg-pesan").textContent="Reset kata sandi butuh login email asli — segera hadir.";
-  $("lg-pesan").className="msg";
+/* Lupa kata sandi: kirim tautan reset ke email (redirect ke aplikasi.html). */
+$("lupa-pass").addEventListener("click",async function(){
+  var email=$("lg-email").value.trim();
+  if(!emailValid(email)){$("lg-pesan").textContent="Isi emailmu dulu di atas, lalu ketuk Lupa kata sandi?.";$("lg-pesan").className="msg err";return;}
+  if(!sb){authGagalMuat($("lg-pesan"));return;}
+  $("lg-pesan").textContent="Mengirim tautan reset…";$("lg-pesan").className="msg";
+  var r=await sb.auth.resetPasswordForEmail(email.toLowerCase(),{redirectTo:REDIRECT_URL});
+  if(r.error){$("lg-pesan").textContent=pesanAuth(r.error);$("lg-pesan").className="msg err";return;}
+  $("lg-pesan").textContent="Tautan reset kata sandi sudah dikirim ke "+email+". Buka emailmu dan ikuti tautannya.";
+  $("lg-pesan").className="msg ok";
 });
-$("kirim-link").addEventListener("click",function(){
-  $("lg-pesan").textContent="Fitur ini butuh login email asli — segera hadir.";
-  $("lg-pesan").className="msg";
+/* Kirim link masuk ke email (magic link). */
+$("kirim-link").addEventListener("click",async function(){
+  var email=$("lg-email").value.trim();
+  if(!emailValid(email)){$("lg-pesan").textContent="Isi emailmu dulu di atas, lalu ketuk tombol ini.";$("lg-pesan").className="msg err";return;}
+  if(!sb){authGagalMuat($("lg-pesan"));return;}
+  $("lg-pesan").textContent="Mengirim link…";$("lg-pesan").className="msg";
+  var r=await sb.auth.signInWithOtp({email:email.toLowerCase(),options:{emailRedirectTo:REDIRECT_URL}});
+  if(r.error){$("lg-pesan").textContent=pesanAuth(r.error);$("lg-pesan").className="msg err";return;}
+  $("lg-pesan").textContent="Link masuk sudah dikirim ke "+email+". Buka emailmu dan ketuk tautannya.";
+  $("lg-pesan").className="msg ok";
 });
-$("masuk-demo").addEventListener("click",masukDemo);
+/* Simpan kata sandi baru (dari tautan reset email). */
+$("form-reset-sandi").addEventListener("submit",async function(e){
+  e.preventDefault();
+  var p1=$("rs-pass").value, p2=$("rs-pass2").value;
+  if(p1.length<6){$("rs-pesan").textContent="Kata sandi minimal 6 karakter.";$("rs-pesan").className="msg err";return;}
+  if(p1!==p2){$("rs-pesan").textContent="Ulangi kata sandi baru belum sama dengan kata sandi baru.";$("rs-pesan").className="msg err";return;}
+  if(!sb){authGagalMuat($("rs-pesan"));return;}
+  $("rs-pesan").textContent="Menyimpan…";$("rs-pesan").className="msg";
+  var r=await sb.auth.updateUser({password:p1});
+  if(r.error){$("rs-pesan").textContent=pesanAuth(r.error);$("rs-pesan").className="msg err";return;}
+  $("rs-pesan").textContent="Kata sandi baru tersimpan.";
+  $("rs-pesan").className="msg ok";
+  pemulihanSandi=false;
+  try{var s2=await sb.auth.getSession();await masukDenganSesi(s2&&s2.data?s2.data.session:null);}catch(e){tampilkanLogin();}
+});
+$("rs-ke-masuk").addEventListener("click",function(){pemulihanSandi=false;tampilkanLogin();});
 $("ke-daftar").addEventListener("click",tampilkanBuatAkun);
 $("ke-masuk").addEventListener("click",tampilkanLogin);
 /* Ikon mata: lihat / sembunyikan kata sandi. */
@@ -736,15 +857,16 @@ function pasangMata(btnId,inputId){
 }
 pasangMata("lg-mata","lg-pass");
 pasangMata("ba-mata","ba-pass");
-$("keluar").addEventListener("click",function(){
-  try{sessionStorage.removeItem("sisa-demo");}catch(e){}
+pasangMata("rs-mata","rs-pass");
+$("keluar").addEventListener("click",async function(){
+  try{ if(sb) await sb.auth.signOut(); }catch(e){}
+  aturKunciData(null);
   tampilkanLogin();
 });
 
 /* ---------- Onboarding ---------- */
 function tampilkanOnboarding(){
-  $("buat-akun").hidden=true;
-  $("login").hidden=true;
+  sembunyikanAkun();
   $("onboarding").hidden=false;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
@@ -753,8 +875,7 @@ function tampilkanOnboarding(){
   $("bottomnav").hidden=false;
 }
 function tampilkanApp(){
-  $("buat-akun").hidden=true;
-  $("login").hidden=true;
+  sembunyikanAkun();
   $("onboarding").hidden=true;
   $("app").hidden=false;
   $("fab").hidden=false;
@@ -1339,14 +1460,34 @@ navLinks.forEach(function(a){
 terapkanTema();
 bangunChips();
 (function(){var d=hariIni();$("tanggal").textContent=HARI[d.getDay()]+", "+fmtTgl(d);})();
-/* Bersihkan sisa kunci login lokal lama bila pernah ada (prototipe belum rilis). */
-try{localStorage.removeItem("sisa-pass");sessionStorage.removeItem("sisa-login");}catch(e){}
-load();
-if(sudahDemo()){
-  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
-}else{
-  tampilkanLogin();
+/* Bersihkan sisa kunci login lokal/demo lama bila pernah ada (prototipe belum rilis). */
+try{localStorage.removeItem("sisa-pass");sessionStorage.removeItem("sisa-login");sessionStorage.removeItem("sisa-demo");}catch(e){}
+async function initAuth(){
+  if(!sb){tampilkanLogin();authGagalMuat($("lg-pesan"));return;}
+  var session=null;
+  try{
+    sb.auth.onAuthStateChange(function(event,sess){
+      if(event==="PASSWORD_RECOVERY"){pemulihanSandi=true;tampilkanResetSandi();return;}
+      if((event==="SIGNED_IN"||event==="INITIAL_SESSION")&&sess){
+        if(pemulihanSandi)return;
+        if(!$("app").hidden||!$("onboarding").hidden)return;
+        masukDenganSesi(sess);
+      }
+    });
+  }catch(e){}
+  try{var r=await sb.auth.getSession();session=r&&r.data?r.data.session:null;}catch(e){session=null;}
+  var isRecovery=pemulihanSandi;
+  if(session){
+    if(isRecovery){aturKunciData(session.user&&session.user.id);bersihkanHashAuth();tampilkanResetSandi();return;}
+    await masukDenganSesi(session);
+  }else if(isRecovery){
+    tampilkanResetSandi();
+  }else{
+    aturKunciData(null);
+    tampilkanLogin();
+  }
 }
+initAuth();
 })();
 </script>
 </body>
