@@ -651,8 +651,27 @@ var lastDeleted=null;
 function load(){
   try{state=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){state=null;}
   if(state&&typeof state.gaji!=="number")state=null;
+  capLokalTerakhir=state?capState(state):null;
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+/* Simpan lokal + jadwalkan sinkron ke server (debounce ~1 detik).
+   updated_at hanya naik bila ISI state berubah (dibandingkan tanpa
+   updated_at) — render() memanggil save() tiap kali, tapi tanpa perubahan
+   tidak ada tulis ulang maupun unggah. Gagal sinkron tidak pernah merusak
+   data lokal. */
+function save(){
+  if(!state){try{localStorage.setItem(KEY,"null");}catch(e){}capLokalTerakhir=null;return;}
+  var cap=capState(state);
+  if(cap===capLokalTerakhir)return;
+  state.updated_at=new Date().toISOString();
+  simpanLokal();
+  if(sinkronSiap)jadwalkanSinkron();
+}
+/* Tulis localStorage saja — dipakai saat menerapkan data server (tanpa
+   mengubah updated_at dan tanpa menjadwalkan unggah). */
+function simpanLokal(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+  capLokalTerakhir=capState(state);
+}
 
 /* ---------- Tema ---------- */
 /* Gelap fokus (gaya situs edukasi): gelap jadi bawaan bila belum pernah dipilih. */
@@ -679,12 +698,117 @@ $("tema").addEventListener("click",function(){
    signInWithPassword, signInWithOtp (magic link), resetPasswordForEmail,
    signInWithOAuth provider google (masuk + daftar — akun Google baru otomatis
    terdaftar). Sesi disimpan Supabase (localStorage sb-*);
-   data aplikasi tetap localStorage, kunci per user id bila login. */
+   data aplikasi di localStorage (kunci per user id bila login) + disinkronkan
+   ke tabel user_data di Supabase — offline-first, lihat blok Sinkron. */
 var SUPABASE_URL="https://uafgngzeneeqqgbkepxv.supabase.co";
 var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhZmduZ3plbmVlcXFnYmtlcHh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1ODcyNjMsImV4cCI6MjExMTE2MzI2M30.qrWT975_Rvq-4h1u-maGo1G1pHSsaGAG_wyd-t5pJXw";
 var REDIRECT_URL="https://new-we.github.io/sisa/aplikasi.html";
 var sb=null;
 try{ sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null; }catch(e){ sb=null; }
+/* ---------- Sinkron data ke Supabase (offline-first) ----------
+   Tabel: public.user_data(user_id uuid PK, data jsonb, updated_at timestamptz).
+   RLS: user hanya bisa mengakses barisnya sendiri (auth.uid() = user_id).
+   localStorage tetap cache utama — aplikasi jalan penuh tanpa internet dan
+   gagal sinkron tidak pernah merusak data lokal. Hanya anon key (publik)
+   yang dipakai; TIDAK ADA service_role key di sini.
+   Aturan menang: updated_at (ISO, dibandingkan sebagai angka waktu) yang
+   lebih baru menang; updated_at lokal hanya naik bila isi state berubah.
+   Rekonsiliasi awal DITUNGGU (dibatasi 5 detik) sebelum aplikasi tampil,
+   supaya data perangkat lain tidak tertimpa data lokal yang lebih lama.
+   Semua query memakai .retry(false): postgrest-js mengulang request gagal
+   sampai 3x dengan backoff (bawaan aktif) — aplikasi sudah punya strategi
+   ulangnya sendiri (tanda dirty + coba lagi saat simpan/online/buka), jadi
+   ulangan pustaka hanya menunda deteksi gagal sampai berdetik-detik. */
+var userIdAktif=null;
+var sinkronSiap=false;
+var sinkronTimer=null;
+var capLokalTerakhir=null;
+var capTerkirim=null;
+var SYNC_DIRTY_KEY=null;
+var SYNC_HAPUS_KEY=null;
+var SYNC_DEBOUNCE_MS=1000;
+var SYNC_TIMEOUT_MS=5000;
+function capState(st){try{return JSON.stringify(st,function(k,v){return k==="updated_at"?undefined:v;});}catch(e){return null;}}
+function waktuStempel(s){var t=Date.parse(s||"");return isNaN(t)?0:t;}
+function tandaiDirty(v){
+  if(!SYNC_DIRTY_KEY)return;
+  try{if(v)localStorage.setItem(SYNC_DIRTY_KEY,"1");else localStorage.removeItem(SYNC_DIRTY_KEY);}catch(e){}
+}
+function sinkronDirtyAda(){if(!SYNC_DIRTY_KEY)return false;try{return localStorage.getItem(SYNC_DIRTY_KEY)==="1";}catch(e){return false;}}
+async function ambilServer(){
+  if(!sb||!userIdAktif)return null;
+  try{
+    var r=await sb.from("user_data").select("data,updated_at").eq("user_id",userIdAktif).maybeSingle().retry(false);
+    if(r.error)throw r.error;
+    if(r.data&&r.data.data&&typeof r.data.data.gaji==="number")return r.data;
+    return null;
+  }catch(e){try{console.warn("[sinkron] ambil server gagal:",e&&e.message?e.message:e);}catch(e2){}return null;}
+}
+function terapkanServer(row){
+  if(!row||!row.data||typeof row.data.gaji!=="number")return false;
+  state=row.data;
+  if(row.updated_at)state.updated_at=row.updated_at;
+  simpanLokal();
+  capTerkirim=capLokalTerakhir;
+  tandaiDirty(false);
+  return true;
+}
+async function hapusServer(){
+  if(!sb||!userIdAktif)return false;
+  try{
+    var r=await sb.from("user_data").delete().eq("user_id",userIdAktif).retry(false);
+    if(r.error)throw r.error;
+    try{if(SYNC_HAPUS_KEY)localStorage.removeItem(SYNC_HAPUS_KEY);}catch(e){}
+    return true;
+  }catch(e){return false;}
+}
+async function kirimSekarang(){
+  if(!sb||!userIdAktif||!state)return false;
+  if(!state.updated_at){state.updated_at=new Date().toISOString();simpanLokal();}
+  var cap=capState(state);
+  try{
+    var srv=await ambilServer();
+    if(srv&&srv.updated_at&&waktuStempel(srv.updated_at)>waktuStempel(state.updated_at)){
+      /* Server lebih baru (diubah perangkat lain) — pakai server, jangan timpa. */
+      if(terapkanServer(srv)){tampilkanApp();render();}
+      return false;
+    }
+    var r=await sb.from("user_data").upsert({user_id:userIdAktif,data:state,updated_at:state.updated_at},{onConflict:"user_id"}).retry(false);
+    if(r.error)throw r.error;
+    capTerkirim=cap;tandaiDirty(false);return true;
+  }catch(e){tandaiDirty(true);return false;}
+}
+function jadwalkanSinkron(){
+  if(sinkronTimer)clearTimeout(sinkronTimer);
+  sinkronTimer=setTimeout(function(){sinkronTimer=null;kirimSinkron();},SYNC_DEBOUNCE_MS);
+}
+async function kirimSinkron(){
+  if(!sb||!userIdAktif||!state||!sinkronSiap)return;
+  if(capLokalTerakhir===capTerkirim){tandaiDirty(false);return;}
+  await kirimSekarang();
+}
+async function sinkronAwal(){
+  if(!sb||!userIdAktif){sinkronSiap=true;return;}
+  try{
+    var row=await ambilServer();
+    if(row){
+      var lokalBaru=state&&state.updated_at&&waktuStempel(state.updated_at)>waktuStempel(row.updated_at);
+      if(!state){ if(terapkanServer(row)){tampilkanApp();render();} }
+      else if(!lokalBaru){ if(terapkanServer(row)){tampilkanApp();render();} }
+      else{ await kirimSekarang(); }
+    }else if(state){
+      await kirimSekarang();
+    }
+  }catch(e){ if(state)tandaiDirty(true); }
+  sinkronSiap=true;
+  if(state&&capLokalTerakhir!==capTerkirim)jadwalkanSinkron();
+}
+if(typeof window!=="undefined"&&window.addEventListener){
+  window.addEventListener("online",function(){if(sinkronSiap&&state&&capLokalTerakhir!==capTerkirim)jadwalkanSinkron();});
+  document.addEventListener("visibilitychange",function(){
+    if(!document.hidden&&sinkronSiap&&userIdAktif&&state)sinkronAwal();
+  });
+}
 /* Tautan reset sandi terdeteksi SINKRON dari hash URL saat skrip jalan — klien
    Supabase membersihkan hash itu sendiri setelah memprosesnya (async), jadi
    pengecekan hash BELAKANGAN (setelah await) bisa kehilangan jejaknya. */
@@ -708,7 +832,7 @@ function authGagalMuat(el){
   el.className="msg err";
 }
 /* Kunci data per user id bila login; tanpa login pakai kunci biasa. */
-function aturKunciData(uid){ KEY=uid?("sisa-app-v2:"+uid):"sisa-app-v2"; }
+function aturKunciData(uid){ KEY=uid?("sisa-app-v2:"+uid):"sisa-app-v2"; SYNC_DIRTY_KEY=uid?("sisa-sync-dirty:"+uid):null; SYNC_HAPUS_KEY=uid?("sisa-sync-hapus:"+uid):null; }
 function bersihkanHashAuth(){
   try{
     if(location.hash&&/access_token|type=recovery|type=signup|type=magiclink|type=invite|type=email_change/.test(location.hash)){
@@ -716,12 +840,39 @@ function bersihkanHashAuth(){
     }
   }catch(e){}
 }
+var sesiMasukBerjalan=false;
 async function masukDenganSesi(session){
   if(!session){tampilkanLogin();return;}
-  aturKunciData(session.user&&session.user.id);
-  bersihkanHashAuth();
-  load();
-  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
+  if(sesiMasukBerjalan)return;
+  sesiMasukBerjalan=true;
+  try{
+    var uid=session.user&&session.user.id;
+    aturKunciData(uid);
+    userIdAktif=uid||null;
+    sinkronSiap=false;capTerkirim=null;
+    bersihkanHashAuth();
+    load();
+    if(state){
+      /* Rekonsiliasi dulu (dibatasi 5 detik) sebelum tampil — data lokal
+         yang lebih lama tidak boleh menimpa data server yang lebih baru. */
+      await Promise.race([sinkronAwal(),new Promise(function(res){setTimeout(function(){res(null);},SYNC_TIMEOUT_MS);})]);
+      tampilkanApp();render();
+    }else{
+      /* Belum ada data lokal: coba server dulu (dibatasi 5 detik) supaya
+         pengguna yang sudah punya data di perangkat lain tidak dilempar ke
+         onboarding. Bila penghapusan tertunda, jangan pulihkan data lama. */
+      var row=null, hapusTertunda=false;
+      try{hapusTertunda=SYNC_HAPUS_KEY&&!!localStorage.getItem(SYNC_HAPUS_KEY);}catch(e){}
+      if(hapusTertunda){
+        await hapusServer();
+      }else{
+        try{row=await Promise.race([ambilServer(),new Promise(function(res){setTimeout(function(){res(null);},SYNC_TIMEOUT_MS);})]);}catch(e){row=null;}
+      }
+      if(row&&terapkanServer(row)){tampilkanApp();render();}
+      else tampilkanOnboarding();
+      sinkronSiap=true;
+    }
+  }finally{sesiMasukBerjalan=false;}
 }
 function sembunyikanAkun(){
   $("buat-akun").hidden=true;
@@ -867,7 +1018,12 @@ pasangMata("lg-mata","lg-pass");
 pasangMata("ba-mata","ba-pass");
 pasangMata("rs-mata","rs-pass");
 $("keluar").addEventListener("click",async function(){
+  /* Usahakan kirim perubahan yang belum tersinkron dulu (dibatasi 5 detik),
+     supaya perangkat lain langsung melihat data terbaru. */
+  try{await Promise.race([kirimSinkron(),new Promise(function(res){setTimeout(function(){res(false);},SYNC_TIMEOUT_MS);})]);}catch(e){}
   try{ if(sb) await sb.auth.signOut(); }catch(e){}
+  if(sinkronTimer){clearTimeout(sinkronTimer);sinkronTimer=null;}
+  userIdAktif=null;sinkronSiap=false;
   aturKunciData(null);
   tampilkanLogin();
 });
@@ -1449,6 +1605,14 @@ $("reset").addEventListener("click",function(){
 $("reset-batal").addEventListener("click",function(){$("reset-pilihan").hidden=true;});
 $("reset-kosong").addEventListener("click",function(){
   try{localStorage.removeItem(KEY);}catch(e){}
+  /* Hapus juga baris server (bila offline, tandai agar dihapus saat online —
+     data yang sudah dihapus tidak boleh pulih kembali dari server). */
+  if(userIdAktif){
+    try{if(SYNC_HAPUS_KEY)localStorage.setItem(SYNC_HAPUS_KEY,"1");}catch(e){}
+    hapusServer();
+  }
+  tandaiDirty(false);capLokalTerakhir=null;capTerkirim=null;
+  if(sinkronTimer){clearTimeout(sinkronTimer);sinkronTimer=null;}
   state=null;filterKat=null;editingId=null;
   $("reset-pilihan").hidden=true;
   tampilkanOnboarding();
