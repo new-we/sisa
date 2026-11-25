@@ -37,7 +37,7 @@ h3{font-size:1rem;font-weight:700}
 p{margin:0 0 1em}
 a{color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.phone{max-width:480px;margin:0 auto;padding:0 16px}
+.phone{max-width:440px;margin:0 auto;padding:0 16px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0 4px}
 .topbar a{color:var(--muted);text-decoration:none;font-weight:700}
 .topbar button{background:none;border:1.5px solid var(--line);border-radius:6px;color:var(--muted);font:600 .85rem var(--sans);padding:7px 10px;cursor:pointer}
@@ -145,11 +145,52 @@ footer a{color:var(--muted)}
 footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;font:inherit}
 .reset-pilihan{margin-top:12px}
 .bottomnav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10}
-.bottomnav .nav-in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px))}
+.bottomnav .nav-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px))}
 .bottomnav a{text-align:center;text-decoration:none;color:var(--muted);font-size:.85rem;font-weight:700;padding:6px 0}
 .bottomnav a.on{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:20;background:var(--btn);color:var(--btn-text);border-radius:6px;padding:12px 16px;font-size:.95rem;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px)}
 #toast button{background:none;border:0;color:var(--btn-text);font-weight:800;cursor:pointer;text-decoration:underline;padding:0}
+.topbar-aksi{display:flex;gap:8px}
+/* Kartu login (referensi client: kartu putih membulat, logo kotak hitam) */
+.auth-card{background:#FFFFFF;color:#14213D;border-radius:20px;padding:26px 22px;margin:26px 0 10px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.auth-logo{width:46px;height:46px;border-radius:12px;background:#111111;color:#FFFFFF;font-size:1.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.auth-judul{font-size:1.45rem;font-weight:800;color:#111111;margin-bottom:4px}
+.auth-sub{color:#6B7280;font-size:.95rem;margin:0 0 20px}
+.auth-card label{display:block;font-weight:700;color:#111111;margin:0 0 6px;font-size:.95rem}
+.auth-card input{width:100%;font:inherit;color:#111111;background:#F7F7F5;border:1.5px solid #D8DCE3;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.auth-card input:focus{border-color:#111111;outline:none}
+.auth-label-row{display:flex;justify-content:space-between;align-items:baseline}
+.auth-label-row button{background:none;border:0;color:#111111;cursor:pointer;font-size:.88rem;font-weight:600;text-decoration:underline;padding:0}
+.auth-pass-wrap{position:relative}
+.auth-pass-wrap input{padding-right:44px}
+.auth-eye{position:absolute;right:6px;top:7px;background:none;border:0;cursor:pointer;padding:8px;color:#6B7280;line-height:0}
+.auth-eye svg{width:20px;height:20px}
+.auth-btn-hitam{display:block;width:100%;background:#111111;color:#FFFFFF;font-size:1rem;font-weight:700;border:0;border-radius:12px;padding:14px;cursor:pointer;margin:4px 0 10px}
+.auth-btn-ghost{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;background:#FFFFFF;color:#111111;font-size:.95rem;font-weight:700;border:1.5px solid #D8DCE3;border-radius:12px;padding:13px;cursor:pointer}
+.auth-btn-ghost svg{width:18px;height:18px}
+.auth-card .msg{margin:12px 0 0}
+.auth-privasi{color:#6B7280;font-size:.88rem;margin:14px 0 0}
+.auth-hapus{text-align:center;margin:6px 0 0}
+.auth-hapus button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;font:inherit;padding:0}
+/* Sekilas hari ini (model Budggt) */
+.judul-sekilas{margin-bottom:12px}
+.terpakai{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.terpakai p{margin:6px 0 0;font-size:.92rem;color:var(--muted)}
+.terakhir{margin:12px 0 0;font-size:.92rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+/* Tombol + catat cepat (model Budggt) */
+#fab{position:fixed;right:16px;bottom:88px;z-index:15;width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:#14213D;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#fab:active{transform:scale(.96)}
+/* Budget Kategori (model Budggt) */
+.budget-row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer;color:var(--ink);font-size:.97rem}
+.budget-row:last-child{border-bottom:0}
+.budget-top{display:flex;justify-content:space-between;gap:10px}
+.budget-top i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
+.budget-bar{display:block;height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
+.budget-bar i{display:block;height:100%;background:var(--accent)}
+.budget-row.over .budget-bar i{background:var(--bad)}
+.budget-sub{font-size:.88rem;color:var(--muted)}
+.budget-badge{display:inline-block;font:600 .72rem var(--mono);letter-spacing:.06em;background:var(--accent-soft);border:1px solid var(--bad);color:var(--bad);border-radius:4px;padding:1px 6px;margin-left:6px}
+.budget-over{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:6px;padding:12px 14px;font-weight:600;margin-bottom:12px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -158,7 +199,10 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 <div class="phone">
   <header class="topbar">
     <a href="index.html">&larr; Sisa</a>
-    <button id="tema" type="button">Mode gelap</button>
+    <span class="topbar-aksi">
+      <button id="keluar" type="button" hidden>Keluar</button>
+      <button id="tema" type="button">Mode gelap</button>
+    </span>
   </header>
   <p class="dateline" id="tanggal"></p>
 
@@ -172,6 +216,58 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
       <button class="btn-ghost" id="banner-ubah" type="button">Ubah gaji</button>
     </div>
   </div>
+
+  <!-- 00a Buat akun (kunjungan pertama) -->
+  <section id="buat-akun" hidden>
+    <div class="auth-card">
+      <div class="auth-logo" aria-hidden="true">S</div>
+      <h1 class="auth-judul">Buat akun</h1>
+      <p class="auth-sub">Satu kata sandi untuk melindungi catatanmu di perangkat ini.</p>
+      <form id="form-buat-akun" novalidate>
+        <label for="ba-email">Email</label>
+        <input id="ba-email" type="email" autocomplete="username" placeholder="nama@email.com">
+        <label for="ba-pass">Kata sandi (min. 4 karakter)</label>
+        <div class="auth-pass-wrap">
+          <input id="ba-pass" type="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+          <button id="ba-mata" class="auth-eye" type="button" aria-label="Lihat kata sandi"><span class="mata-buka"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="mata-tutup" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span></button>
+        </div>
+        <label for="ba-pass2">Ulangi kata sandi</label>
+        <input id="ba-pass2" type="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+        <button class="auth-btn-hitam" type="submit">Buat akun &amp; masuk</button>
+        <p class="msg" id="ba-pesan" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-privasi">Pendaftaran akun memakai Supabase Auth &mdash; segera hadir.</p>
+    </div>
+    <p class="auth-hapus"><button id="ke-masuk" type="button">Sudah punya akun? Masuk</button></p>
+  </section>
+
+  <!-- 00b Login -->
+  <section id="login" hidden>
+    <div class="auth-card">
+      <div class="auth-logo" aria-hidden="true">S</div>
+      <h1 class="auth-judul">Selamat datang lagi</h1>
+      <p class="auth-sub">Masuk untuk melanjutkan ke Sisa.</p>
+      <form id="form-login" novalidate>
+        <label for="lg-email">Email</label>
+        <input id="lg-email" type="email" autocomplete="username" placeholder="nama@email.com">
+        <div class="auth-label-row">
+          <label for="lg-pass">Kata sandi</label>
+          <button id="lupa-pass" type="button">Lupa kata sandi?</button>
+        </div>
+        <div class="auth-pass-wrap">
+          <input id="lg-pass" type="password" autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+          <button id="lg-mata" class="auth-eye" type="button" aria-label="Lihat kata sandi"><span class="mata-buka"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span><span class="mata-tutup" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span></button>
+        </div>
+        <button class="auth-btn-hitam" type="submit">Masuk</button>
+        <button class="auth-btn-ghost" id="github-login" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> Masuk dengan GitHub</button>
+        <button class="auth-btn-ghost" id="kirim-link" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> Kirim link masuk ke email</button>
+        <p class="msg" id="lg-pesan" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-privasi">Login memakai Supabase Auth &mdash; segera hadir. Sementara ini, pakai demo di bawah.</p>
+    </div>
+    <p class="auth-hapus"><button id="ke-daftar" type="button">Belum punya akun? Daftar</button></p>
+    <p class="auth-hapus"><button id="masuk-demo" type="button">Lihat demo dulu (tanpa login &mdash; sementara)</button></p>
+  </section>
 
   <!-- 00 Onboarding -->
   <section id="onboarding" hidden>
@@ -198,6 +294,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
     <!-- 01 Beranda -->
     <section id="beranda">
       <p class="kicker"><b>01</b> &middot; Beranda</p>
+      <h2 class="judul-sekilas">Sekilas hari ini</h2>
       <div class="jatah-card">
         <span class="lbl">Jatah hari ini</span>
         <div class="jatah-big" id="jatah">Rp0</div>
@@ -205,6 +302,11 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
           <div><span>Sisa sampai gajian</span><b id="sisa-uang">Rp0</b></div>
           <div style="text-align:right"><span>Sisa hari menuju gajian</span><b id="sisa-hari">0 hari</b></div>
         </div>
+        <div class="terpakai">
+          <div class="bar"><i id="terpakai-bar" style="width:0%"></i></div>
+          <p id="terpakai-teks" style="margin:0"></p>
+        </div>
+        <p class="terakhir" id="terakhir-hari-ini"></p>
         <p class="siklus-line" id="siklus-line"></p>
         <p class="msg warn" id="pesan-negatif" hidden>Uang bebasmu sudah terpakai. Yuk lihat sisa hari menuju gajian.</p>
         <details class="hitung">
@@ -257,16 +359,35 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
       </form>
     </section>
 
-    <!-- 03 Paham -->
+    <!-- 03 Budget Kategori -->
+    <section id="budget">
+      <p class="kicker"><b>03</b> &middot; Budget Kategori</p>
+      <h2>Budget per kategori</h2>
+      <p class="hint" id="budget-penjelasan" style="margin-top:8px"></p>
+      <div class="card" id="budget-list"></div>
+    </section>
+
+    <!-- 06 Paham -->
     <section id="paham">
-      <p class="kicker"><b>03</b> &middot; Paham</p>
+      <p class="kicker"><b>06</b> &middot; Paham</p>
       <h2>Gambaran dari datamu</h2>
       <div class="card" id="insight-list"></div>
     </section>
 
-    <!-- 04 Peta Uang -->
+    <!-- 04 Riwayat -->
+    <section id="riwayat">
+      <p class="kicker"><b>04</b> &middot; Riwayat</p>
+      <h2>Catatanmu</h2>
+      <div class="filterbar" id="filterbar" hidden>
+        <span id="filter-teks"></span>
+        <button type="button" id="filter-hapus">Tampilkan semua</button>
+      </div>
+      <div class="card"><ul class="riwayat" id="riwayat-list"></ul></div>
+    </section>
+
+    <!-- 05 Peta Uang -->
     <section id="peta">
-      <p class="kicker"><b>04</b> &middot; Peta Uang</p>
+      <p class="kicker"><b>05</b> &middot; Peta Uang</p>
       <h2>Ke mana uangmu pergi</h2>
       <div class="card">
         <div id="peta-kosong" hidden>
@@ -291,9 +412,9 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
       </div>
     </section>
 
-    <!-- 05 Atur -->
+    <!-- 07 Atur -->
     <section id="atur">
-      <p class="kicker"><b>05</b> &middot; Atur</p>
+      <p class="kicker"><b>07</b> &middot; Atur</p>
       <h2>Gaji, tagihan &amp; tabungan</h2>
 
       <div class="card">
@@ -339,20 +460,9 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
       <p class="rumus-line" id="rumus-line"></p>
     </section>
 
-    <!-- 06 Riwayat -->
-    <section id="riwayat">
-      <p class="kicker"><b>06</b> &middot; Riwayat</p>
-      <h2>Catatanmu</h2>
-      <div class="filterbar" id="filterbar" hidden>
-        <span id="filter-teks"></span>
-        <button type="button" id="filter-hapus">Tampilkan semua</button>
-      </div>
-      <div class="card"><ul class="riwayat" id="riwayat-list"></ul></div>
-    </section>
-
-    <!-- 07 Siklus -->
+    <!-- 08 Siklus -->
     <section id="siklus">
-      <p class="kicker"><b>07</b> &middot; Siklus</p>
+      <p class="kicker"><b>08</b> &middot; Siklus</p>
       <h2>Siklus gajian</h2>
       <div class="card">
         <p id="siklus-aktif" style="margin:0 0 12px"></p>
@@ -376,12 +486,14 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
   </main>
 </div>
 
-<nav class="bottomnav"><div class="nav-in">
+<nav class="bottomnav" id="bottomnav"><div class="nav-in">
   <a href="#beranda" class="on">Beranda</a>
-  <a href="#atur">Atur</a>
+  <a href="#catat">Catat</a>
   <a href="#peta">Peta Uang</a>
   <a href="#riwayat">Riwayat</a>
 </div></nav>
+
+<button id="fab" type="button" aria-label="Catat pengeluaran" hidden>+</button>
 
 <div id="toast" hidden><span id="toast-teks"></span><button type="button" id="toast-urungkan">Urungkan</button></div>
 <script>
@@ -518,10 +630,11 @@ function load(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 
 /* ---------- Tema ---------- */
+/* Gelap fokus (gaya situs edukasi): gelap jadi bawaan bila belum pernah dipilih. */
 function temaEfektif(){
   var s=null;try{s=localStorage.getItem("sisa-tema");}catch(e){}
   if(s==="light"||s==="dark")return s;
-  return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+  return "dark";
 }
 function terapkanTema(){
   var t=temaEfektif();
@@ -534,15 +647,119 @@ $("tema").addEventListener("click",function(){
   terapkanTema();
 });
 
+/* ---------- Auth (Supabase Auth ASLI + GitHub OAuth — DITUNDA) ----------
+   Keputusan ARIEF 25 Nov 2026: login pakai Supabase Auth asli, BUKAN login
+   lokal. Logika auth (supabase.auth.signInWithPassword, signInWithOtp untuk
+   magic link, resetPasswordForEmail, signInWithOAuth provider github) BELUM
+   ditulis — menunggu Project URL + anon key Supabase dari ARIEF.
+   TIDAK ADA lagi kata sandi di localStorage (kunci sisa-pass DIHAPUS).
+   Sementara Supabase disiapkan, tombol "Lihat demo dulu" membuka aplikasi
+   sebagai demo (sessionStorage sisa-demo) supaya dashboard tetap bisa dipakai
+   dan diuji. Hapus jalur demo itu saat Supabase Auth sudah tersambung. */
+function sudahDemo(){
+  try{return sessionStorage.getItem("sisa-demo")==="1";}catch(e){return false;}
+}
+function tandaiDemo(){try{sessionStorage.setItem("sisa-demo","1");}catch(e){}}
+function tampilkanBuatAkun(){
+  $("buat-akun").hidden=false;
+  $("login").hidden=true;
+  $("onboarding").hidden=true;
+  $("app").hidden=true;
+  $("banner-gaji").hidden=true;
+  $("fab").hidden=true;
+  $("keluar").hidden=true;
+  $("bottomnav").hidden=true;
+  $("ba-pesan").textContent="";
+  $("ba-pesan").className="msg";
+}
+function tampilkanLogin(){
+  $("buat-akun").hidden=true;
+  $("login").hidden=false;
+  $("onboarding").hidden=true;
+  $("app").hidden=true;
+  $("banner-gaji").hidden=true;
+  $("fab").hidden=true;
+  $("keluar").hidden=true;
+  $("bottomnav").hidden=true;
+  $("lg-pesan").textContent="";
+  $("lg-pesan").className="msg";
+  $("lg-email").value="";
+  var lgp=$("lg-pass");lgp.type="password";lgp.value="";
+  var mb=document.querySelector("#lg-mata .mata-buka"), mt=document.querySelector("#lg-mata .mata-tutup");
+  if(mb)mb.hidden=false;if(mt)mt.hidden=true;
+}
+function masukDemo(){
+  tandaiDemo();
+  load();
+  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
+}
+/* Pesan jujur: auth Supabase sedang disiapkan — tombol belum bisa dipakai. */
+var PESAN_AUTH="Login Supabase sedang disiapkan — segera hadir.";
+$("form-buat-akun").addEventListener("submit",function(e){
+  e.preventDefault();
+  $("ba-pesan").textContent="Pendaftaran Supabase sedang disiapkan — segera hadir.";
+  $("ba-pesan").className="msg";
+});
+$("form-login").addEventListener("submit",function(e){
+  e.preventDefault();
+  $("lg-pesan").textContent=PESAN_AUTH;
+  $("lg-pesan").className="msg";
+});
+$("github-login").addEventListener("click",function(){
+  $("lg-pesan").textContent="Masuk dengan GitHub butuh Supabase Auth — segera hadir.";
+  $("lg-pesan").className="msg";
+});
+$("lupa-pass").addEventListener("click",function(){
+  $("lg-pesan").textContent="Reset kata sandi butuh login email asli — segera hadir.";
+  $("lg-pesan").className="msg";
+});
+$("kirim-link").addEventListener("click",function(){
+  $("lg-pesan").textContent="Fitur ini butuh login email asli — segera hadir.";
+  $("lg-pesan").className="msg";
+});
+$("masuk-demo").addEventListener("click",masukDemo);
+$("ke-daftar").addEventListener("click",tampilkanBuatAkun);
+$("ke-masuk").addEventListener("click",tampilkanLogin);
+/* Ikon mata: lihat / sembunyikan kata sandi. */
+function pasangMata(btnId,inputId){
+  var btn=$(btnId), inp=$(inputId);
+  if(!btn||!inp)return;
+  btn.addEventListener("click",function(){
+    var lihat=inp.type==="password";
+    inp.type=lihat?"text":"password";
+    btn.setAttribute("aria-label",lihat?"Sembunyikan kata sandi":"Lihat kata sandi");
+    var on=btn.querySelector(".mata-buka"), off=btn.querySelector(".mata-tutup");
+    if(on)on.hidden=!lihat;
+    if(off)off.hidden=lihat;
+    inp.focus();
+  });
+}
+pasangMata("lg-mata","lg-pass");
+pasangMata("ba-mata","ba-pass");
+$("keluar").addEventListener("click",function(){
+  try{sessionStorage.removeItem("sisa-demo");}catch(e){}
+  tampilkanLogin();
+});
+
 /* ---------- Onboarding ---------- */
 function tampilkanOnboarding(){
+  $("buat-akun").hidden=true;
+  $("login").hidden=true;
   $("onboarding").hidden=false;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
+  $("fab").hidden=true;
+  $("keluar").hidden=false;
+  $("bottomnav").hidden=false;
 }
 function tampilkanApp(){
+  $("buat-akun").hidden=true;
+  $("login").hidden=true;
   $("onboarding").hidden=true;
   $("app").hidden=false;
+  $("fab").hidden=false;
+  $("keluar").hidden=false;
+  $("bottomnav").hidden=false;
 }
 $("form-onboarding").addEventListener("submit",function(e){
   e.preventDefault();
@@ -635,6 +852,14 @@ function render(){
     $("prediksi-teks").textContent="Dengan laju ini, uang bebasmu diperkirakan habis "+fmtTgl(p.tglHabis)+", "+p.selisih+" hari sebelum gajian "+fmtTgl(c.next)+". (berdasarkan "+p.n+" catatan)";
   }
 
+  /* Sekilas hari ini: terpakai dari uang bebas + transaksi terakhir hari ini */
+  var pctBebas=c.bebas>0?Math.round(c.keluar/c.bebas*100):(c.keluar>0?100:0);
+  $("terpakai-bar").style.width=Math.min(100,pctBebas)+"%";
+  $("terpakai-teks").textContent="Terpakai "+rp(c.keluar)+" dari uang bebas "+rp(c.bebas)+" ("+pctBebas+"%).";
+  var hariIniTx=state.transaksi.filter(function(t){return t.tanggal===iso(ref);}).sort(function(a,b){return b.id-a.id;});
+  $("terakhir-hari-ini").textContent=hariIniTx.length?("Terakhir hari ini: "+(hariIniTx[0].catatan||hariIniTx[0].kategori)+" \u2212"+rp(hariIniTx[0].nominal)):"Belum ada pengeluaran hari ini.";
+
+  renderBudget(c);
   renderPeta(c);
   renderInsight(c,p);
   renderRiwayat();
@@ -697,6 +922,50 @@ $("filter-hapus").addEventListener("click",function(){
   filterKat=null;
   renderPeta(calcAll(state,hariIni()));
   renderRiwayat();
+});
+
+/* ---------- Budget Kategori (model Budggt) ----------
+   Batas wajar sampai hari ini = uang bebas x hari berjalan / total hari siklus.
+   Murni turunan rumus PRD — bukan target kategori baru. */
+function renderBudget(c){
+  var totalHari=Math.max(1,diffDays(parseISO(state.siklusMulai),c.next));
+  var fair=c.bebas>0?Math.round(c.bebas*c.hariBerjalan/totalHari):0;
+  var box=$("budget-list");
+  var pen=$("budget-penjelasan");
+  if(fair>0){
+    var pctFair=c.keluar>0?Math.round(c.keluar/fair*100):0;
+    pen.textContent="Batas wajar sampai hari ini "+rp(fair)+" (uang bebas "+rp(c.bebas)+" dibagi rata "+totalHari+" hari siklus, sudah berjalan "+c.hariBerjalan+" hari). Terpakai "+rp(c.keluar)+" ("+pctFair+"%).";
+  }else{
+    pen.textContent="Batas wajar muncul setelah uang bebas di atas Rp0.";
+  }
+  if(c.keluar<=0){
+    box.innerHTML="<p style=\"margin:0\">Belum ada pengeluaran di siklus ini. Begitu ada catatan, tiap kategori tampil di sini dengan bar terhadap batas wajar.</p>";
+    return;
+  }
+  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
+    .sort(function(a,b){return (c.perKat[b]||0)-(c.perKat[a]||0);});
+  var denom=fair>0?fair:Math.max(c.keluar,1);
+  var html="";
+  if(fair>0&&c.keluar>fair){
+    html+='<div class="budget-over" role="status">Sudah melewati batas wajar '+rp(c.keluar-fair)+' — pengeluaran siklus ini lebih cepat dari ritme harian. Coba tahan pengeluaran sampai gajian.</div>';
+  }
+  html+=urut.map(function(k){
+    var v=c.perKat[k];
+    var pct=Math.round(v/denom*100);
+    var over=fair>0&&v>fair;
+    var w=Math.min(100,pct);
+    return '<button type="button" class="budget-row'+(over?" over":"")+'" data-kat="'+esc(k)+'">'+
+      '<span class="budget-top"><span><i style="background:'+WARNA[k]+'"></i>'+esc(k)+'</span>'+
+      '<span><b>'+rp(v)+'</b> &middot; '+pct+'%</span></span>'+
+      '<span class="budget-bar"><i style="width:'+w+'%"></i></span>'+
+      '<span class="budget-sub">'+(fair>0?("dari batas wajar "+rp(fair)):("dari total terpakai "+rp(c.keluar)))+(over?' <span class="budget-badge">Lewat batas</span>':'')+'</span>'+
+      '</button>';
+  }).join("");
+  box.innerHTML=html;
+}
+$("budget-list").addEventListener("click",function(e){
+  var b=e.target.closest(".budget-row[data-kat]");if(!b)return;
+  setFilter(b.getAttribute("data-kat"));
 });
 
 /* ---------- Paham (insight) ---------- */
@@ -815,6 +1084,12 @@ $("toast-urungkan").addEventListener("click",function(){
   $("toast").hidden=true;
   if(toastTimer)clearTimeout(toastTimer);
   render();
+});
+
+/* ---------- Tombol + (model Budggt: catat cepat) ---------- */
+$("fab").addEventListener("click",function(){
+  var el=$("catat");if(el)el.scrollIntoView({behavior:"smooth"});
+  setTimeout(function(){$("f-jumlah").focus();},350);
 });
 
 /* ---------- Catat Kilat ---------- */
@@ -1064,12 +1339,13 @@ navLinks.forEach(function(a){
 terapkanTema();
 bangunChips();
 (function(){var d=hariIni();$("tanggal").textContent=HARI[d.getDay()]+", "+fmtTgl(d);})();
+/* Bersihkan sisa kunci login lokal lama bila pernah ada (prototipe belum rilis). */
+try{localStorage.removeItem("sisa-pass");sessionStorage.removeItem("sisa-login");}catch(e){}
 load();
-if(!state){
-  tampilkanOnboarding();
+if(sudahDemo()){
+  if(!state){tampilkanOnboarding();}else{tampilkanApp();render();}
 }else{
-  tampilkanApp();
-  render();
+  tampilkanLogin();
 }
 })();
 </script>
