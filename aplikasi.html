@@ -208,7 +208,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
   <!-- Banner konfirmasi gaji: tampil pada tanggal gajian -->
   <div id="banner-gaji" class="banner" hidden>
-    <p class="kicker"><b>01</b> &middot; Siklus baru</p>
+    <p class="kicker">Siklus baru</p>
     <h2>Hari ini gajian</h2>
     <p id="banner-teks"></p>
     <div class="row">
@@ -292,7 +292,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
   <!-- 00 Onboarding -->
   <section id="onboarding" hidden>
-    <p class="kicker"><b>00</b> &middot; Mulai</p>
+    <p class="kicker">Mulai</p>
     <h1>Atur gajianmu, tahu jatah harianmu</h1>
     <p style="margin-top:10px">Isi dua angka ini, dan Sisa menghitung berapa yang boleh kamu pakai hari ini supaya cukup sampai gajian berikutnya.</p>
     <form id="form-onboarding" class="card" novalidate>
@@ -314,7 +314,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 01 Beranda -->
     <section id="beranda">
-      <p class="kicker"><b>01</b> &middot; Beranda</p>
+      <p class="kicker">Beranda</p>
       <h2 class="judul-sekilas">Sekilas hari ini</h2>
       <div class="jatah-card">
         <span class="lbl">Jatah hari ini</span>
@@ -355,11 +355,13 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         <h3>Prediksi tanggal habis</h3>
         <p style="margin:0" id="prediksi-teks"></p>
       </div>
+
+      <div style="margin-top:12px"><button class="btn-ghost btn-block" id="ke-atur" type="button">Atur gaji, tagihan &amp; tabungan</button></div>
     </section>
 
     <!-- 02 Catat Kilat -->
     <section id="catat">
-      <p class="kicker"><b>02</b> &middot; Catat Kilat</p>
+      <p class="kicker">Catat Kilat</p>
       <h2>Catat pengeluaran</h2>
       <form class="card" id="form-catat" novalidate>
         <label for="f-jumlah">Jumlah (Rp)</label>
@@ -382,7 +384,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 03 Budget Kategori -->
     <section id="budget">
-      <p class="kicker"><b>03</b> &middot; Budget Kategori</p>
+      <p class="kicker">Budget Kategori</p>
       <h2>Budget per kategori</h2>
       <p class="hint" id="budget-penjelasan" style="margin-top:8px"></p>
       <div class="card" id="budget-list"></div>
@@ -390,14 +392,14 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 06 Paham -->
     <section id="paham">
-      <p class="kicker"><b>06</b> &middot; Paham</p>
+      <p class="kicker">Paham</p>
       <h2>Gambaran dari datamu</h2>
       <div class="card" id="insight-list"></div>
     </section>
 
     <!-- 04 Riwayat -->
     <section id="riwayat">
-      <p class="kicker"><b>04</b> &middot; Riwayat</p>
+      <p class="kicker">Riwayat</p>
       <h2>Catatanmu</h2>
       <div class="filterbar" id="filterbar" hidden>
         <span id="filter-teks"></span>
@@ -408,11 +410,11 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 05 Peta Uang -->
     <section id="peta">
-      <p class="kicker"><b>05</b> &middot; Peta Uang</p>
+      <p class="kicker">Peta Uang</p>
       <h2>Ke mana uangmu pergi</h2>
       <div class="card">
         <div id="peta-kosong" hidden>
-          <p style="margin:0">Belum ada pengeluaran di siklus ini. Catat pengeluaran pertamamu lewat Catat Kilat di atas.</p>
+          <p style="margin:0">Belum ada pengeluaran di siklus ini. Catat pengeluaran pertamamu lewat tab Catat di bawah.</p>
         </div>
         <div id="peta-isi">
           <div class="donut-wrap">
@@ -435,7 +437,8 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 07 Atur -->
     <section id="atur">
-      <p class="kicker"><b>07</b> &middot; Atur</p>
+      <button class="btn-ghost" id="atur-kembali" type="button" style="margin-bottom:12px">&larr; Kembali ke Beranda</button>
+      <p class="kicker">Atur</p>
       <h2>Gaji, tagihan &amp; tabungan</h2>
 
       <div class="card">
@@ -483,7 +486,7 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 
     <!-- 08 Siklus -->
     <section id="siklus">
-      <p class="kicker"><b>08</b> &middot; Siklus</p>
+      <p class="kicker">Siklus</p>
       <h2>Siklus gajian</h2>
       <div class="card">
         <p id="siklus-aktif" style="margin:0 0 12px"></p>
@@ -508,10 +511,10 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 </div>
 
 <nav class="bottomnav" id="bottomnav"><div class="nav-in">
-  <a href="#beranda" class="on">Beranda</a>
-  <a href="#catat">Catat</a>
-  <a href="#peta">Peta Uang</a>
-  <a href="#riwayat">Riwayat</a>
+  <a href="#beranda" data-tab="beranda" class="on">Beranda</a>
+  <a href="#catat" data-tab="catat">Catat</a>
+  <a href="#peta" data-tab="peta">Peta Uang</a>
+  <a href="#riwayat" data-tab="riwayat">Riwayat</a>
 </div></nav>
 
 <button id="fab" type="button" aria-label="Catat pengeluaran" hidden>+</button>
@@ -886,6 +889,10 @@ function tampilkanApp(){
   $("fab").hidden=false;
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
+  tampilkanTab(tabDariHash());
+}
+function tabDariHash(){
+  try{var h=location.hash.replace("#","");return HALAMAN[h]?h:"beranda";}catch(e){return "beranda";}
 }
 $("form-onboarding").addEventListener("submit",function(e){
   e.preventDefault();
@@ -926,7 +933,7 @@ function tutupBanner(){
 $("banner-pakai").addEventListener("click",tutupBanner);
 $("banner-ubah").addEventListener("click",function(){
   tutupBanner();
-  var el=$("atur");if(el)el.scrollIntoView({behavior:"smooth"});
+  tampilkanTab("atur");
   $("set-gaji").focus();
 });
 
@@ -1042,7 +1049,7 @@ function setFilter(k){
   filterKat=k;
   renderPeta(calcAll(state,hariIni()));
   renderRiwayat();
-  var el=$("riwayat");if(el)el.scrollIntoView({behavior:"smooth"});
+  tampilkanTab("riwayat");
 }
 $("filter-hapus").addEventListener("click",function(){
   filterKat=null;
@@ -1186,7 +1193,7 @@ function mulaiUbah(id){
   qrisBaru=t.qris||null;tampilkanQris();
   $("f-pesan").textContent="Mengubah catatan "+fmtTglISO(t.tanggal)+" — "+rp(t.nominal)+".";
   $("f-pesan").className="msg";
-  var el=$("catat");if(el)el.scrollIntoView({behavior:"smooth"});
+  tampilkanTab("catat");
   $("f-jumlah").focus();
 }
 function hapusTx(id){
@@ -1214,7 +1221,7 @@ $("toast-urungkan").addEventListener("click",function(){
 
 /* ---------- Tombol + (model Budggt: catat cepat) ---------- */
 $("fab").addEventListener("click",function(){
-  var el=$("catat");if(el)el.scrollIntoView({behavior:"smooth"});
+  tampilkanTab("catat");
   setTimeout(function(){$("f-jumlah").focus();},350);
 });
 
@@ -1452,14 +1459,31 @@ $("reset-contoh").addEventListener("click",function(){
   tampilkanApp();render();
 });
 
-/* ---------- Nav aktif ---------- */
+/* ---------- Navigasi tab: tiap tab halaman sendiri ----------
+   Satu halaman panjang diganti tampilan berbasis tab: hanya section tab yang
+   aktif yang terlihat, sisanya hidden. Peta Uang = budget + donut;
+   Atur = gaji/tagihan/tabungan + arsip siklus (dibuka dari Beranda). */
+var HALAMAN={beranda:["beranda","paham"],catat:["catat"],peta:["budget","peta"],riwayat:["riwayat"],atur:["atur","siklus"]};
+var SEMUA_SEKSI=["beranda","paham","catat","budget","peta","riwayat","atur","siklus"];
+var tabAktif="beranda";
+function tampilkanTab(nama){
+  if(!HALAMAN[nama])nama="beranda";
+  tabAktif=nama;
+  SEMUA_SEKSI.forEach(function(id){var el=$(id);if(el)el.hidden=true;});
+  HALAMAN[nama].forEach(function(id){var el=$(id);if(el)el.hidden=false;});
+  navLinks.forEach(function(a){a.classList.toggle("on",a.getAttribute("data-tab")===nama);});
+  window.scrollTo(0,0);
+  try{history.replaceState(null,"","#"+nama);}catch(e){}
+}
 var navLinks=document.querySelectorAll(".bottomnav a");
 navLinks.forEach(function(a){
-  a.addEventListener("click",function(){
-    navLinks.forEach(function(x){x.classList.remove("on");});
-    a.classList.add("on");
+  a.addEventListener("click",function(e){
+    e.preventDefault();
+    tampilkanTab(a.getAttribute("data-tab"));
   });
 });
+$("ke-atur").addEventListener("click",function(){tampilkanTab("atur");});
+$("atur-kembali").addEventListener("click",function(){tampilkanTab("beranda");});
 
 /* ---------- Mulai ---------- */
 terapkanTema();
