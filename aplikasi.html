@@ -522,6 +522,22 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 <div id="toast" hidden><span id="toast-teks"></span><button type="button" id="toast-urungkan">Urungkan</button></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+/* Pustaka Supabase dimuat dari jsDelivr; bila CDN itu gagal di jaringan pengguna
+   (terjadi di HP client 26 Nov 2026: tombol Google menampilkan "Layanan login
+   tidak dapat dimuat" karena window.supabase tidak ada), coba unpkg sebagai
+   cadangan. Aplikasi menunggu pustaka siap sebelum mengaktifkan login. */
+window.__sisaSupabaseSiap=new Promise(function(res){
+  function siap(){res(!!(window.supabase&&window.supabase.createClient));}
+  if(window.supabase&&window.supabase.createClient){res(true);return;}
+  var s=document.createElement("script");
+  s.src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+  s.onload=siap;
+  s.onerror=function(){res(false);};
+  document.head.appendChild(s);
+  setTimeout(siap,10000);
+});
+</script>
+<script>
 (function(){
 "use strict";
 /* ===== PURE-START: rumus & data (tanpa DOM — dipakai juga untuk cek node) ===== */
@@ -705,6 +721,16 @@ var SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 var REDIRECT_URL="https://new-we.github.io/sisa/aplikasi.html";
 var sb=null;
 try{ sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null; }catch(e){ sb=null; }
+/* Tunggu pustaka Supabase siap (CDN utama atau cadangan) lalu buat klien bila
+   belum ada. Dipakai semua aksi login sebelum memeriksa sb, supaya klik yang
+   datang saat pustaka cadangan masih dimuat tidak langsung gagal. */
+async function siapkanSb(){
+  try{await window.__sisaSupabaseSiap;}catch(e){}
+  if(!sb&&window.supabase&&window.supabase.createClient){
+    try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){sb=null;}
+  }
+  return sb;
+}
 /* ---------- Sinkron data ke Supabase (offline-first) ----------
    Tabel: public.user_data(user_id uuid PK, data jsonb, updated_at timestamptz).
    RLS: user hanya bisa mengakses barisnya sendiri (auth.uid() = user_id).
@@ -928,6 +954,7 @@ $("form-buat-akun").addEventListener("submit",async function(e){
   if(!emailValid(email)){$("ba-pesan").textContent="Isi email yang benar, contoh: nama@email.com.";$("ba-pesan").className="msg err";return;}
   if(p1.length<6){$("ba-pesan").textContent="Kata sandi minimal 6 karakter.";$("ba-pesan").className="msg err";return;}
   if(p1!==p2){$("ba-pesan").textContent="Ulangi kata sandi belum sama dengan kata sandi.";$("ba-pesan").className="msg err";return;}
+  await siapkanSb();
   if(!sb){authGagalMuat($("ba-pesan"));return;}
   $("ba-pesan").textContent="Mendaftarkan…";$("ba-pesan").className="msg";
   var r=await sb.auth.signUp({email:email.toLowerCase(),password:p1});
@@ -943,6 +970,7 @@ $("form-login").addEventListener("submit",async function(e){
   var pass=$("lg-pass").value;
   if(!emailValid(email)){$("lg-pesan").textContent="Isi email yang benar, contoh: nama@email.com.";$("lg-pesan").className="msg err";return;}
   if(!pass){$("lg-pesan").textContent="Isi kata sandimu.";$("lg-pesan").className="msg err";return;}
+  await siapkanSb();
   if(!sb){authGagalMuat($("lg-pesan"));return;}
   $("lg-pesan").textContent="Memeriksa…";$("lg-pesan").className="msg";
   var r=await sb.auth.signInWithPassword({email:email.toLowerCase(),password:pass});
@@ -952,6 +980,7 @@ $("form-login").addEventListener("submit",async function(e){
 /* Masuk / daftar dengan Google (OAuth) — satu tombol melayani keduanya:
    akun Google yang belum terdaftar otomatis dibuatkan akun baru. */
 async function masukDenganGoogle(elPesan){
+  await siapkanSb();
   if(!sb){authGagalMuat(elPesan);return;}
   elPesan.textContent="Membuka Google…";elPesan.className="msg";
   var r=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:REDIRECT_URL}});
@@ -964,6 +993,7 @@ $("google-daftar").addEventListener("click",function(){masukDenganGoogle($("ba-p
 $("lupa-pass").addEventListener("click",async function(){
   var email=$("lg-email").value.trim();
   if(!emailValid(email)){$("lg-pesan").textContent="Isi emailmu dulu di atas, lalu ketuk Lupa kata sandi?.";$("lg-pesan").className="msg err";return;}
+  await siapkanSb();
   if(!sb){authGagalMuat($("lg-pesan"));return;}
   $("lg-pesan").textContent="Mengirim tautan reset…";$("lg-pesan").className="msg";
   var r=await sb.auth.resetPasswordForEmail(email.toLowerCase(),{redirectTo:REDIRECT_URL});
@@ -975,6 +1005,7 @@ $("lupa-pass").addEventListener("click",async function(){
 $("kirim-link").addEventListener("click",async function(){
   var email=$("lg-email").value.trim();
   if(!emailValid(email)){$("lg-pesan").textContent="Isi emailmu dulu di atas, lalu ketuk tombol ini.";$("lg-pesan").className="msg err";return;}
+  await siapkanSb();
   if(!sb){authGagalMuat($("lg-pesan"));return;}
   $("lg-pesan").textContent="Mengirim link…";$("lg-pesan").className="msg";
   var r=await sb.auth.signInWithOtp({email:email.toLowerCase(),options:{emailRedirectTo:REDIRECT_URL}});
@@ -988,6 +1019,7 @@ $("form-reset-sandi").addEventListener("submit",async function(e){
   var p1=$("rs-pass").value, p2=$("rs-pass2").value;
   if(p1.length<6){$("rs-pesan").textContent="Kata sandi minimal 6 karakter.";$("rs-pesan").className="msg err";return;}
   if(p1!==p2){$("rs-pesan").textContent="Ulangi kata sandi baru belum sama dengan kata sandi baru.";$("rs-pesan").className="msg err";return;}
+  await siapkanSb();
   if(!sb){authGagalMuat($("rs-pesan"));return;}
   $("rs-pesan").textContent="Menyimpan…";$("rs-pesan").className="msg";
   var r=await sb.auth.updateUser({password:p1});
@@ -1656,6 +1688,7 @@ bangunChips();
 /* Bersihkan sisa kunci login lokal/demo lama bila pernah ada (prototipe belum rilis). */
 try{localStorage.removeItem("sisa-pass");sessionStorage.removeItem("sisa-login");sessionStorage.removeItem("sisa-demo");}catch(e){}
 async function initAuth(){
+  await siapkanSb();
   if(!sb){tampilkanLogin();authGagalMuat($("lg-pesan"));return;}
   var session=null;
   try{
