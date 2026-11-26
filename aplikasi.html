@@ -5,57 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sisa — Aplikasi</title>
 <meta name="description" content="Sisa: perencana gajian. Isi gaji dan tanggal gajian, lihat jatah hari ini supaya cukup sampai gajian berikutnya.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
+/* Palet prototype revisi 2.0 (Client, 26 Nov 2026): navy gelap + emas.
+   Gelap jadi bawaan; terang lewat [data-theme="light"] (tombol #tema).
+   Font Plus Jakarta Sans via Google Fonts, fallback system-ui bila CDN gagal. */
 :root{
-  --bg:#F3F1EA; --card:#FFFFFF; --ink:#14213D; --muted:#4B5A75; --line:#D3DBE8;
-  --accent:#8A6D00; --accent-soft:#FBF3DF; --ok:#1E7F5C; --warn:#8A6D00; --bad:#B3261E;
-  --field:#FFFFFF; --btn:#14213D; --btn-text:#FFFFFF;
+  --bg:#0b1222; --card:#151e38; --ink:#e9edff; --muted:#93a0c4; --line:#243052; --track:#0b1222;
+  --accent:#c9a227; --accent-soft:rgba(201,162,39,.14); --ok:#1fb882; --warn:#c9a227; --bad:#f0506e;
+  --field:#1c2748; --btn:#3b5bff; --btn-text:#FFFFFF; --hero:#1b2750;
+  --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --sans:'Plus Jakarta Sans',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f3f4f9; --card:#ffffff; --ink:#14213d; --muted:#667089; --line:#e3e6f0; --track:#eceef4;
+  --accent:#8a6d00; --accent-soft:#fbf3df; --ok:#1e7f5c; --warn:#8a6d00; --bad:#d0453a;
+  --field:#ffffff; --btn:#3b5bff; --btn-text:#ffffff; --hero:#14213d;
+  --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0F1626; --card:#18223A; --ink:#EAF0FA; --muted:#A3B0C7; --line:#2A3856;
-    --accent:#F2C14E; --accent-soft:#2A2410; --ok:#5FD3A3; --warn:#F2C14E; --bad:#FF8A78;
-    --field:#1B2742; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0F1626; --card:#18223A; --ink:#EAF0FA; --muted:#A3B0C7; --line:#2A3856;
-  --accent:#F2C14E; --accent-soft:#2A2410; --ok:#5FD3A3; --warn:#F2C14E; --bad:#FF8A78;
-  --field:#1B2742; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);font-variant-numeric:tabular-nums;padding-bottom:92px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);font-variant-numeric:tabular-nums;padding-bottom:110px;transition:background-color .3s ease,color .3s ease}
 h1,h2,h3{line-height:1.2;margin:0;letter-spacing:-.01em}
 h1{font-size:1.55rem;font-weight:800}
-h2{font-size:1.25rem;font-weight:800;margin-bottom:10px}
+h2{font-size:1.5rem;font-weight:800;margin-bottom:10px;letter-spacing:-.02em}
 h3{font-size:1rem;font-weight:700}
 p{margin:0 0 1em}
 a{color:var(--ink)}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .phone{max-width:440px;margin:0 auto;padding:0 16px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0 4px}
 .topbar a{color:var(--muted);text-decoration:none;font-weight:700}
-.topbar button{background:none;border:1.5px solid var(--line);border-radius:6px;color:var(--muted);font:600 .85rem var(--sans);padding:7px 10px;cursor:pointer}
+.topbar button{background:var(--field);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:700 .82rem var(--sans);padding:8px 14px;cursor:pointer;transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 .dateline{color:var(--muted);font-size:.9rem;margin:0 0 2px}
 .kicker{font:600 .72rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
 .kicker b{color:var(--accent);font-weight:600}
 section{padding:22px 0 4px}
-.card{background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:18px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px;transition:background-color .3s ease,border-color .3s ease}
 .card + .card{margin-top:12px}
 label{display:block;font-weight:700;margin:0 0 6px}
-input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:6px;padding:11px 13px;margin-bottom:12px}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:12px;transition:background-color .3s ease,border-color .3s ease}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
 input[type="date"]{min-height:44px}
-button{font-family:var(--sans)}
-.btn{display:inline-block;background:var(--btn);color:var(--btn-text);font-size:1rem;font-weight:700;border:0;border-radius:6px;padding:13px 22px;cursor:pointer;text-decoration:none}
+button{font-family:var(--sans);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.btn{display:inline-block;background:var(--btn);color:var(--btn-text);font-size:1rem;font-weight:700;border:0;border-radius:12px;padding:13px 22px;cursor:pointer;text-decoration:none}
 .btn:disabled{opacity:.55;cursor:wait}
-.btn-ghost{display:inline-block;background:var(--card);color:var(--ink);font-size:1rem;font-weight:700;border:1.5px solid var(--line);border-radius:6px;padding:12px 20px;cursor:pointer;text-decoration:none}
+.btn-ghost{display:inline-block;background:var(--card);color:var(--ink);font-size:1rem;font-weight:700;border:1.5px solid var(--line);border-radius:12px;padding:12px 20px;cursor:pointer;text-decoration:none}
 .btn-block{width:100%;text-align:center}
+.btn:active,.btn-ghost:active,.chip:active{transform:scale(.97)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .row .btn,.row .btn-ghost{flex:1;white-space:nowrap}
 .msg{margin:10px 0 0;font-weight:600}
@@ -64,39 +65,50 @@ button{font-family:var(--sans)}
 .msg.warn{color:var(--warn)}
 .hint{color:var(--muted);font-size:.9rem}
 .privasi{color:var(--muted);font-size:.92rem;border-left:3px solid var(--accent);padding-left:10px;margin:4px 0 14px}
-/* 01 Beranda */
-.jatah-card{background:var(--card);border:1.5px solid var(--line);border-left:6px solid var(--accent);border-radius:8px;padding:20px;margin:14px 0}
-.jatah-card .lbl{font:600 .78rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.jatah-big{font-size:3rem;font-weight:800;line-height:1.05;margin:2px 0 12px;letter-spacing:-.02em}
-.jatah-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:12px}
-.jatah-row div span{display:block;font-size:.82rem;color:var(--muted)}
+/* 01 Beranda — kartu hero ala prototype (navy, radius 26px, putih di kedua tema) */
+.jatah-card{background:var(--hero);color:#fff;border:0;border-radius:26px;padding:22px;margin:14px 0;transition:background-color .3s ease}
+.jatah-card .lbl{font:700 .78rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#aeb9de}
+.jatah-big{font-size:2.5rem;font-weight:800;line-height:1.05;margin:2px 0 16px;letter-spacing:-.03em}
+.jatah-row{display:flex;justify-content:space-between;gap:12px}
+.jatah-row div span{display:block;font-size:.82rem;color:#aeb9de}
 .jatah-row div b{font-size:1.12rem}
-.siklus-line{color:var(--muted);font-size:.88rem;margin:12px 0 0}
-details.hitung{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-details.hitung summary{cursor:pointer;font-weight:700;color:var(--muted)}
+.siklus-line{color:#aeb9de;font-size:.88rem;margin:12px 0 0}
 .hitung-tabel{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
-.hitung-tabel td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
-.hitung-tabel td:last-child{text-align:right;white-space:nowrap;font-weight:700}
-.hitung-tabel tr.total td{border-bottom:0;font-weight:800}
-.bar{height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
-.bar i{display:block;height:100%;background:var(--accent)}
+.hitung-tabel td{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12);vertical-align:top;color:#aeb9de}
+.hitung-tabel td:last-child{text-align:right;white-space:nowrap;font-weight:700;color:#fff}
+.hitung-tabel tr.total td{border-bottom:0;font-weight:800;color:#fff}
+.bar{height:10px;border-radius:9px;background:var(--track);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .45s ease-out}
+/* "Lihat cara hitung" — buka/tutup beranimasi (bukan lompat instan) */
+.hitung{margin-top:14px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
+.hitung-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;cursor:pointer;font-weight:700;color:#aeb9de;font-size:.95rem;text-align:left}
+.hitung-toggle .chev{display:inline-block;transition:transform .25s ease}
+.hitung.buka .hitung-toggle .chev{transform:rotate(180deg)}
+.hitung-isi{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
+.hitung.buka .hitung-isi{max-height:440px}
 /* Banner gajian */
 .banner{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:8px;padding:18px;margin:14px 0}
 .banner h2{margin-bottom:6px}
-/* Chips kategori */
+/* Chips kategori — pill ala prototype */
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.chip{border:1.5px solid var(--line);background:var(--field);color:var(--ink);border-radius:6px;padding:10px 14px;font-size:.95rem;font-weight:600;cursor:pointer}
+.chip{border:1.5px solid var(--line);background:var(--field);color:var(--ink);border-radius:99px;padding:9px 14px;font-size:.95rem;font-weight:600;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
-/* Peta Uang */
+/* Segmented control Pengeluaran/Pemasukan (form Catat + modal cepat) */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:4px;margin-bottom:12px}
+.seg button{padding:11px;border-radius:11px;font-weight:700;color:var(--muted);background:none;border:0;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+/* Peta Uang — donut + legenda ala prototype */
 .donut-wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
 .donut text{font-family:var(--sans)}
-.legend{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.95rem;width:100%}
-.legend button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:6px;color:var(--ink);font-size:.95rem;padding:6px 8px;cursor:pointer}
-.legend button:hover,.legend button.on{border-color:var(--line);background:var(--bg)}
+.donut circle{transition:stroke-dasharray .5s ease-out,stroke-dashoffset .5s ease-out}
+.legend{list-style:none;margin:0;padding:0;display:grid;font-size:.95rem;width:100%}
+.legend button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;color:var(--ink);font-size:.95rem;padding:10px 2px;cursor:pointer}
+.legend button:last-child{border-bottom:0}
+.legend button:hover,.legend button.on{background:var(--bg)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px;flex:none}
 .legend .pct{color:var(--muted);white-space:nowrap}
 table.ringkas{width:100%;border-collapse:collapse;font-size:.95rem;margin-top:14px}
-table.ringkas th,table.ringkas td{padding:7px 0;border-bottom:1px solid var(--line);text-align:left}
+table.ringkas th,table.ringkas td{padding:9px 0;border-bottom:1px solid var(--line);text-align:left}
 table.ringkas th:last-child,table.ringkas td:last-child{text-align:right;white-space:nowrap}
 table.ringkas td:nth-child(2){text-align:right;white-space:nowrap}
 .disisihkan{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:.95rem}
@@ -109,12 +121,15 @@ table.ringkas td:nth-child(2){text-align:right;white-space:nowrap}
 .insight .tag{font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 /* Riwayat */
 .riwayat{list-style:none;margin:0;padding:0}
-.riwayat li{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.97rem;align-items:flex-start}
+.riwayat li{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:.97rem;align-items:flex-start;transition:opacity .22s ease,transform .22s ease}
 .riwayat li:last-child{border-bottom:0}
+.riwayat li.keluar{opacity:0;transform:translateX(24px)}
 .riwayat .rk{font-weight:700}
 .riwayat .rk small{display:block;font-weight:400;color:var(--muted)}
 .riwayat .rj{text-align:right;white-space:nowrap;font-weight:700}
+.riwayat .rj .masuk{color:var(--mint)}
 .riwayat .rj button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0 0 0 8px;text-decoration:underline}
+.riwayat .rj button.arm{color:var(--rose);font-weight:700;text-decoration:none}
 .riwayat .qris-badge{display:inline-block;font:600 .72rem var(--mono);letter-spacing:.06em;background:var(--accent-soft);border:1px solid var(--accent);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:1px}
 .riwayat .qris-thumb{width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px;border:1px solid var(--line)}
 table.ringkas tbody tr{cursor:pointer}
@@ -139,18 +154,38 @@ table.ringkas tbody tr:hover{background:var(--bg)}
 .arsip li:last-child{border-bottom:0}
 .arsip b{display:block}
 .arsip span{color:var(--muted)}
-/* Footer + nav + toast */
+/* Footer + nav + toast — nav 5 slot ala prototype (tombol + besar di tengah) */
 footer{padding:26px 0 8px;color:var(--muted);font-size:.88rem;text-align:center}
 footer a{color:var(--muted)}
 footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;font:inherit}
 .reset-pilihan{margin-top:12px}
-.bottomnav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10}
-.bottomnav .nav-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px))}
-.bottomnav a{text-align:center;text-decoration:none;color:var(--muted);font-size:.85rem;font-weight:700;padding:6px 0}
-.bottomnav a.on{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:20;background:var(--btn);color:var(--btn-text);border-radius:6px;padding:12px 16px;font-size:.95rem;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px)}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:10;transition:background-color .3s ease,border-color .3s ease}
+.bottomnav .nav-in{max-width:440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;align-items:end;padding:8px 4px calc(10px + env(safe-area-inset-bottom,0px))}
+.bottomnav a{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;color:var(--muted);font-size:.72rem;font-weight:700;padding:4px 0;transition:color .2s ease}
+.bottomnav a.on{color:var(--blue)}
+.bottomnav a svg{width:22px;height:22px}
+.nav-plus{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;padding:0;color:var(--ink)}
+.nav-plus span{width:50px;height:50px;border-radius:50%;background:var(--blue);color:#fff;font-size:30px;font-weight:400;display:grid;place-items:center;margin-top:-26px;box-shadow:0 8px 18px rgba(59,91,255,.45);line-height:1;transition:transform .15s ease}
+.nav-plus:active span{transform:scale(.94)}
+.nav-plus i{width:7px;height:7px;border-radius:50%;background:var(--blue);display:block}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;z-index:40;background:var(--btn);color:var(--btn-text);border-radius:99px;padding:12px 18px;font-size:.95rem;font-weight:700;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+#toast:not([hidden]){animation:toastIn .25s ease-out}
+#toast.keluar{opacity:0;transform:translate(-50%,8px);transition:opacity .2s ease,transform .2s ease}
 #toast button{background:none;border:0;color:var(--btn-text);font-weight:800;cursor:pointer;text-decoration:underline;padding:0}
 .topbar-aksi{display:flex;gap:8px}
+/* Modal cepat (bottom-sheet ala prototype) */
+.modal{position:fixed;inset:0;background:rgba(5,9,20,.6);display:flex;align-items:flex-end;justify-content:center;z-index:30;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s}
+.modal.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .25s ease}
+.modal .panel{background:var(--card);width:100%;max-width:440px;border-radius:26px 26px 0 0;padding:20px 20px calc(28px + env(safe-area-inset-bottom,0px));transform:translateY(48px);transition:transform .3s ease-out}
+.modal.on .panel{transform:translateY(0)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-head h3{font-size:1.1rem}
+.panel-tutup{background:none;border:0;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:4px 8px}
+label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
+.panel input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);font-size:16px;margin-bottom:0}
+.go{width:100%;padding:15px;border-radius:14px;background:var(--blue);color:#fff;font-weight:700;font-size:16px;margin-top:20px;border:0;cursor:pointer}
+.go:active{transform:scale(.97)}
+.link{display:block;margin:14px auto 0;color:var(--blue);font-weight:700;font-size:14px;background:none;border:0;cursor:pointer}
 /* Kartu login (referensi client: kartu putih membulat, logo kotak hitam) */
 .auth-card{background:#FFFFFF;color:#14213D;border-radius:20px;padding:26px 22px;margin:26px 0 10px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .auth-logo{width:46px;height:46px;border-radius:12px;background:#111111;color:#FFFFFF;font-size:1.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
@@ -179,36 +214,47 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 .periode-row{margin:12px 0 0}
 .periode-row label{display:block;font-weight:700;margin:0 0 6px}
 .periode-row select{margin-bottom:0}
-.ringkas-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-.ringkas-card{background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:14px}
-.ringkas-card .rk-lbl{font:600 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
+.ringkas-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.ringkas-card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px}
+.ringkas-card .rk-lbl{font:700 .72rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block}
 .ringkas-card b{display:block;font-size:1.2rem;margin:2px 0 6px}
 .ringkas-card .rk-sub{display:block;font-size:.85rem;color:var(--muted)}
-.artinya{margin:12px 0 0;font-weight:600}
-.kemana-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.97rem}
+.artinya{margin:12px 0 0;font-weight:600;background:rgba(255,255,255,.09);border-radius:14px;padding:12px 14px;font-size:.92rem;line-height:1.45}
+.artinya b{color:#7df0c4}
+/* Pemilih minggu dalam siklus (prototype revisi 2.0) */
+.minggu-row{margin:12px 0 0}
+.minggu-row label{display:block;font-weight:700;margin:0 0 6px}
+.minggu-ctrl{display:flex;gap:8px;flex-wrap:wrap}
+.minggu-ctrl input{flex:1;min-width:150px;margin-bottom:0}
+.minggu-ctrl .btn-ghost{flex:none;padding:11px 14px;font-size:.9rem}
+.minggu-ctrl .btn-ghost.on{border-color:var(--blue);color:var(--blue)}
+.minggu-teks{margin:8px 0 0;font-size:.88rem;color:var(--muted)}
+.kemana-row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:.97rem}
 .kemana-row:last-of-type{border-bottom:0}
 .kemana-row .kn{font-weight:700}
 .kemana-row .kn i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
 .kemana-row .kj{text-align:right;white-space:nowrap;font-weight:700}
 .kemana-row .kj small{display:block;font-weight:400;color:var(--muted)}
-.terpakai{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
-.terpakai p{margin:6px 0 0;font-size:.92rem;color:var(--muted)}
-.terakhir{margin:12px 0 0;font-size:.92rem;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
-/* Tombol + catat cepat (model Budggt) */
-#fab{position:fixed;right:16px;bottom:88px;z-index:15;width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:#14213D;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-#fab:active{transform:scale(.96)}
-/* Budget Kategori (model Budggt) */
-.budget-row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer;color:var(--ink);font-size:.97rem}
+.terpakai{margin-top:14px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
+.terpakai p{margin:6px 0 0;font-size:.92rem;color:#aeb9de}
+.terakhir{margin:12px 0 0;font-size:.92rem;color:#aeb9de;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
+/* Budget Kategori — bar "batas wajar" ala prototype */
+.budget-row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:14px 0;cursor:pointer;color:var(--ink);font-size:.97rem}
 .budget-row:last-child{border-bottom:0}
 .budget-top{display:flex;justify-content:space-between;gap:10px}
 .budget-top i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
-.budget-bar{display:block;height:10px;border-radius:5px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
-.budget-bar i{display:block;height:100%;background:var(--accent)}
-.budget-row.over .budget-bar i{background:var(--bad)}
+.budget-bar{display:block;height:9px;border-radius:9px;background:var(--track);border:1px solid var(--line);overflow:hidden;margin:9px 0 6px}
+.budget-bar i{display:block;height:100%;background:var(--accent);transition:width .45s ease-out}
+.budget-row.over .budget-bar i{background:var(--rose)}
 .budget-sub{font-size:.88rem;color:var(--muted)}
 .budget-badge{display:inline-block;font:600 .72rem var(--mono);letter-spacing:.06em;background:var(--accent-soft);border:1px solid var(--bad);color:var(--bad);border-radius:4px;padding:1px 6px;margin-left:6px}
-.budget-over{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:6px;padding:12px 14px;font-weight:600;margin-bottom:12px}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.budget-over{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:12px;padding:12px 14px;font-weight:600;margin-bottom:12px}
+/* Animasi (ARIEF 26 Nov 15:39: lebih interaktif, banyak animasi — vanilla saja) */
+@keyframes tabIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+main section:not([hidden]){animation:tabIn .28s ease-out}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -337,6 +383,14 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         <label for="periode-pilih">Pilih Periode</label>
         <select id="periode-pilih" aria-label="Pilih periode siklus"></select>
       </div>
+      <div class="minggu-row" id="minggu-row">
+        <label for="minggu-tanggal">Pilih periode (minggu)</label>
+        <div class="minggu-ctrl">
+          <input type="date" id="minggu-tanggal" aria-label="Pilih minggu dalam siklus">
+          <button class="btn-ghost" id="minggu-semua" type="button">Semua siklus</button>
+        </div>
+        <p class="minggu-teks" id="minggu-teks"></p>
+      </div>
       <div class="peringatan" id="mode-arsip" hidden>
         <span id="mode-arsip-teks"></span>
         <div style="height:10px"></div>
@@ -357,10 +411,11 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         <p class="terakhir" id="terakhir-hari-ini"></p>
         <p class="siklus-line" id="siklus-line"></p>
         <p class="msg warn" id="pesan-negatif" hidden>Uang bebasmu sudah terpakai. Yuk lihat sisa hari menuju gajian.</p>
-        <details class="hitung">
-          <summary>Lihat cara hitung</summary>
-          <table class="hitung-tabel">
+        <div class="hitung" id="hitung-box">
+          <button class="hitung-toggle" id="hitung-toggle" type="button" aria-expanded="false"><span>Lihat cara hitung</span><span class="chev">▾</span></button>
+          <div class="hitung-isi"><table class="hitung-tabel">
             <tr><td>Gaji</td><td id="h-gaji">Rp0</td></tr>
+            <tr id="row-pemasukan" hidden><td>+ Pemasukan lain</td><td id="h-pemasukan">Rp0</td></tr>
             <tr><td>&minus; Tagihan tetap</td><td id="h-tagihan">Rp0</td></tr>
             <tr><td>&minus; Target tabungan</td><td id="h-target">Rp0</td></tr>
             <tr class="total"><td>= Uang bebas</td><td id="h-bebas">Rp0</td></tr>
@@ -368,8 +423,8 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
             <tr class="total"><td>= Sisa uang bebas</td><td id="h-sisa">Rp0</td></tr>
             <tr><td>&divide; Sisa hari</td><td id="h-hari">0 hari</td></tr>
             <tr class="total"><td>= Jatah hari ini</td><td id="h-jatah">Rp0</td></tr>
-          </table>
-        </details>
+          </table></div>
+        </div>
       </div>
 
       <div class="ringkas-grid" id="ringkas-grid">
@@ -408,8 +463,12 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
     <!-- 02 Catat Kilat -->
     <section id="catat">
       <p class="kicker">Catat Kilat</p>
-      <h2>Catat pengeluaran</h2>
+      <h2>Catat transaksi</h2>
       <form class="card" id="form-catat" novalidate>
+        <div class="seg" id="f-seg" role="group" aria-label="Jenis catatan">
+          <button type="button" data-jenis="out" class="on">Pengeluaran</button>
+          <button type="button" data-jenis="in">Pemasukan</button>
+        </div>
         <label for="f-jumlah">Jumlah (Rp)</label>
         <input id="f-jumlah" inputmode="numeric" autocomplete="off" placeholder="25.000">
         <label>Kategori</label>
@@ -464,11 +523,11 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
         </div>
         <div id="peta-isi">
           <div class="donut-wrap">
-            <svg class="donut" width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="Donut pengeluaran per kategori untuk siklus berjalan">
-              <circle cx="85" cy="85" r="70" fill="none" stroke="var(--bg)" stroke-width="26"></circle>
+            <svg class="donut" width="190" height="190" viewBox="0 0 160 160" role="img" aria-label="Donut pengeluaran per kategori untuk siklus berjalan">
+              <circle cx="80" cy="80" r="60" fill="none" stroke="var(--track)" stroke-width="24"></circle>
               <g id="donut-seg"></g>
-              <text x="85" y="80" text-anchor="middle" font-size="15" font-weight="800" fill="var(--ink)" id="donut-total">Rp0</text>
-              <text x="85" y="100" text-anchor="middle" font-size="11" fill="var(--muted)">terpakai</text>
+              <text x="80" y="82" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)" id="donut-total">Rp0</text>
+              <text x="80" y="98" text-anchor="middle" font-size="10" fill="var(--muted)">terpakai</text>
             </svg>
             <ul class="legend" id="legend"></ul>
           </div>
@@ -557,13 +616,32 @@ footer button{background:none;border:0;color:var(--muted);cursor:pointer;text-de
 </div>
 
 <nav class="bottomnav" id="bottomnav"><div class="nav-in">
-  <a href="#beranda" data-tab="beranda" class="on">Beranda</a>
-  <a href="#catat" data-tab="catat">Catat</a>
-  <a href="#peta" data-tab="peta">Peta Uang</a>
-  <a href="#riwayat" data-tab="riwayat">Riwayat</a>
+  <a href="#beranda" data-tab="beranda" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10H3z"/></svg>Beranda</a>
+  <a href="#peta" data-tab="peta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 6"/></svg>Peta Uang</a>
+  <button class="nav-plus" id="nav-plus" type="button" aria-label="Catat transaksi"><span>+</span><i></i></button>
+  <a href="#riwayat" data-tab="riwayat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Riwayat</a>
+  <a href="#atur" data-tab="atur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></svg>Atur</a>
 </div></nav>
 
-<button id="fab" type="button" aria-label="Catat pengeluaran" hidden>+</button>
+<!-- Modal cepat (bottom-sheet ala prototype revisi 2.0) -->
+<div class="modal" id="modal-cepat" role="dialog" aria-modal="true" aria-label="Catat cepat">
+  <div class="panel">
+    <div class="panel-head"><h3>Catat cepat</h3><button class="panel-tutup" id="modal-tutup" type="button" aria-label="Tutup">&times;</button></div>
+    <div class="seg" id="m-seg" role="group" aria-label="Jenis catatan">
+      <button type="button" data-jenis="out" class="on">Pengeluaran</button>
+      <button type="button" data-jenis="in">Pemasukan</button>
+    </div>
+    <label class="f" for="m-jumlah">Jumlah (Rp)</label>
+    <input id="m-jumlah" inputmode="numeric" autocomplete="off" placeholder="0">
+    <label class="f">Kategori</label>
+    <div class="chips" id="m-chips" role="group" aria-label="Kategori"></div>
+    <label class="f" for="m-catatan">Catatan (opsional)</label>
+    <input id="m-catatan" autocomplete="off" placeholder="Contoh: makan siang">
+    <p class="msg" id="m-pesan" role="status" aria-live="polite"></p>
+    <button class="go" id="m-simpan" type="button">Simpan</button>
+    <button class="link" id="m-lengkap" type="button">Lengkap (pilih tanggal / bukti QRIS)</button>
+  </div>
+</div>
 
 <div id="toast" hidden><span id="toast-teks"></span><button type="button" id="toast-urungkan">Urungkan</button></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -589,8 +667,14 @@ window.__sisaSupabaseSiap=new Promise(function(res){
 /* ===== PURE-START: rumus & data (tanpa DOM — dipakai juga untuk cek node) ===== */
 var KEY="sisa-app-v2";
 var KATEGORI=["Belanja","Transportasi","Tagihan Langganan","BBM","Makan","Tabungan","Lainnya"];
+var KATEGORI_MASUK=["Gaji","Bonus","Lainnya"];
 var BULAN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 var HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+/* Jenis transaksi: "out" = pengeluaran (bawaan; transaksi lama tanpa field
+   jenis dianggap pengeluaran), "in" = pemasukan (Gaji/Bonus/Lainnya). */
+function jenisTx(t){return t&&t.jenis==="in"?"in":"out";}
+function isPemasukan(t){return jenisTx(t)==="in";}
+function isKeluar(t){return jenisTx(t)==="out"&&t.kategori!=="Tabungan";}
 
 function pad(n){return (n<10?"0":"")+n;}
 function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
@@ -645,23 +729,26 @@ function calcAll(st,ref){
   var sisaHari=Math.max(1,diffDays(ref,next));
   var tagihan=totalTagihan(st);
   var target=targetAmount(st);
-  var bebas=st.gaji-tagihan-target;
   var cyc=cycleTx(st,ref);
-  var keluar=0, keluarHariIni=0, perKat={}, disisihkan=0, distinct={};
+  var keluar=0, keluarHariIni=0, pemasukan=0, perKat={}, disisihkan=0, distinct={};
   var refISO=iso(ref);
   cyc.forEach(function(t){
     distinct[t.tanggal]=1;
+    if(isPemasukan(t)){pemasukan+=t.nominal;return;}
     if(t.kategori==="Tabungan"){disisihkan+=t.nominal;return;}
     keluar+=t.nominal;
     perKat[t.kategori]=(perKat[t.kategori]||0)+t.nominal;
     if(t.tanggal===refISO)keluarHariIni+=t.nominal;
   });
+  /* Uang bebas = gaji + pemasukan lain − tagihan tetap − target tabungan.
+     Pemasukan TIDAK masuk keluar/perKat/Peta Uang/Budget (hanya pengeluaran). */
+  var bebas=st.gaji+pemasukan-tagihan-target;
   var sisaUang=bebas-keluar;
   var jatah=Math.floor(Math.max(0,sisaUang)/sisaHari);
   var hariBerjalan=Math.max(1,diffDays(start,ref)+1);
   var laju=keluar/hariBerjalan;
   return {next:next, nextISO:iso(next), sisaHari:sisaHari, tagihan:tagihan, target:target,
-    bebas:bebas, keluar:keluar, keluarHariIni:keluarHariIni, sisaUang:sisaUang, jatah:jatah,
+    bebas:bebas, pemasukan:pemasukan, keluar:keluar, keluarHariIni:keluarHariIni, sisaUang:sisaUang, jatah:jatah,
     hariBerjalan:hariBerjalan, laju:laju, perKat:perKat, disisihkan:disisihkan,
     jumlahCatatan:cyc.length, hariData:Object.keys(distinct).length};
 }
@@ -680,11 +767,14 @@ function rollover(st,ref){
   ref=tengahMalam(ref);
   var expected=iso(lastPayday(st.tanggalGajian,ref));
   if(st.siklusMulai<expected){
-    var keluar=0;
+    var keluar=0, pemasukan=0;
     st.transaksi.forEach(function(t){
-      if(t.kategori!=="Tabungan"&&t.tanggal>=st.siklusMulai&&t.tanggal<expected)keluar+=t.nominal;
+      if(t.tanggal>=st.siklusMulai&&t.tanggal<expected){
+        if(isPemasukan(t)){pemasukan+=t.nominal;return;}
+        if(t.kategori!=="Tabungan")keluar+=t.nominal;
+      }
     });
-    st.arsip.unshift({gaji:st.gaji,mulai:st.siklusMulai,selesai:iso(addDays(parseISO(expected),-1)),pengeluaran:keluar,uangBebas:uangBebas(st),tagihan:totalTagihan(st),target:targetAmount(st)});
+    st.arsip.unshift({gaji:st.gaji,mulai:st.siklusMulai,selesai:iso(addDays(parseISO(expected),-1)),pengeluaran:keluar,pemasukan:pemasukan,uangBebas:st.gaji+pemasukan-totalTagihan(st)-targetAmount(st),tagihan:totalTagihan(st),target:targetAmount(st)});
     st.siklusMulai=expected;
     return true;
   }
@@ -692,18 +782,49 @@ function rollover(st,ref){
 }
 /* Agregat pengeluaran untuk rentang siklus apa pun [mulaiISO, akhirISO) —
    dipakai tampilan siklus arsip (transaksi lama tetap tersimpan di state).
-   Tabungan dikecualikan dari keluar, sama seperti calcAll. */
+   Tabungan dikecualikan dari keluar, sama seperti calcAll; pemasukan
+   dihitung terpisah dan TIDAK masuk keluar/perKat. */
 function agregatSiklus(st,mulaiISO,akhirISO){
-  var keluar=0, perKat={}, disisihkan=0, hari={};
+  var keluar=0, pemasukan=0, perKat={}, disisihkan=0, hari={};
   var tx=st.transaksi.filter(function(t){return t.tanggal>=mulaiISO&&t.tanggal<akhirISO;});
   tx.forEach(function(t){
     hari[t.tanggal]=1;
+    if(isPemasukan(t)){pemasukan+=t.nominal;return;}
     if(t.kategori==="Tabungan"){disisihkan+=t.nominal;return;}
     keluar+=t.nominal;
     perKat[t.kategori]=(perKat[t.kategori]||0)+t.nominal;
   });
-  return {tx:tx, keluar:keluar, perKat:perKat, disisihkan:disisihkan,
+  return {tx:tx, keluar:keluar, pemasukan:pemasukan, perKat:perKat, disisihkan:disisihkan,
     jumlahCatatan:tx.length, hariData:Object.keys(hari).length};
+}
+/* ---- Pemilih minggu dalam siklus (prototype revisi 2.0) ----
+   Minggu = 7 hari dari awal siklus; minggu terakhir bisa terpotong.
+   akhirISO bersifat eksklusif (untuk agregatSiklus). */
+function jumlahMinggu(mulaiISO,akhirISO){
+  var total=Math.max(1,diffDays(parseISO(mulaiISO),parseISO(akhirISO)));
+  return Math.ceil(total/7);
+}
+function mingguKe(mulaiISO,tanggalISO){
+  var d=diffDays(parseISO(mulaiISO),parseISO(tanggalISO));
+  if(d<0)return 0;
+  return Math.floor(d/7);
+}
+function rentangMinggu(mulaiISO,akhirISO,idx){
+  var mulai=parseISO(mulaiISO), akhir=parseISO(akhirISO);
+  var n=jumlahMinggu(mulaiISO,akhirISO);
+  if(idx<0)idx=0;
+  if(idx>=n)idx=n-1;
+  var a=addDays(mulai,idx*7);
+  var b=addDays(a,6);
+  if(b>=akhir)b=addDays(akhir,-1);
+  return {mulaiISO:iso(a), akhirISO:iso(addDays(b,1)), idx:idx, jumlah:n};
+}
+/* Batas wajar = uang bebas ÷ panjang siklus (hari) × hari berjalan.
+   Dipakai Budget: siklus berjalan pakai hari berjalan, minggu terpilih
+   pakai 7 hari, siklus arsip (selesai) pakai seluruh panjang siklus. */
+function batasWajar(bebas,totalHari,hariBerjalan){
+  if(bebas<=0||totalHari<=0||hariBerjalan<=0)return 0;
+  return Math.round(bebas*Math.min(hariBerjalan,totalHari)/totalHari);
 }
 /* Porsi (persen bulat) terhadap total; null bila total tidak ada. */
 function pctDari(n,total){
@@ -720,6 +841,7 @@ function tampilanSiklus(st,ref,idxArsip){
     var totalHari=Math.max(1,diffDays(parseISO(st.siklusMulai),c.next));
     return {mode:"berjalan", mulaiISO:st.siklusMulai, akhirISO:c.nextISO,
       gaji:st.gaji, tagihan:c.tagihan, target:c.target, bebas:c.bebas,
+      pemasukan:c.pemasukan,
       keluar:c.keluar, keluarHariIni:c.keluarHariIni, sisaUang:c.sisaUang,
       jatah:c.jatah, sisaHari:c.sisaHari, totalHari:totalHari,
       perKat:c.perKat, disisihkan:c.disisihkan, jumlahCatatan:c.jumlahCatatan,
@@ -734,6 +856,7 @@ function tampilanSiklus(st,ref,idxArsip){
   return {mode:"arsip", mulaiISO:a.mulai, akhirISO:akhirArsip,
     gaji:a.gaji, tagihan:(typeof a.tagihan==="number"?a.tagihan:null),
     target:(typeof a.target==="number"?a.target:null), bebas:a.uangBebas,
+    pemasukan:(typeof a.pemasukan==="number"?a.pemasukan:ag.pemasukan),
     keluar:ag.keluar, keluarHariIni:0, sisaUang:sisaAkhir,
     jatah:Math.floor(Math.max(0,a.uangBebas)/totalHariA), sisaHari:0,
     totalHari:totalHariA, perKat:ag.perKat, disisihkan:ag.disisihkan,
@@ -758,12 +881,62 @@ var esc=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/<
 
 var state=null;
 var periodeLihat="berjalan"; /* "berjalan" atau indeks ke state.arsip — hanya di memori, tidak disimpan/disinkronkan */
+var mingguLihat=null; /* null = seluruh siklus yang dilihat; atau indeks minggu (0 = minggu pertama) */
 var filterKat=null;
 var editingId=null;
 var editingTagihanId=null;
 var tabTipe="nominal";
+var jenisCatat="out"; /* jenis di form Catat Kilat: "out" pengeluaran, "in" pemasukan */
+var jenisModal="out"; /* jenis di modal cepat */
 var toastTimer=null;
 var lastDeleted=null;
+var hapusArmedId=null;
+var hapusArmedTimer=null;
+var terakhirDonutSig=null;
+
+/* ---------- Animasi (vanilla; hormati prefers-reduced-motion) ---------- */
+function kurangiGerak(){
+  try{return !!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches);}catch(e){return false;}
+}
+/* Count-up angka (±500ms, ease-out cubic). Selalu berakhir TEPAT di nilai
+   hitung; bila animasi terpotong/reduced-motion, nilai akhir tetap tampil. */
+function animasiAngka(el,nilai,format){
+  format=format||rp;
+  var dari=parseFloat(el.getAttribute("data-nilai")||"0")||0;
+  el.setAttribute("data-nilai",String(nilai));
+  if(kurangiGerak()||dari===nilai){el.textContent=format(nilai);return;}
+  var mulai=null, DUR=500;
+  /* Pengaman: apa pun yang terjadi pada rAF, nilai akhir dipaksa tampil. */
+  setTimeout(function(){el.textContent=format(nilai);},DUR+100);
+  function langkah(ts){
+    if(mulai===null)mulai=ts;
+    var p=Math.min(1,(ts-mulai)/DUR);
+    var e=1-Math.pow(1-p,3);
+    el.textContent=format(dari+(nilai-dari)*e);
+    if(p<1)requestAnimationFrame(langkah);
+    else el.textContent=format(nilai);
+  }
+  requestAnimationFrame(langkah);
+}
+/* Toast: tampil dengan animasi masuk, sembunyi dengan fade/slide keluar. */
+function tampilToast(pesan,opts){
+  opts=opts||{};
+  var t=$("toast");
+  $("toast-teks").textContent=(opts.sukses?"✓ ":"")+pesan;
+  $("toast-urungkan").hidden=!opts.urungkan;
+  t.classList.remove("keluar");
+  t.hidden=false;
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(sembunyiToast,opts.durasi||5000);
+}
+function sembunyiToast(){
+  var t=$("toast");
+  if(t.hidden)return;
+  if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}
+  if(kurangiGerak()){t.hidden=true;lastDeleted=null;return;}
+  t.classList.add("keluar");
+  setTimeout(function(){t.hidden=true;t.classList.remove("keluar");lastDeleted=null;},220);
+}
 
 function load(){
   try{state=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){state=null;}
@@ -1012,7 +1185,6 @@ function tampilkanBuatAkun(){
   $("onboarding").hidden=true;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
-  $("fab").hidden=true;
   $("keluar").hidden=true;
   $("bottomnav").hidden=true;
   $("ba-pesan").textContent="";
@@ -1024,7 +1196,6 @@ function tampilkanLogin(){
   $("onboarding").hidden=true;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
-  $("fab").hidden=true;
   $("keluar").hidden=true;
   $("bottomnav").hidden=true;
   $("lg-pesan").textContent="";
@@ -1040,7 +1211,6 @@ function tampilkanResetSandi(){
   $("onboarding").hidden=true;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
-  $("fab").hidden=true;
   $("keluar").hidden=true;
   $("bottomnav").hidden=true;
   $("rs-pesan").textContent="";
@@ -1167,7 +1337,6 @@ function tampilkanOnboarding(){
   $("onboarding").hidden=false;
   $("app").hidden=true;
   $("banner-gaji").hidden=true;
-  $("fab").hidden=true;
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
 }
@@ -1175,7 +1344,6 @@ function tampilkanApp(){
   sembunyikanAkun();
   $("onboarding").hidden=true;
   $("app").hidden=false;
-  $("fab").hidden=false;
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
   tampilkanTab(tabDariHash());
@@ -1230,14 +1398,27 @@ $("banner-ubah").addEventListener("click",function(){
 function render(){
   var ref=hariIni();
   var siklusBaru=rollover(state,ref);
-  if(siklusBaru)periodeLihat="berjalan";
+  if(siklusBaru){periodeLihat="berjalan";mingguLihat=null;}
   save();
   cekBanner();
   var c=calcAll(state,ref);
   $("tanggal").textContent=HARI[ref.getDay()]+", "+fmtTgl(ref);
 
-  /* Beranda (revisi mockup client 26 Nov 2026) */
-  renderBeranda(state,ref,c);
+  /* Siklus yang dilihat (berjalan/arsip) + minggu terpilih di dalamnya.
+     Hero jatah + 4 kartu ringkasan TETAP memakai angka siklus penuh;
+     yang memfilter ke minggu adalah Kemana, Terbaru, Budget, Peta, Riwayat. */
+  var idxV=periodeLihat==="berjalan"?null:periodeLihat;
+  var vView=tampilanSiklus(state,ref,idxV);
+  var arsipAktif=vView.mode==="arsip";
+  var mingguRentang=null, mingguAgg=null;
+  if(mingguLihat!==null){
+    mingguRentang=rentangMinggu(vView.mulaiISO,vView.akhirISO,mingguLihat);
+    mingguLihat=mingguRentang.idx;
+    mingguAgg=agregatSiklus(state,mingguRentang.mulaiISO,mingguRentang.akhirISO);
+  }
+
+  /* Beranda (revisi mockup client 26 Nov 2026 + minggu prototype 2.0) */
+  renderBeranda(state,ref,c,vView,mingguAgg,mingguRentang,arsipAktif);
 
   /* Progres hari ini */
   var pct=c.jatah>0?Math.round(c.keluarHariIni/c.jatah*100):(c.keluarHariIni>0?100:0);
@@ -1263,10 +1444,10 @@ function render(){
     $("prediksi-teks").textContent="Dengan laju ini, uang bebasmu diperkirakan habis "+fmtTgl(p.tglHabis)+", "+p.selisih+" hari sebelum gajian "+fmtTgl(c.next)+". (berdasarkan "+p.n+" catatan)";
   }
 
-  renderBudget(c);
-  renderPeta(c);
+  renderBudget(vView,mingguAgg);
+  renderPeta(vView,mingguAgg);
   renderInsight(c,p);
-  renderRiwayat();
+  renderRiwayat(mingguAgg,arsipAktif);
   renderAtur(c);
   renderArsip(c);
   renderFormDefault();
@@ -1281,11 +1462,8 @@ function deltaVs(cur,prev){
   if(d===0)return "Sama dengan periode sebelumnya";
   return "vs periode sebelumnya: "+(d>0?"+":"\u2212")+rp(Math.abs(d));
 }
-function renderBeranda(st,ref,c){
-  var idx=periodeLihat==="berjalan"?null:periodeLihat;
-  if(idx!==null&&(idx<0||idx>=st.arsip.length))idx=null;
-  var v=tampilanSiklus(st,ref,idx);
-  var arsipMode=v.mode==="arsip";
+function renderBeranda(st,ref,c,v,mingguAgg,mingguRentang,arsipAktif){
+  var arsipMode=arsipAktif;
 
   /* Header: tanggal hari ini + pemilih periode */
   $("beranda-tanggal").textContent=HARI[ref.getDay()]+", "+fmtTglPanjang(ref);
@@ -1295,25 +1473,28 @@ function renderBeranda(st,ref,c){
     opsi+='<option value="'+i+'">'+fmtTglISO(a.mulai)+' \u2013 '+fmtTglISO(a.selesai)+'</option>';
   });
   sel.innerHTML=opsi;
-  sel.value=idx===null?"berjalan":String(idx);
+  sel.value=periodeLihat==="berjalan"?"berjalan":String(periodeLihat);
+
+  /* Pemilih minggu dalam siklus yang dilihat (prototype 2.0) */
+  renderMingguPicker(v,mingguRentang);
 
   /* Penanda mode arsip (baca-saja) */
   $("mode-arsip").hidden=!arsipMode;
   if(arsipMode)$("mode-arsip-teks").textContent="Kamu sedang melihat siklus "+fmtTglISO(v.mulaiISO)+" \u2013 "+fmtTglISO(iso(addDays(parseISO(v.akhirISO),-1)))+" (arsip). Data di bawah ini baca-saja.";
 
-  /* Kartu jatah */
+  /* Kartu jatah — angka count-up, berakhir tepat di nilai hitung */
   $("jatah-lbl").textContent=arsipMode?"Jatah harian siklus":"Jatah hari ini";
-  $("jatah").textContent=rp(v.jatah);
+  animasiAngka($("jatah"),v.jatah);
   $("sisa-uang-lbl").textContent=arsipMode?"Sisa akhir siklus":"Sisa sampai gajian";
-  $("sisa-uang").textContent=rp(v.sisaUang);
+  animasiAngka($("sisa-uang"),v.sisaUang);
   $("sisa-hari-lbl").textContent=arsipMode?"Hari siklus":"Sisa hari menuju gajian";
   $("sisa-hari").textContent=(arsipMode?v.totalHari:v.sisaHari)+" hari";
   if(!arsipMode){
-    if(v.jatah>0&&v.sisaHari>0)$("artinya").textContent="Artinya, uangmu Aman dipakai "+rp(v.jatah)+" per hari untuk "+v.sisaHari+" hari ke depan.";
+    if(v.jatah>0&&v.sisaHari>0)$("artinya").innerHTML="Artinya, uangmu Aman dipakai <b>"+rp(v.jatah)+"</b> per hari untuk "+v.sisaHari+" hari ke depan.";
     else if(v.sisaUang<0)$("artinya").textContent="Uang bebasmu sudah terpakai \u2014 tidak ada jatah harian untuk "+v.sisaHari+" hari ke depan.";
     else $("artinya").textContent="Jatah harianmu Rp0 untuk "+v.sisaHari+" hari ke depan.";
   }else{
-    if(v.sisaUang>=0)$("artinya").textContent="Artinya, di siklus ini uangmu cukup dipakai "+rp(v.jatah)+" per hari selama "+v.totalHari+" hari.";
+    if(v.sisaUang>=0)$("artinya").innerHTML="Artinya, di siklus ini uangmu cukup dipakai <b>"+rp(v.jatah)+"</b> per hari selama "+v.totalHari+" hari.";
     else $("artinya").textContent="Di siklus ini kamu memakai "+rp(-v.sisaUang)+" lebih dari uang bebas.";
   }
   var pctBebas=v.bebas>0?Math.round(v.keluar/v.bebas*100):(v.keluar>0?100:0);
@@ -1321,10 +1502,10 @@ function renderBeranda(st,ref,c){
   $("terpakai-teks").textContent="Terpakai "+rp(v.keluar)+" dari uang bebas "+rp(v.bebas)+" ("+pctBebas+"%).";
   if(!arsipMode){
     var hariIniTx=st.transaksi.filter(function(t){return t.tanggal===iso(ref);}).sort(function(a,b){return b.id-a.id;});
-    $("terakhir-hari-ini").textContent=hariIniTx.length?("Terakhir hari ini: "+(hariIniTx[0].catatan||hariIniTx[0].kategori)+" \u2014 "+rp(hariIniTx[0].nominal)):"Belum ada pengeluaran hari ini.";
+    $("terakhir-hari-ini").textContent=hariIniTx.length?("Terakhir hari ini: "+(hariIniTx[0].catatan||hariIniTx[0].kategori)+" \u2014 "+(isPemasukan(hariIniTx[0])?"+":"\u2212")+rp(hariIniTx[0].nominal)):"Belum ada pengeluaran hari ini.";
   }else{
     var urutAkhir=v.tx.slice().sort(function(a,b){if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;return b.id-a.id;});
-    $("terakhir-hari-ini").textContent=urutAkhir.length?("Terakhir di siklus ini: "+(urutAkhir[0].catatan||urutAkhir[0].kategori)+" \u2014 "+rp(urutAkhir[0].nominal)+" ("+fmtTglISO(urutAkhir[0].tanggal)+")"):"Belum ada pengeluaran di siklus ini.";
+    $("terakhir-hari-ini").textContent=urutAkhir.length?("Terakhir di siklus ini: "+(urutAkhir[0].catatan||urutAkhir[0].kategori)+" \u2014 "+(isPemasukan(urutAkhir[0])?"+":"\u2212")+rp(urutAkhir[0].nominal)+" ("+fmtTglISO(urutAkhir[0].tanggal)+")"):"Belum ada pengeluaran di siklus ini.";
   }
   var akhirSiklus=addDays(parseISO(v.akhirISO),-1);
   var bulanSiklus=BULAN_PANJANG[parseISO(v.mulaiISO).getMonth()];
@@ -1336,6 +1517,8 @@ function renderBeranda(st,ref,c){
   $("pesan-negatif").hidden=!(v.sisaUang<0);
   $("pesan-negatif").textContent=arsipMode?"Di siklus ini uang bebasmu terpakai habis.":"Uang bebasmu sudah terpakai. Yuk lihat sisa hari menuju gajian.";
   $("h-gaji").textContent=rp(v.gaji);
+  $("row-pemasukan").hidden=!(v.pemasukan>0);
+  $("h-pemasukan").textContent=rp(v.pemasukan);
   $("h-tagihan").textContent=v.tagihan==null?"\u2014":rp(v.tagihan);
   $("h-target").textContent=v.target==null?"\u2014":rp(v.target);
   $("h-bebas").textContent=rp(v.bebas);
@@ -1344,10 +1527,11 @@ function renderBeranda(st,ref,c){
   $("h-hari").textContent=(arsipMode?v.totalHari:v.sisaHari)+" hari";
   $("h-jatah").textContent=rp(v.jatah);
 
-  /* 4 kartu ringkasan */
+  /* 4 kartu ringkasan — nilai count-up */
   var prev=v.prev;
   function isiKartu(prefix,val,prevVal){
-    $(prefix).textContent=val==null?"\u2014":rp(val);
+    if(val==null){$(prefix).textContent="\u2014";}
+    else animasiAngka($(prefix),val);
     var vs=val==null?null:deltaVs(val,prevVal);
     $(prefix+"-vs").textContent=vs==null?(prev?"tidak tercatat di siklus sebelumnya":"siklus pertama"):vs;
     var pct=val==null?null:pctDari(val,v.gaji);
@@ -1358,31 +1542,36 @@ function renderBeranda(st,ref,c){
   isiKartu("r-target",v.target,prev?(typeof prev.target==="number"?prev.target:null):null);
   isiKartu("r-bebas",v.bebas,prev?prev.uangBebas:null);
 
-  /* Kemana uangmu akan pergi? — 3 kategori terbesar siklus yang dilihat */
-  var urutK=KATEGORI.filter(function(k){return k!=="Tabungan"&&(v.perKat[k]||0)>0;})
-    .sort(function(a,b){return (v.perKat[b]||0)-(v.perKat[a]||0);}).slice(0,3);
-  if(v.keluar<=0||!urutK.length){
-    $("kemana-list").innerHTML="<p style=\"margin:0\">Belum ada pengeluaran di siklus ini. Setelah mencatat, tiga kategori terbesarmu tampil di sini.</p>";
+  /* Kemana uangmu akan pergi? — 3 kategori terbesar (minggu terpilih bila ada) */
+  var perKatTampil=mingguAgg?mingguAgg.perKat:v.perKat;
+  var keluarTampil=mingguAgg?mingguAgg.keluar:v.keluar;
+  var urutK=KATEGORI.filter(function(k){return k!=="Tabungan"&&(perKatTampil[k]||0)>0;})
+    .sort(function(a,b){return (perKatTampil[b]||0)-(perKatTampil[a]||0);}).slice(0,3);
+  if(keluarTampil<=0||!urutK.length){
+    $("kemana-list").innerHTML="<p style=\"margin:0\">Belum ada pengeluaran "+(mingguAgg?"di minggu ini":"di siklus ini")+". Setelah mencatat, tiga kategori terbesarmu tampil di sini.</p>";
   }else{
     $("kemana-list").innerHTML=urutK.map(function(k){
-      var val=v.perKat[k], pct=Math.round(val/v.keluar*100);
+      var val=perKatTampil[k], pct=Math.round(val/keluarTampil*100);
       return '<div class="kemana-row"><span class="kn"><i style="background:'+WARNA[k]+'"></i>'+esc(k)+'</span>'+
         '<span class="kj">'+rp(val)+'<small>'+pct+'% dari pengeluaran</small></span></div>';
     }).join("");
   }
 
-  /* Transaksi Terbaru — 5 terakhir siklus yang dilihat */
-  var terbaru=v.tx.slice().sort(function(a,b){
+  /* Transaksi Terbaru — 5 terakhir (minggu terpilih bila ada).
+     Mode arsip: baca-saja, tanpa tombol Ubah/Hapus. */
+  var txTampil=(mingguAgg?mingguAgg.tx:v.tx).slice().sort(function(a,b){
     if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
     return b.id-a.id;
   }).slice(0,5);
-  if(!terbaru.length){
-    $("terbaru-list").innerHTML="<li>Belum ada catatan di siklus ini. Catat pengeluaran pertamamu lewat Catat Kilat.</li>";
+  if(!txTampil.length){
+    $("terbaru-list").innerHTML="<li>Belum ada catatan "+(mingguAgg?"di minggu ini":"di siklus ini")+". Catat pengeluaran pertamamu lewat Catat Kilat.</li>";
   }else{
-    $("terbaru-list").innerHTML=terbaru.map(function(t){
+    $("terbaru-list").innerHTML=txTampil.map(function(t){
       var ket=t.catatan||t.kategori;
+      var msk=isPemasukan(t);
+      var aksi=arsipMode?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
       return '<li><div class="rk">'+esc(t.kategori)+'<small>'+fmtTglISO(t.tanggal)+' &middot; '+esc(ket)+'</small></div>'+
-        '<div class="rj"><div>'+rp(t.nominal)+'</div></div></li>';
+        '<div class="rj"><div class="'+(msk?"masuk":"")+'">'+(msk?"+":"\u2212")+rp(t.nominal)+'</div>'+aksi+'</div></li>';
     }).join("");
   }
 
@@ -1390,53 +1579,133 @@ function renderBeranda(st,ref,c){
   $("progres-card").hidden=arsipMode;
   $("prediksi-card").hidden=arsipMode;
 }
+/* Pemilih minggu (prototype 2.0): input tanggal dalam siklus yang dilihat
+   + tombol "Semua siklus". Teks periode + minggu sebelumnya. */
+function renderMingguPicker(v,mingguRentang){
+  var akhirSiklus=iso(addDays(parseISO(v.akhirISO),-1));
+  var inp=$("minggu-tanggal");
+  inp.min=v.mulaiISO;
+  inp.max=akhirSiklus;
+  if(mingguRentang){
+    inp.value=mingguRentang.mulaiISO;
+    var teks="Periode: "+fmtTglISO(mingguRentang.mulaiISO)+" \u2013 "+fmtTgl(parseISO(iso(addDays(parseISO(mingguRentang.akhirISO),-1))));
+    if(mingguRentang.idx>0){
+      var pv=rentangMinggu(v.mulaiISO,v.akhirISO,mingguRentang.idx-1);
+      teks+=" \u00b7 Sebelumnya: "+fmtTglISO(pv.mulaiISO)+" \u2013 "+fmtTgl(parseISO(iso(addDays(parseISO(pv.akhirISO),-1))));
+    }
+    $("minggu-teks").textContent=teks+" (minggu ke-"+(mingguRentang.idx+1)+" dari "+mingguRentang.jumlah+")";
+  }else{
+    inp.value=""; /* mode "Semua siklus": input kosong, jangan menampilkan tanggal seolah minggu terpilih */
+    $("minggu-teks").textContent="Menampilkan seluruh siklus: "+fmtTglISO(v.mulaiISO)+" \u2013 "+fmtTgl(parseISO(akhirSiklus))+" ("+jumlahMinggu(v.mulaiISO,v.akhirISO)+" minggu).";
+  }
+  $("minggu-semua").classList.toggle("on",mingguLihat===null);
+}
 $("periode-pilih").addEventListener("change",function(){
   var val=this.value;
   periodeLihat=val==="berjalan"?"berjalan":parseInt(val,10);
+  mingguLihat=null;
   render();
+  animasiMasukBeranda();
+});
+$("minggu-tanggal").addEventListener("change",function(){
+  if(!this.value)return;
+  var idx=periodeLihat==="berjalan"?null:periodeLihat;
+  var v=tampilanSiklus(state,hariIni(),idx);
+  mingguLihat=mingguKe(v.mulaiISO,this.value);
+  render();
+  animasiMasukBeranda();
+});
+$("minggu-semua").addEventListener("click",function(){
+  mingguLihat=null;
+  render();
+  animasiMasukBeranda();
 });
 $("ke-siklus-berjalan").addEventListener("click",function(){
   periodeLihat="berjalan";
+  mingguLihat=null;
   render();
+  animasiMasukBeranda();
   window.scrollTo(0,0);
 });
 $("ke-budget").addEventListener("click",function(){tampilkanTab("peta");});
 $("ke-riwayat").addEventListener("click",function(){tampilkanTab("riwayat");});
+/* "Lihat cara hitung" — buka/tutup beranimasi */
+$("hitung-toggle").addEventListener("click",function(){
+  var box=$("hitung-box");
+  var buka=box.classList.toggle("buka");
+  this.setAttribute("aria-expanded",buka?"true":"false");
+});
+/* Transaksi Terbaru: Ubah/Hapus langsung di daftar (mode arsip: tidak ada tombol) */
+$("terbaru-list").addEventListener("click",function(e){
+  var ub=e.target.closest("[data-ubah]"), hp=e.target.closest("[data-hapus]");
+  if(ub){mulaiUbah(+ub.getAttribute("data-ubah"));return;}
+  if(hp){mintaHapus(+hp.getAttribute("data-hapus"),hp);}
+});
+/* Entrance Beranda: kartu fade-up bertahap (stagger ~30ms, total <400ms) */
+function animasiMasukBeranda(){
+  if(kurangiGerak())return;
+  var els=[];
+  var j=$("beranda").querySelector(".jatah-card");if(j)els.push(j);
+  var g=$("ringkas-grid");if(g)els.push(g);
+  var cards=$("beranda").querySelectorAll(":scope > .card");
+  cards.forEach(function(c){els.push(c);});
+  els.forEach(function(el,i){
+    el.style.animation="fadeUp .25s ease-out "+(i*30)+"ms both";
+    setTimeout(function(){el.style.animation="";},600);
+  });
+}
 
-function renderPeta(c){
-  var kosong=c.keluar<=0;
+/* Peta Uang — restyle visual prototype (donut r=60 + legenda baris);
+   logika data TIDAK berubah. v = siklus yang dilihat, mingguAgg = agregat
+   minggu terpilih (null = seluruh siklus). Segmen donut tergambar masuk. */
+function renderPeta(v,mingguAgg){
+  var keluar=mingguAgg?mingguAgg.keluar:v.keluar;
+  var perKat=mingguAgg?mingguAgg.perKat:v.perKat;
+  var disisihkan=mingguAgg?mingguAgg.disisihkan:v.disisihkan;
+  var kosong=keluar<=0;
   $("peta-kosong").hidden=!kosong;
   $("peta-isi").hidden=kosong;
   if(kosong)return;
-  var C=2*Math.PI*70, off=0, seg=$("donut-seg");
+  var C=2*Math.PI*60, off=0, seg=$("donut-seg");
   seg.innerHTML="";
+  var sig=keluar+"|"+KATEGORI.map(function(k){return (perKat[k]||0);}).join(",");
+  var animasiDonut=!kurangiGerak()&&sig!==terakhirDonutSig;
+  terakhirDonutSig=sig;
   KATEGORI.forEach(function(k){
     if(k==="Tabungan")return;
-    var v=c.perKat[k]||0;if(!v)return;
-    var len=C*v/c.keluar;
+    var val=perKat[k]||0;if(!val)return;
+    var len=C*val/keluar;
     var el=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    el.setAttribute("cx","85");el.setAttribute("cy","85");el.setAttribute("r","70");
-    el.setAttribute("fill","none");el.setAttribute("stroke",WARNA[k]);el.setAttribute("stroke-width","26");
-    el.setAttribute("stroke-dasharray",len+" "+(C-len));
+    el.setAttribute("cx","80");el.setAttribute("cy","80");el.setAttribute("r","60");
+    el.setAttribute("fill","none");el.setAttribute("stroke",WARNA[k]);el.setAttribute("stroke-width","24");
+    el.setAttribute("stroke-dasharray",animasiDonut?("0 "+C):(len+" "+(C-len)));
     el.setAttribute("stroke-dashoffset",-off);
-    el.setAttribute("transform","rotate(-90 85 85)");
+    el.setAttribute("transform","rotate(-90 80 80)");
+    el.setAttribute("data-da",len+" "+(C-len));
     seg.appendChild(el);off+=len;
   });
-  $("donut-total").textContent=rpSingkat(c.keluar);
-  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
-    .sort(function(a,b){return (c.perKat[b]||0)-(c.perKat[a]||0);});
+  if(animasiDonut){
+    /* Paksa reflow supaya keadaan awal tercatat, lalu gambar segmen masuk. */
+    void seg.getBoundingClientRect();
+    seg.querySelectorAll("circle").forEach(function(el){
+      el.style.strokeDasharray=el.getAttribute("data-da");
+    });
+  }
+  $("donut-total").textContent=rpSingkat(keluar);
+  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(perKat[k]||0)>0;})
+    .sort(function(a,b){return (perKat[b]||0)-(perKat[a]||0);});
   $("legend").innerHTML=urut.map(function(k){
-    var v=c.perKat[k], pct=Math.round(v/c.keluar*100);
+    var val=perKat[k], pct=Math.round(val/keluar*100);
     return '<li><button type="button" data-kat="'+esc(k)+'" class="'+(filterKat===k?"on":"")+'">'+
       '<span><i style="background:'+WARNA[k]+'"></i>'+esc(k)+'</span>'+
-      '<span class="pct">'+rpSingkat(v)+' · '+pct+'%</span></button></li>';
+      '<span class="pct">'+rpSingkat(val)+' · '+pct+'%</span></button></li>';
   }).join("");
   $("tabel-ringkas").querySelector("tbody").innerHTML=urut.map(function(k){
-    var v=c.perKat[k], pct=(v/c.keluar*100).toLocaleString("id-ID",{maximumFractionDigits:1});
-    return '<tr data-kat="'+esc(k)+'"><td>'+esc(k)+'</td><td>'+rp(v)+'</td><td>'+pct+'%</td></tr>';
+    var val=perKat[k], pct=(val/keluar*100).toLocaleString("id-ID",{maximumFractionDigits:1});
+    return '<tr data-kat="'+esc(k)+'"><td>'+esc(k)+'</td><td>'+rp(val)+'</td><td>'+pct+'%</td></tr>';
   }).join("");
-  $("disisihkan").innerHTML=c.disisihkan>0
-    ? "Tabungan — disisihkan: <b>"+rp(c.disisihkan)+"</b><br><span style=\"color:var(--muted)\">Tabungan tidak dihitung sebagai pengeluaran, karena sudah dipisahkan di awal lewat target tabungan.</span>"
+  $("disisihkan").innerHTML=disisihkan>0
+    ? "Tabungan — disisihkan: <b>"+rp(disisihkan)+"</b><br><span style=\"color:var(--muted)\">Tabungan tidak dihitung sebagai pengeluaran, karena sudah dipisahkan di awal lewat target tabungan.</span>"
     : "Tabungan — disisihkan: <b>Rp0</b><br><span style=\"color:var(--muted)\">Catatan berkategori Tabungan tampil di sini, bukan sebagai pengeluaran.</span>";
 }
 $("legend").addEventListener("click",function(e){
@@ -1449,51 +1718,56 @@ $("tabel-ringkas").addEventListener("click",function(e){
 });
 function setFilter(k){
   filterKat=k;
-  renderPeta(calcAll(state,hariIni()));
-  renderRiwayat();
+  render();
   tampilkanTab("riwayat");
 }
 $("filter-hapus").addEventListener("click",function(){
   filterKat=null;
-  renderPeta(calcAll(state,hariIni()));
-  renderRiwayat();
+  render();
 });
 
-/* ---------- Budget Kategori (model Budggt) ----------
-   Batas wajar sampai hari ini = uang bebas x hari berjalan / total hari siklus.
-   Murni turunan rumus PRD — bukan target kategori baru. */
-function renderBudget(c){
-  var totalHari=Math.max(1,diffDays(parseISO(state.siklusMulai),c.next));
-  var fair=c.bebas>0?Math.round(c.bebas*c.hariBerjalan/totalHari):0;
+/* ---------- Budget Kategori (model Budggt + prototype 2.0) ----------
+   Batas wajar = uang bebas ÷ panjang siklus (hari) × hari berjalan.
+   Siklus berjalan: hari berjalan sampai hari ini; minggu terpilih: 7 hari;
+   siklus arsip (selesai): seluruh panjang siklus. Murni turunan rumus PRD
+   — bukan target kategori baru. Bar beranimasi lebarnya; ≥100% jadi rose. */
+function renderBudget(v,mingguAgg){
+  var totalHari=v.totalHari;
+  var hariFair=mingguAgg?7:v.hariBerjalan;
+  var fair=batasWajar(v.bebas,totalHari,hariFair);
+  var keluar=mingguAgg?mingguAgg.keluar:v.keluar;
+  var perKat=mingguAgg?mingguAgg.perKat:v.perKat;
   var box=$("budget-list");
   var pen=$("budget-penjelasan");
   if(fair>0){
-    var pctFair=c.keluar>0?Math.round(c.keluar/fair*100):0;
-    pen.textContent="Batas wajar sampai hari ini "+rp(fair)+" (uang bebas "+rp(c.bebas)+" dibagi rata "+totalHari+" hari siklus, sudah berjalan "+c.hariBerjalan+" hari). Terpakai "+rp(c.keluar)+" ("+pctFair+"%).";
+    var pctFair=keluar>0?Math.round(keluar/fair*100):0;
+    pen.textContent=mingguAgg
+      ? "Batas wajar minggu ini "+rp(fair)+" (uang bebas "+rp(v.bebas)+" dibagi rata "+totalHari+" hari siklus, 7 hari per minggu). Terpakai minggu ini "+rp(keluar)+" ("+pctFair+"%)."
+      : "Batas wajar sampai hari ini "+rp(fair)+" (uang bebas "+rp(v.bebas)+" dibagi rata "+totalHari+" hari siklus, sudah berjalan "+v.hariBerjalan+" hari). Terpakai "+rp(keluar)+" ("+pctFair+"%).";
   }else{
     pen.textContent="Batas wajar muncul setelah uang bebas di atas Rp0.";
   }
-  if(c.keluar<=0){
-    box.innerHTML="<p style=\"margin:0\">Belum ada pengeluaran di siklus ini. Begitu ada catatan, tiap kategori tampil di sini dengan bar terhadap batas wajar.</p>";
+  if(keluar<=0){
+    box.innerHTML="<p style=\"margin:0\">Belum ada pengeluaran "+(mingguAgg?"di minggu ini":"di siklus ini")+". Begitu ada catatan, tiap kategori tampil di sini dengan bar terhadap batas wajar.</p>";
     return;
   }
-  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
-    .sort(function(a,b){return (c.perKat[b]||0)-(c.perKat[a]||0);});
-  var denom=fair>0?fair:Math.max(c.keluar,1);
+  var urut=KATEGORI.filter(function(k){return k!=="Tabungan"&&(perKat[k]||0)>0;})
+    .sort(function(a,b){return (perKat[b]||0)-(perKat[a]||0);});
+  var denom=fair>0?fair:Math.max(keluar,1);
   var html="";
-  if(fair>0&&c.keluar>fair){
-    html+='<div class="budget-over" role="status">Sudah melewati batas wajar '+rp(c.keluar-fair)+' — pengeluaran siklus ini lebih cepat dari ritme harian. Coba tahan pengeluaran sampai gajian.</div>';
+  if(fair>0&&keluar>fair){
+    html+='<div class="budget-over" role="status">Sudah melewati batas wajar '+rp(keluar-fair)+' — pengeluaran '+(mingguAgg?"minggu ini":"siklus ini")+' lebih cepat dari ritme harian. Coba tahan pengeluaran sampai gajian.</div>';
   }
   html+=urut.map(function(k){
-    var v=c.perKat[k];
-    var pct=Math.round(v/denom*100);
-    var over=fair>0&&v>fair;
+    var val=perKat[k];
+    var pct=Math.round(val/denom*100);
+    var over=fair>0&&val>fair;
     var w=Math.min(100,pct);
     return '<button type="button" class="budget-row'+(over?" over":"")+'" data-kat="'+esc(k)+'">'+
       '<span class="budget-top"><span><i style="background:'+WARNA[k]+'"></i>'+esc(k)+'</span>'+
-      '<span><b>'+rp(v)+'</b> &middot; '+pct+'%</span></span>'+
+      '<span><b>'+rp(val)+'</b> &middot; '+pct+'%</span></span>'+
       '<span class="budget-bar"><i style="width:'+w+'%"></i></span>'+
-      '<span class="budget-sub">'+(fair>0?("dari batas wajar "+rp(fair)):("dari total terpakai "+rp(c.keluar)))+(over?' <span class="budget-badge">Lewat batas</span>':'')+'</span>'+
+      '<span class="budget-sub">'+(fair>0?("dari batas wajar "+rp(fair)):("dari total terpakai "+rp(keluar)))+(over?' <span class="budget-badge">Lewat batas</span>':'')+'</span>'+
       '</button>';
   }).join("");
   box.innerHTML=html;
@@ -1506,7 +1780,7 @@ $("budget-list").addEventListener("click",function(e){
 /* ---------- Paham (insight) ---------- */
 function renderInsight(c,p){
   var box=$("insight-list");
-  var cyc=cycleTx(state,hariIni()).filter(function(t){return t.kategori!=="Tabungan";});
+  var cyc=cycleTx(state,hariIni()).filter(function(t){return isKeluar(t);});
   if(cyc.length<3){
     box.innerHTML="<p style=\"margin:0\">Catat minimal 3 pengeluaran supaya Sisa bisa memberi gambaran dari datamu. Saat ini ada "+cyc.length+" catatan di siklus ini.</p>";
     return;
@@ -1553,39 +1827,70 @@ function renderInsight(c,p){
   }).join("");
 }
 
-/* ---------- Riwayat ---------- */
+/* ---------- Riwayat ----------
+   Tanpa filter minggu: semua catatan (perilaku lama). Bila minggu terpilih:
+   hanya transaksi minggu itu. Mode arsip: baca-saja (tanpa Ubah/Hapus). */
 function urutanTx(){
   return state.transaksi.slice().sort(function(a,b){
     if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
     return b.id-a.id;
   });
 }
-function renderRiwayat(){
-  var list=urutanTx();
+function renderRiwayat(mingguAgg,arsipAktif){
+  var list=mingguAgg?mingguAgg.tx.slice().sort(function(a,b){
+    if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
+    return b.id-a.id;
+  }):urutanTx();
   var tampil=filterKat?list.filter(function(t){return t.kategori===filterKat;}):list;
   $("filterbar").hidden=!filterKat;
   if(filterKat)$("filter-teks").textContent="Menampilkan kategori: "+filterKat+" ("+tampil.length+" catatan)";
   if(!tampil.length){
-    $("riwayat-list").innerHTML="<li>"+(filterKat?"Tidak ada catatan untuk kategori ini di siklus ini.":"Belum ada catatan. Catat pengeluaran pertamamu lewat Catat Kilat.")+"</li>";
+    $("riwayat-list").innerHTML="<li>"+(filterKat?"Tidak ada catatan untuk kategori ini di siklus ini.":(mingguAgg?"Belum ada catatan di minggu ini.":"Belum ada catatan. Catat pengeluaran pertamamu lewat Catat Kilat."))+"</li>";
     return;
   }
   $("riwayat-list").innerHTML=tampil.map(function(t){
     var ket=t.catatan||t.kategori;
+    var msk=isPemasukan(t);
+    var aksi=arsipAktif?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
     return '<li><div class="rk">'+esc(t.kategori)+'<small>'+fmtTglISO(t.tanggal)+' &middot; '+esc(ket)+(t.qris?' <span class="qris-badge">QRIS</span>':'')+'</small></div>'+
-      '<div class="rj"><div>'+(t.qris?'<img class="qris-thumb" src="'+t.qris+'" alt="Bukti QRIS">':'')+rp(t.nominal)+'</div>'+
-      '<button type="button" data-ubah="'+t.id+'">Ubah</button>'+
-      '<button type="button" data-hapus="'+t.id+'">Hapus</button></div></li>';
+      '<div class="rj"><div class="'+(msk?"masuk":"")+'">'+(t.qris?'<img class="qris-thumb" src="'+t.qris+'" alt="Bukti QRIS">':'')+(msk?"+":"\u2212")+rp(t.nominal)+'</div>'+
+      aksi+'</div></li>';
   }).join("");
 }
 $("riwayat-list").addEventListener("click",function(e){
   var ub=e.target.closest("[data-ubah]"), hp=e.target.closest("[data-hapus]");
   if(ub){mulaiUbah(+ub.getAttribute("data-ubah"));return;}
-  if(hp){hapusTx(+hp.getAttribute("data-hapus"));}
+  if(hp){mintaHapus(+hp.getAttribute("data-hapus"),hp);}
 });
+/* Hapus 2 ketuk (prototype 2.0): ketuk 1 jadi "Yakin hapus?", ketuk 2 dalam
+   3 detik menghapus (baris beranimasi keluar dulu), lalu toast + Urungkan. */
+function mintaHapus(id,btn){
+  if(hapusArmedId===id){
+    hapusArmedId=null;
+    if(hapusArmedTimer){clearTimeout(hapusArmedTimer);hapusArmedTimer=null;}
+    var li=btn.closest("li");
+    if(li&&!kurangiGerak()){
+      li.classList.add("keluar");
+      setTimeout(function(){hapusTx(id);},230);
+    }else{
+      hapusTx(id);
+    }
+    return;
+  }
+  hapusArmedId=id;
+  btn.textContent="Yakin hapus?";
+  btn.classList.add("arm");
+  if(hapusArmedTimer)clearTimeout(hapusArmedTimer);
+  hapusArmedTimer=setTimeout(function(){
+    hapusArmedId=null;hapusArmedTimer=null;
+    render();
+  },3000);
+}
 function mulaiUbah(id){
   var t=null;state.transaksi.forEach(function(x){if(x.id===id)t=x;});
   if(!t)return;
   editingId=id;
+  setJenisCatat(jenisTx(t));
   $("f-jumlah").value=fmtNum(t.nominal);
   pilihChip(t.kategori);
   $("f-tanggal").value=t.tanggal;
@@ -1593,7 +1898,7 @@ function mulaiUbah(id){
   $("f-simpan").textContent="Simpan perubahan";
   $("f-batal").hidden=false;
   qrisBaru=t.qris||null;tampilkanQris();
-  $("f-pesan").textContent="Mengubah catatan "+fmtTglISO(t.tanggal)+" — "+rp(t.nominal)+".";
+  $("f-pesan").textContent="Mengubah catatan "+fmtTglISO(t.tanggal)+" — "+(isPemasukan(t)?"+":"\u2212")+rp(t.nominal)+".";
   $("f-pesan").className="msg";
   tampilkanTab("catat");
   $("f-jumlah").focus();
@@ -1607,30 +1912,22 @@ function hapusTx(id){
   if(editingId===id)batalUbah();
   lastDeleted={item:item,index:idx};
   render();
-  $("toast-teks").textContent="Catatan "+rp(item.nominal)+" dihapus.";
-  $("toast").hidden=false;
-  if(toastTimer)clearTimeout(toastTimer);
-  toastTimer=setTimeout(function(){$("toast").hidden=true;lastDeleted=null;},5000);
+  tampilToast("Catatan "+rp(item.nominal)+" dihapus.",{urungkan:true});
 }
 $("toast-urungkan").addEventListener("click",function(){
   if(!lastDeleted)return;
   state.transaksi.splice(Math.min(lastDeleted.index,state.transaksi.length),0,lastDeleted.item);
   save();lastDeleted=null;
-  $("toast").hidden=true;
-  if(toastTimer)clearTimeout(toastTimer);
+  sembunyiToast();
   render();
 });
 
-/* ---------- Tombol + (model Budggt: catat cepat) ---------- */
-$("fab").addEventListener("click",function(){
-  tampilkanTab("catat");
-  setTimeout(function(){$("f-jumlah").focus();},350);
-});
-
-/* ---------- Catat Kilat ---------- */
+/* ---------- Catat Kilat (Pengeluaran/Pemasukan — prototype 2.0) ---------- */
 var chipTerpilih="Makan";
+var chipModal="Makan";
+function daftarKategori(jenis){return jenis==="in"?KATEGORI_MASUK:KATEGORI;}
 function bangunChips(){
-  $("f-chips").innerHTML=KATEGORI.map(function(k){
+  $("f-chips").innerHTML=daftarKategori(jenisCatat).map(function(k){
     return '<button type="button" class="chip" data-kat="'+esc(k)+'" aria-pressed="'+(k===chipTerpilih)+'">'+esc(k)+'</button>';
   }).join("");
 }
@@ -1639,10 +1936,37 @@ function pilihChip(k){
   var btns=$("f-chips").querySelectorAll(".chip");
   btns.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-kat")===k?"true":"false");});
 }
+function setJenisCatat(jenis){
+  jenisCatat=jenis;
+  chipTerpilih=jenis==="in"?"Gaji":"Makan";
+  $("f-seg").querySelectorAll("button").forEach(function(b){
+    b.classList.toggle("on",b.getAttribute("data-jenis")===jenis);
+  });
+  bangunChips();
+}
+$("f-seg").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-jenis]");if(!b)return;
+  setJenisCatat(b.getAttribute("data-jenis"));
+});
 $("f-chips").addEventListener("click",function(e){
   var b=e.target.closest(".chip");if(!b)return;
   pilihChip(b.getAttribute("data-kat"));
 });
+/* Simpan transaksi — SATU fungsi untuk form Catat penuh + modal cepat.
+   data: {jenis, kategori, nominal, tanggal, catatan, qris, editId} */
+function simpanTransaksi(data){
+  if(data.editId!=null){
+    var ketemu=false;
+    state.transaksi.forEach(function(x){
+      if(x.id===data.editId){x.nominal=data.nominal;x.kategori=data.kategori;x.tanggal=data.tanggal;x.catatan=data.catatan;x.qris=data.qris;x.jenis=data.jenis;ketemu=true;}
+    });
+    if(!ketemu){state.transaksi.push({id:data.editId,tanggal:data.tanggal,kategori:data.kategori,catatan:data.catatan,nominal:data.nominal,jenis:data.jenis,qris:data.qris});} /* Urungkan setelah hapus: pulihkan dengan id asal */
+  }else{
+    state.transaksi.push({id:state.nextId++,tanggal:data.tanggal,kategori:data.kategori,catatan:data.catatan,nominal:data.nominal,jenis:data.jenis,qris:data.qris});
+  }
+  save();
+  render();
+}
 function renderFormDefault(){
   if(editingId!==null)return;
   if(!$("f-tanggal").value)$("f-tanggal").value=iso(hariIni());
@@ -1684,7 +2008,7 @@ function batalUbah(){
   $("f-simpan").textContent="Simpan catatan";
   $("f-batal").hidden=true;
   $("form-catat").reset();
-  pilihChip("Makan");
+  setJenisCatat("out");
   $("f-tanggal").value=iso(hariIni());
   $("f-pesan").textContent="";
 }
@@ -1698,26 +2022,90 @@ $("form-catat").addEventListener("submit",function(e){
   }
   var tgl=$("f-tanggal").value||iso(hariIni());
   var ket=$("f-catatan").value.trim();
+  var katSimpan=chipTerpilih, jenisSimpan=jenisCatat;
   if(editingId!==null){
-    state.transaksi.forEach(function(x){
-      if(x.id===editingId){x.nominal=jml;x.kategori=chipTerpilih;x.tanggal=tgl;x.catatan=ket;x.qris=qrisBaru;}
-    });
-    save();
-    var katSimpan=chipTerpilih;
+    simpanTransaksi({jenis:jenisSimpan,kategori:katSimpan,nominal:jml,tanggal:tgl,catatan:ket,qris:qrisBaru,editId:editingId});
     batalUbah();
-    $("f-pesan").textContent="Catatan diperbarui: "+rp(jml)+" ("+katSimpan+").";
+    $("f-pesan").textContent="Catatan diperbarui: "+(jenisSimpan==="in"?"+":"\u2212")+rp(jml)+" ("+katSimpan+").";
     $("f-pesan").className="msg ok";
+    tampilToast("Perubahan disimpan.",{sukses:true});
   }else{
-    state.transaksi.push({id:state.nextId++,tanggal:tgl,kategori:chipTerpilih,catatan:ket,nominal:jml,qris:qrisBaru});
-    save();
-    $("f-pesan").textContent="Tercatat: "+rp(jml)+" ("+chipTerpilih+").";
+    simpanTransaksi({jenis:jenisSimpan,kategori:katSimpan,nominal:jml,tanggal:tgl,catatan:ket,qris:qrisBaru,editId:null});
+    $("f-pesan").textContent="Tercatat: "+(jenisSimpan==="in"?"+":"\u2212")+rp(jml)+" ("+katSimpan+").";
     $("f-pesan").className="msg ok";
     $("form-catat").reset();
     qrisBaru=null;tampilkanQris();
-    pilihChip("Makan");
+    pilihChip(jenisSimpan==="in"?"Gaji":"Makan");
     $("f-tanggal").value=iso(hariIni());
+    tampilToast("Tercatat: "+rp(jml)+" ("+katSimpan+").",{sukses:true});
   }
-  render();
+});
+
+/* ---------- Modal cepat (bottom-sheet, tombol + di nav) ---------- */
+function bangunChipsModal(){
+  $("m-chips").innerHTML=daftarKategori(jenisModal).map(function(k){
+    return '<button type="button" class="chip" data-kat="'+esc(k)+'" aria-pressed="'+(k===chipModal)+'">'+esc(k)+'</button>';
+  }).join("");
+}
+function pilihChipModal(k){
+  chipModal=k;
+  $("m-chips").querySelectorAll(".chip").forEach(function(b){
+    b.setAttribute("aria-pressed",b.getAttribute("data-kat")===k?"true":"false");
+  });
+}
+function setJenisModal(jenis){
+  jenisModal=jenis;
+  chipModal=jenis==="in"?"Gaji":"Makan";
+  $("m-seg").querySelectorAll("button").forEach(function(b){
+    b.classList.toggle("on",b.getAttribute("data-jenis")===jenis);
+  });
+  bangunChipsModal();
+}
+function bukaModal(){
+  setJenisModal("out");
+  $("m-jumlah").value="";
+  $("m-catatan").value="";
+  $("m-pesan").textContent="";
+  $("m-pesan").className="msg";
+  $("modal-cepat").classList.add("on");
+  setTimeout(function(){$("m-jumlah").focus();},320);
+}
+function tutupModal(){
+  $("modal-cepat").classList.remove("on");
+}
+$("nav-plus").addEventListener("click",bukaModal);
+$("modal-tutup").addEventListener("click",tutupModal);
+$("modal-cepat").addEventListener("click",function(e){
+  if(e.target===$("modal-cepat"))tutupModal();
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"&&$("modal-cepat").classList.contains("on"))tutupModal();
+});
+$("m-seg").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-jenis]");if(!b)return;
+  setJenisModal(b.getAttribute("data-jenis"));
+});
+$("m-chips").addEventListener("click",function(e){
+  var b=e.target.closest(".chip");if(!b)return;
+  pilihChipModal(b.getAttribute("data-kat"));
+});
+$("m-jumlah").addEventListener("input",function(){var n=num(this.value);this.value=n?fmtNum(n):"";});
+$("m-simpan").addEventListener("click",function(){
+  var jml=num($("m-jumlah").value);
+  if(!jml||jml<=0){
+    $("m-pesan").textContent="Isi jumlahnya dulu dengan angka lebih dari Rp0.";
+    $("m-pesan").className="msg err";
+    $("m-jumlah").focus();return;
+  }
+  var kat=chipModal, jenis=jenisModal;
+  simpanTransaksi({jenis:jenis,kategori:kat,nominal:jml,tanggal:iso(hariIni()),catatan:$("m-catatan").value.trim(),qris:null,editId:null});
+  tutupModal();
+  tampilToast("Tercatat: "+(jenis==="in"?"+":"\u2212")+rp(jml)+" ("+kat+").",{sukses:true});
+});
+$("m-lengkap").addEventListener("click",function(){
+  tutupModal();
+  tampilkanTab("catat");
+  setTimeout(function(){$("f-jumlah").focus();},350);
 });
 
 /* ---------- Atur ---------- */
@@ -1884,6 +2272,7 @@ function tampilkanTab(nama){
   navLinks.forEach(function(a){a.classList.toggle("on",a.getAttribute("data-tab")===nama);});
   window.scrollTo(0,0);
   try{history.replaceState(null,"","#"+nama);}catch(e){}
+  if(nama==="beranda")animasiMasukBeranda();
 }
 var navLinks=document.querySelectorAll(".bottomnav a");
 navLinks.forEach(function(a){
@@ -1898,6 +2287,7 @@ $("atur-kembali").addEventListener("click",function(){tampilkanTab("beranda");})
 /* ---------- Mulai ---------- */
 terapkanTema();
 bangunChips();
+bangunChipsModal();
 (function(){var d=hariIni();$("tanggal").textContent=HARI[d.getDay()]+", "+fmtTgl(d);})();
 /* Bersihkan sisa kunci login lokal/demo lama bila pernah ada (prototipe belum rilis). */
 try{localStorage.removeItem("sisa-pass");sessionStorage.removeItem("sisa-login");sessionStorage.removeItem("sisa-demo");}catch(e){}
