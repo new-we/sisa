@@ -19,7 +19,7 @@
   --accent:#c9a227; --accent-soft:rgba(201,162,39,.14); --ok:#1fb882; --warn:#c9a227; --bad:#f0506e;
   --field:#1c2748; --btn:#3b5bff; --btn-text:#FFFFFF;
   --hero:linear-gradient(135deg,#2e4390,#1d2c5e); --hero-ink:#ffffff; --hero-muted:#c3cdea;
-  --hero-line:rgba(255,255,255,.18); --hero-chip:rgba(255,255,255,.09); --hero-mint:#7df0c4;
+  --hero-line:rgba(255,255,255,.18); --hero-chip:rgba(255,255,255,.09); --hero-mint:#7df0c4; --hero-red:#ff8a80;
   --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:'Plus Jakarta Sans',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
@@ -29,8 +29,8 @@
   --bg:#f3f4f9; --card:#ffffff; --ink:#14213d; --muted:#667089; --line:#e3e6f0; --track:#eceef4;
   --accent:#8a6d00; --accent-soft:#fbf3df; --ok:#1e7f5c; --warn:#8a6d00; --bad:#d0453a;
   --field:#ffffff; --btn:#3b5bff; --btn-text:#ffffff;
-  --hero:linear-gradient(135deg,#fff9e6,#fbeec0); --hero-ink:#14213d; --hero-muted:#667089;
-  --hero-line:rgba(20,33,61,.14); --hero-chip:rgba(255,255,255,.65); --hero-mint:#1e7f5c;
+  --hero:linear-gradient(135deg,#3b5bff,#2b46c7); --hero-ink:#ffffff; --hero-muted:#c3cdea;
+  --hero-line:rgba(255,255,255,.18); --hero-chip:rgba(255,255,255,.09); --hero-mint:#7df0c4; --hero-red:#ff8a80;
   --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   color-scheme:light;
 }
@@ -55,6 +55,18 @@ a{color:var(--ink)}
 section{padding:22px 0 4px}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px;transition:background-color .3s ease,border-color .3s ease}
 .card + .card{margin-top:12px}
+/* Kartu biru (Kemana + Terbaru di Beranda) — sama seperti hero: latar biru, teks putih. */
+.card-biru{background:var(--hero);border:0;color:var(--hero-ink)}
+.card-biru h3{color:var(--hero-ink)}
+.card-biru .kemana-row{color:var(--hero-ink);border-bottom-color:var(--hero-line)}
+.card-biru .kemana-row:hover{background:rgba(255,255,255,.08)}
+.card-biru .kemana-row .kj small{color:var(--hero-muted)}
+.card-biru .riwayat li{border-bottom-color:var(--hero-line)}
+.card-biru .riwayat .rk small{color:var(--hero-muted)}
+.card-biru .riwayat .rj .masuk{color:var(--hero-mint)}
+.card-biru .riwayat .rj button{color:var(--hero-muted)}
+.card-biru .riwayat .rj button.arm{color:var(--hero-red)}
+.card-biru .btn-ghost{background:rgba(255,255,255,.14);color:var(--hero-ink);border-color:rgba(255,255,255,.4)}
 label{display:block;font-weight:700;margin:0 0 6px}
 input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:12px;transition:background-color .3s ease,border-color .3s ease}
 input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
@@ -81,7 +93,8 @@ button{font-family:var(--sans);transition:background-color .2s ease,color .2s ea
 .jatah-card::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);transform:translateX(-160%) skewX(-18deg);pointer-events:none}
 .jatah-card.kilau::after{animation:kilau .8s ease-out}
 .jatah-card .lbl{font:700 .78rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--hero-muted)}
-.jatah-big{font-size:2.5rem;font-weight:800;line-height:1.05;margin:2px 0 16px;letter-spacing:-.03em}
+.jatah-big{font-size:2.5rem;font-weight:800;line-height:1.05;margin:2px 0 16px;letter-spacing:-.03em;color:var(--hero-mint)}
+#sisa-hari{color:var(--hero-red)}
 .jatah-row{display:flex;justify-content:space-between;gap:12px}
 .jatah-row div span{display:block;font-size:.82rem;color:var(--hero-muted)}
 .jatah-row div b{font-size:1.12rem}
@@ -496,13 +509,13 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <div class="ringkas-card" data-nav="peta" role="button" tabindex="0"><span class="rk-lbl">Uang Bebas</span><b id="r-bebas">Rp0</b><span class="rk-sub" id="r-bebas-vs"></span><span class="rk-sub" id="r-bebas-pct"></span></div>
       </div>
 
-      <div class="card">
+      <div class="card card-biru">
         <h3>Kemana uangmu akan pergi?</h3>
         <div id="kemana-list"></div>
         <div style="margin-top:12px"><button class="btn-ghost btn-block" id="ke-budget" type="button">Lihat Budget Kategori</button></div>
       </div>
 
-      <div class="card">
+      <div class="card card-biru">
         <h3>Transaksi Terbaru</h3>
         <ul class="riwayat" id="terbaru-list"></ul>
         <div style="margin-top:12px"><button class="btn-ghost btn-block" id="ke-riwayat" type="button">Lihat Semua Riwayat</button></div>
