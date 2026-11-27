@@ -771,7 +771,7 @@ window.__sisaSupabaseSiap=new Promise(function(res){
 "use strict";
 /* ===== PURE-START: rumus & data (tanpa DOM — dipakai juga untuk cek node) ===== */
 var KEY="sisa-app-v2";
-var KATEGORI=["Belanja","Transportasi","Tagihan Langganan","BBM","Makan","Tabungan","Lainnya"];
+var KATEGORI=["Belanja","Transportasi","Tagihan Langganan","BBM","Makan","Perawatan","Service","Lainnya"];
 var KATEGORI_MASUK=["Gaji","Bonus","Lainnya"];
 var BULAN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 var HARI=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
@@ -827,6 +827,36 @@ function cycleTx(st,ref){
   var s=st.siklusMulai, e=iso(nextPayday(st.tanggalGajian,ref));
   return st.transaksi.filter(function(t){return t.tanggal>=s&&t.tanggal<e;});
 }
+/* Tanggal (1-31) dipetakan ke satu tanggal dalam siklus [mulaiISO, akhirISO):
+   hari >= hari mulai-siklus -> bulan mulai; hari < -> bulan berikut.
+   Hari 31 di bulan 30 hari dijepit ke akhir bulan; tanpa tanggal -> awal
+   siklus; hasil di luar siklus -> awal siklus. */
+function tglDalamSiklus(hari,mulaiISO,akhirISO){
+  if(!hari)return mulaiISO;
+  var m=parseISO(mulaiISO), y=m.getFullYear(), mo=m.getMonth(), d=m.getDate();
+  var bln=hari>=d?mo:mo+1;
+  var akhirBln=new Date(y,bln+1,0).getDate();
+  var cand=new Date(y,bln,Math.min(hari,akhirBln));
+  var s=iso(cand);
+  if(s<mulaiISO||s>=akhirISO)return mulaiISO;
+  return s;
+}
+/* Baris virtual tagihan tetap + target tabungan (maunya Client 27 Nov 2026):
+   tampil di Terbaru + Riwayat sebagai baris berlabel, BUKAN transaksi —
+   tanpa Ubah/Hapus (ngubahnya di Pengaturan), tidak ikut hitungan
+   keluar/masuk, tidak tersinkron ke Supabase. Tanggal = tanggal tagihan/
+   target (1-31) yang dipetakan ke dalam siklus; tanpa tanggal -> awal siklus. */
+function barisTetap(st,v){
+  var rows=[];
+  (st.tagihanTetap||[]).forEach(function(t,i){
+    if(t.nominal>0)rows.push({id:"v-tagihan-"+(t.id||("x"+i)),tanggal:tglDalamSiklus(t.tanggal,v.mulaiISO,v.akhirISO),
+      kategori:t.nama,catatan:"Tagihan tetap",nominal:t.nominal,virtual:"tagihan"});
+  });
+  var tg=st.targetTabungan;
+  if(tg&&targetAmount(st)>0)rows.push({id:"v-target",tanggal:tglDalamSiklus(tg.tanggal,v.mulaiISO,v.akhirISO),
+    kategori:"Tabungan",catatan:"Target tabungan",nominal:targetAmount(st),virtual:"target"});
+  return rows;
+}
 function calcAll(st,ref){
   ref=tengahMalam(ref);
   var next=nextPayday(st.tanggalGajian,ref);
@@ -856,35 +886,6 @@ function calcAll(st,ref){
     bebas:bebas, pemasukan:pemasukan, keluar:keluar, keluarHariIni:keluarHariIni, sisaUang:sisaUang, jatah:jatah,
     hariBerjalan:hariBerjalan, laju:laju, perKat:perKat, disisihkan:disisihkan,
     jumlahCatatan:cyc.length, hariData:Object.keys(distinct).length};
-}
-/* Hitung "sampai tanggal" (27 Nov 2026, maunya Client): hero Beranda mengikuti
-   tanggal yang dipilih — keluar/pemasukan hanya transaksi s.d. tanggal itu,
-   sisa hari dihitung dari tanggal itu ke gajian berikutnya. Tagihan tetap dan
-   target tabungan tetap utuh (pengaturan siklus, bukan per tanggal). */
-function calcSampaiTanggal(st,ref){
-  ref=tengahMalam(ref);
-  var c=calcAll(st,ref); /* next, sisaHari, tagihan, target dihitung dari ref */
-  var refISO=iso(ref);
-  var keluar=0, pemasukan=0, perKat={}, disisihkan=0, distinct={}, jumlah=0;
-  cycleTx(st,ref).forEach(function(t){
-    if(t.tanggal>refISO)return;
-    jumlah++;
-    distinct[t.tanggal]=1;
-    if(isPemasukan(t)){pemasukan+=t.nominal;return;}
-    if(t.kategori==="Tabungan"){disisihkan+=t.nominal;return;}
-    keluar+=t.nominal;
-    perKat[t.kategori]=(perKat[t.kategori]||0)+t.nominal;
-  });
-  /* Uang bebas per tanggal itu: gaji + pemasukan s.d. tanggal itu − tagihan − target. */
-  var bebas=st.gaji+pemasukan-c.tagihan-c.target;
-  var sisaUang=bebas-keluar;
-  var jatah=Math.floor(Math.max(0,sisaUang)/c.sisaHari);
-  var hariBerjalan=Math.max(1,diffDays(parseISO(st.siklusMulai),ref)+1);
-  return {next:c.next, nextISO:c.nextISO, sisaHari:c.sisaHari, tagihan:c.tagihan,
-    target:c.target, bebas:bebas, pemasukan:pemasukan, keluar:keluar,
-    keluarHariIni:0, sisaUang:sisaUang, jatah:jatah, hariBerjalan:hariBerjalan,
-    laju:keluar/hariBerjalan, perKat:perKat, disisihkan:disisihkan,
-    jumlahCatatan:jumlah, hariData:Object.keys(distinct).length};
 }
 /* Prediksi tanggal habis (PRD §9.3): hanya bila >=3 hari data ATAU >=5 catatan. */
 function prediksi(st,ref,c){
@@ -983,7 +984,7 @@ function tampilanSiklus(st,ref,idxArsip){
 }
 /* ===== PURE-END ===== */
 
-var WARNA={"Belanja":"#8B5CF6","Transportasi":"#3B82F6","Tagihan Langganan":"#C0392B","BBM":"#B7791F","Makan":"#1E7F5C","Tabungan":"#0E7490","Lainnya":"#64748B"};
+var WARNA={"Belanja":"#8B5CF6","Transportasi":"#3B82F6","Tagihan Langganan":"#C0392B","BBM":"#B7791F","Makan":"#1E7F5C","Perawatan":"#DB2777","Service":"#EA580C","Tabungan":"#0E7490","Lainnya":"#64748B"};
 var $=function(id){return document.getElementById(id);};
 var rp=function(n){return "Rp"+new Intl.NumberFormat("id-ID").format(Math.round(n));};
 var rpSingkat=function(n){return n>=1000000?("Rp"+(n/1000000).toLocaleString("id-ID",{maximumFractionDigits:1})+" jt"):("Rp"+Math.round(n/1000)+" rb");};
@@ -1668,7 +1669,7 @@ function render(){
   renderBudget(vView,hariAgg);
   renderPeta(vView,hariAgg);
   renderInsight(c,p);
-  renderRiwayat(vView,hariAgg,arsipAktif);
+  renderRiwayat(vView,hariAgg,arsipAktif,tanggalLihat);
   renderAtur(c);
   renderArsip(c);
   renderFormDefault();
@@ -1798,13 +1799,23 @@ function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif,hero){
     if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
     return b.id-a.id;
   }).slice(0,5);
-  if(!txTampil.length){
+  /* Baris virtual tagihan tetap + target (maunya Client 27 Nov 2026):
+     disematkan di atas 5 transaksi terakhir, hanya siklus berjalan;
+     bila tanggal terpilih, hanya yang tanggalnya cocok yang muncul. */
+  var virtual=[];
+  if(!arsipMode){
+    virtual=barisTetap(st,v);
+    if(tanggalLihat)virtual=virtual.filter(function(r){return r.tanggal===tanggalLihat;});
+    virtual.sort(function(a,b){return a.tanggal<b.tanggal?1:-1;});
+  }
+  var tampilSemua=virtual.concat(txTampil);
+  if(!tampilSemua.length){
     $("terbaru-list").innerHTML="<li class=\"fade-masuk\">Belum ada catatan "+(hariAgg?"di tanggal ini":"di siklus ini")+". Catat pengeluaran pertamamu lewat Catat Kilat.</li>";
   }else{
-    $("terbaru-list").innerHTML=txTampil.map(function(t){
+    $("terbaru-list").innerHTML=tampilSemua.map(function(t){
       var ket=t.catatan||t.kategori;
       var msk=isPemasukan(t);
-      var aksi=arsipMode?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
+      var aksi=(arsipMode||t.virtual)?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
       return '<li'+(txBaruId===t.id?' class="baru"':'')+'><div class="rk">'+esc(t.kategori)+'<small>'+fmtTglISO(t.tanggal)+' &middot; '+esc(ket)+'</small></div>'+
         '<div class="rj"><div class="'+(msk?"masuk":"")+'">'+(msk?"+":"\u2212")+rp(t.nominal)+'</div>'+aksi+'</div></li>';
     }).join("");
@@ -2176,28 +2187,41 @@ function renderInsight(c,p){
    atau arsip yang dipilih lewat dropdown periode di Beranda/Peta/Riwayat).
    Bila tanggal terpilih: hanya transaksi tanggal itu.
    Mode arsip: baca-saja (tanpa Ubah/Hapus). */
-function renderRiwayat(v,hariAgg,arsipAktif){
+function renderRiwayat(v,hariAgg,arsipAktif,tanggalLihat){
   var dasar=hariAgg?hariAgg.tx:(v&&v.tx?v.tx:[]);
   var list=dasar.slice().sort(function(a,b){
     if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
     return b.id-a.id;
   });
   var tampil=filterKat?list.filter(function(t){return t.kategori===filterKat;}):list;
+  /* Baris virtual tagihan tetap + target (maunya Client 27 Nov 2026):
+     hanya bila tanpa filter kategori + siklus berjalan; ikut tanggal
+     terpilih bila ada; tidak ikut hitungan keluar/masuk. */
+  var virtual=[];
+  if(!filterKat&&!arsipAktif&&v){
+    virtual=barisTetap(state,v);
+    if(tanggalLihat)virtual=virtual.filter(function(r){return r.tanggal===tanggalLihat;});
+  }
+  var semua=tampil.concat(virtual).sort(function(a,b){
+    if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
+    if(typeof a.id==="number"&&typeof b.id==="number")return b.id-a.id;
+    return 0;
+  });
   $("filterbar").hidden=!filterKat;
   if(filterKat)$("filter-teks").textContent="Menampilkan kategori: "+filterKat+" ("+tampil.length+" catatan)";
-  if(!tampil.length){
+  if(!semua.length){
     $("riwayat-total").textContent="Belum ada catatan di periode ini.";
     $("riwayat-list").innerHTML="<li class=\"fade-masuk\">"+(filterKat?"Tidak ada catatan untuk kategori ini di siklus ini.":(hariAgg?"Belum ada catatan di tanggal ini.":"Belum ada catatan. Catat pengeluaran pertamamu lewat Catat Kilat."))+"</li>";
     return;
   }
   var keluarT=0, masukT=0;
   tampil.forEach(function(t){if(isPemasukan(t))masukT+=t.nominal;else if(isKeluar(t))keluarT+=t.nominal;});
-  $("riwayat-total").innerHTML="Total yang ditampilkan: <b>"+tampil.length+" catatan</b> · keluar <span class=\"cu\" data-nilai=\"0\" data-v=\""+keluarT+"\">Rp0</span> · masuk <span class=\"cu\" data-nilai=\"0\" data-v=\""+masukT+"\">Rp0</span>";
+  $("riwayat-total").innerHTML="Total yang ditampilkan: <b>"+semua.length+" catatan</b> · keluar <span class=\"cu\" data-nilai=\"0\" data-v=\""+keluarT+"\">Rp0</span> · masuk <span class=\"cu\" data-nilai=\"0\" data-v=\""+masukT+"\">Rp0</span>";
   animasiSemuaCu($("riwayat-total"));
-  $("riwayat-list").innerHTML=tampil.map(function(t){
+  $("riwayat-list").innerHTML=semua.map(function(t){
     var ket=t.catatan||t.kategori;
     var msk=isPemasukan(t);
-    var aksi=arsipAktif?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
+    var aksi=(arsipAktif||t.virtual)?"":'<button type="button" data-ubah="'+t.id+'">Ubah</button><button type="button" data-hapus="'+t.id+'">Hapus</button>';
     return '<li'+(txBaruId===t.id?' class="baru"':'')+'><div class="rk">'+esc(t.kategori)+'<small>'+fmtTglISO(t.tanggal)+' &middot; '+esc(ket)+(t.qris?' <span class="qris-badge">QRIS</span>':'')+'</small></div>'+
       '<div class="rj"><div class="'+(msk?"masuk":"")+'">'+(t.qris?'<img class="qris-thumb" src="'+t.qris+'" alt="Bukti QRIS">':'')+(msk?"+":"\u2212")+rp(t.nominal)+'</div>'+
       aksi+'</div></li>';
