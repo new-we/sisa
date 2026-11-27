@@ -421,7 +421,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     <!-- 01 Beranda -->
     <section id="beranda">
       <p class="beranda-tanggal" id="beranda-tanggal"></p>
-      <h2 class="judul-sekilas">Beranda</h2>
+      <h2 class="judul-sekilas" id="judul-beranda">Beranda</h2>
       <div class="periode-row">
         <label for="periode-pilih">Pilih Periode</label>
         <select id="periode-pilih" aria-label="Pilih periode siklus"></select>
@@ -633,6 +633,11 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <h3>Profil</h3>
         <p class="hint" style="margin:0 0 12px" id="profil-masuk">Masuk sebagai <b id="profil-email">—</b></p>
         <p class="hint" style="margin:0 0 12px" id="profil-demo" hidden>Kamu sedang memakai data contoh tanpa akun. Masuk dengan Google atau email supaya datamu tersimpan di akunmu.</p>
+        <label for="profil-nama">Nama (untuk sapaan di Beranda)</label>
+        <input id="profil-nama" autocomplete="off" placeholder="Contoh: Kia">
+        <button class="btn" id="profil-simpan-nama" type="button">Simpan nama</button>
+        <p class="msg" id="profil-pesan" role="status" aria-live="polite"></p>
+        <div style="height:12px"></div>
         <button class="btn-bahaya" id="hapus-akun" type="button">Hapus akun</button>
         <div class="reset-pilihan" id="hapus-pilihan" hidden>
           <p style="margin:0 0 12px">Semua datamu — gaji, tagihan, target tabungan, dan semua catatan — akan dihapus permanen dan tidak bisa dikembalikan. Kamu akan keluar dari akun ini.</p>
@@ -1107,6 +1112,7 @@ async function siapkanSb(){
    ulangan pustaka hanya menunda deteksi gagal sampai berdetik-detik. */
 var userIdAktif=null;
 var emailAktif=null; /* email akun yang masuk (untuk kartu Profil) */
+var namaGoogle=null; /* nama dari profil Google (untuk sapaan Beranda) */
 var sinkronSiap=false;
 var sinkronTimer=null;
 var capLokalTerakhir=null;
@@ -1237,6 +1243,8 @@ async function masukDenganSesi(session){
     aturKunciData(uid);
     userIdAktif=uid||null;
     emailAktif=(session.user&&session.user.email)||null;
+    var md=session.user&&session.user.user_metadata;
+    namaGoogle=(md&&(md.full_name||md.name))||null;
     sinkronSiap=false;capTerkirim=null;
     bersihkanHashAuth();
     load();
@@ -1414,7 +1422,7 @@ $("keluar").addEventListener("click",async function(){
   try{await Promise.race([kirimSinkron(),new Promise(function(res){setTimeout(function(){res(false);},SYNC_TIMEOUT_MS);})]);}catch(e){}
   try{ if(sb) await sb.auth.signOut(); }catch(e){}
   if(sinkronTimer){clearTimeout(sinkronTimer);sinkronTimer=null;}
-  userIdAktif=null;sinkronSiap=false;
+  userIdAktif=null;emailAktif=null;namaGoogle=null;sinkronSiap=false;
   aturKunciData(null);
   tampilkanLogin();
 });
@@ -1427,6 +1435,15 @@ function tampilkanOnboarding(){
   $("banner-gaji").hidden=true;
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
+}
+/* Sapaan Beranda (27 Nov 2026, maunya Client — contoh "Halo, Kia"):
+   nama dari Profil (state.nama) atau nama akun Google; bila tidak ada nama,
+   judul tetap "Beranda". Hanya kata pertama yang dipakai. */
+function renderSalam(){
+  var el=$("judul-beranda"); if(!el)return;
+  var nama=(state&&state.nama?String(state.nama).trim():"")||(namaGoogle||"");
+  var depan=nama?nama.split(/\s+/)[0]:"";
+  el.textContent=depan?("Halo, "+depan):"Beranda";
 }
 /* Kartu Profil (Atur): tampilkan email akun yang masuk; bila mode demo
    (tanpa akun), sembunyikan tombol Hapus akun. */
@@ -1444,6 +1461,7 @@ function renderProfil(){
     btn.hidden=true;
     $("hapus-pilihan").hidden=true;
   }
+  var nm=$("profil-nama"); if(nm)nm.value=(state&&state.nama)||namaGoogle||"";
 }
 function tampilkanApp(){
   sembunyikanAkun();
@@ -1463,7 +1481,7 @@ $("form-onboarding").addEventListener("submit",function(e){
   if(!gaji||gaji<=0){$("ob-pesan").textContent="Isi gaji bulananmu dengan angka lebih dari Rp0.";$("ob-pesan").className="msg err";return;}
   if(tgl<1||tgl>31){$("ob-pesan").textContent="Tanggal gajian harus 1 sampai 31.";$("ob-pesan").className="msg err";return;}
   var ref=hariIni();
-  state={gaji:gaji,tanggalGajian:tgl,tagihanTetap:[],targetTabungan:{tipe:"nominal",nilai:0},
+  state={gaji:gaji,nama:"",tanggalGajian:tgl,tagihanTetap:[],targetTabungan:{tipe:"nominal",nilai:0},
     transaksi:[],siklusMulai:iso(lastPayday(tgl,ref)),arsip:[],nextId:1};
   save();tampilkanApp();render();
 });
@@ -1526,6 +1544,7 @@ function render(){
   terakhirVView=vView;terakhirHariAgg=hariAgg;
 
   /* Beranda (revisi mockup client 26 Nov 2026 + tanggal 27 Nov 2026) */
+  renderSalam();
   renderBeranda(state,ref,c,vView,hariAgg,tanggalLihat,arsipAktif);
 
   /* Progres hari ini */
@@ -2533,6 +2552,19 @@ $("reset-contoh").addEventListener("click",function(){
   tampilkanApp();render();
 });
 
+/* Nama untuk sapaan Beranda (27 Nov 2026, maunya Client): disimpan di state
+   (ikut tersinkron), mengalahkan nama Google bila diisi; dikosongkan berarti
+   kembali memakai nama Google. */
+$("profil-simpan-nama").addEventListener("click",function(){
+  if(!state){$("profil-pesan").textContent="Isi datamu dulu lewat onboarding.";$("profil-pesan").className="msg err";return;}
+  var v=$("profil-nama").value.trim();
+  if(v)state.nama=v; else delete state.nama;
+  save();render();
+  $("profil-pesan").textContent=v?"Nama disimpan.":"Nama dikosongkan — sapaan memakai nama Google.";
+  $("profil-pesan").className="msg";
+  tampilToast(v?"Nama disimpan.":"Nama dikosongkan.",{sukses:true});
+});
+
 /* ---------- Hapus akun (Pengaturan profil, 27 Nov 2026, maunya Client) ----------
    Menghapus SEMUA data pengguna (baris user_data di server + salinan lokal),
    lalu keluar ke layar masuk. Pola konfirmasi 2 ketuk mengikuti Reset.
@@ -2556,7 +2588,7 @@ $("hapus-ya").addEventListener("click",async function(){
   try{if(SYNC_DIRTY_KEY)localStorage.removeItem(SYNC_DIRTY_KEY);}catch(e){}
   if(sinkronTimer){clearTimeout(sinkronTimer);sinkronTimer=null;}
   state=null;filterKat=null;editingId=null;
-  userIdAktif=null;emailAktif=null;sinkronSiap=false;
+  userIdAktif=null;emailAktif=null;namaGoogle=null;sinkronSiap=false;
   aturKunciData(null);
   try{if(sb)await sb.auth.signOut();}catch(e){}
   $("hapus-pilihan").hidden=true;
