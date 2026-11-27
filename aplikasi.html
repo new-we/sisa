@@ -55,15 +55,21 @@ a{color:var(--ink)}
 section{padding:22px 0 4px}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px;transition:background-color .3s ease,border-color .3s ease}
 .card + .card{margin-top:12px}
-/* Kartu biru (kotak display di Beranda/Peta/Riwayat) — sama seperti hero: latar biru, teks putih. Variabel --ink/--muted/--line/dll didefinisikan ulang di sini supaya semua isi kartu ikut jadi putih tanpa aturan per elemen. */
+/* Kartu biru — sama seperti hero: latar biru, teks putih. Variabel --ink/--muted/--line/dll didefinisikan ulang di sini supaya semua isi kartu ikut jadi putih tanpa aturan per elemen. */
 .card-biru{background:var(--hero);border:0;color:var(--hero-ink);
   --ink:var(--hero-ink);--muted:var(--hero-muted);--line:var(--hero-line);
   --bg:rgba(255,255,255,.08);--track:rgba(255,255,255,.15);
-  --mint:var(--hero-mint);--rose:var(--hero-red)}
+  --mint:var(--hero-mint);--rose:var(--hero-red);
+  --field:rgba(255,255,255,.14);--ok:var(--hero-mint);--bad:var(--hero-red)}
 .card-biru .btn-ghost{background:rgba(255,255,255,.14);color:var(--hero-ink);border-color:rgba(255,255,255,.4)}
 .card-biru .donut text{fill:var(--hero-muted)}
 .card-biru #donut-total{fill:var(--hero-ink)}
 .ringkas-card.card-biru{background:var(--hero);border:0}
+/* Isian form di kartu biru: kolom tembus pandang + teks putih, tombol Simpan putih. */
+.card-biru input:focus,.card-biru select:focus,.card-biru textarea:focus{border-color:var(--hero-ink)}
+.card-biru input::placeholder,.card-biru textarea::placeholder{color:var(--hero-muted)}
+.card-biru .btn{background:var(--hero-ink);color:var(--btn)}
+.card-biru .toggle button[aria-pressed="true"]{background:var(--hero-ink);color:var(--btn);border-color:var(--hero-ink)}
 label{display:block;font-weight:700;margin:0 0 6px}
 input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:12px;transition:background-color .3s ease,border-color .3s ease}
 input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
@@ -500,10 +506,10 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       </div>
 
       <div class="ringkas-grid" id="ringkas-grid">
-        <div class="ringkas-card card-biru" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Gajian</span><b id="r-gaji">Rp0</b><span class="rk-sub" id="r-gaji-vs"></span><span class="rk-sub" id="r-gaji-pct"></span></div>
-        <div class="ringkas-card card-biru" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Tagihan</span><b id="r-tagihan">Rp0</b><span class="rk-sub" id="r-tagihan-vs"></span><span class="rk-sub" id="r-tagihan-pct"></span></div>
-        <div class="ringkas-card card-biru" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Target Tabungan</span><b id="r-target">Rp0</b><span class="rk-sub" id="r-target-vs"></span><span class="rk-sub" id="r-target-pct"></span></div>
-        <div class="ringkas-card card-biru" data-nav="peta" role="button" tabindex="0"><span class="rk-lbl">Uang Bebas</span><b id="r-bebas">Rp0</b><span class="rk-sub" id="r-bebas-vs"></span><span class="rk-sub" id="r-bebas-pct"></span></div>
+        <div class="ringkas-card" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Gajian</span><b id="r-gaji">Rp0</b><span class="rk-sub" id="r-gaji-vs"></span><span class="rk-sub" id="r-gaji-pct"></span></div>
+        <div class="ringkas-card" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Tagihan</span><b id="r-tagihan">Rp0</b><span class="rk-sub" id="r-tagihan-vs"></span><span class="rk-sub" id="r-tagihan-pct"></span></div>
+        <div class="ringkas-card" data-nav="atur" role="button" tabindex="0"><span class="rk-lbl">Target Tabungan</span><b id="r-target">Rp0</b><span class="rk-sub" id="r-target-vs"></span><span class="rk-sub" id="r-target-pct"></span></div>
+        <div class="ringkas-card" data-nav="peta" role="button" tabindex="0"><span class="rk-lbl">Uang Bebas</span><b id="r-bebas">Rp0</b><span class="rk-sub" id="r-bebas-vs"></span><span class="rk-sub" id="r-bebas-pct"></span></div>
       </div>
 
       <div class="card card-biru">
@@ -519,13 +525,13 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <div style="margin-top:12px"><button class="btn-ghost btn-block" id="ke-riwayat" type="button">Lihat Semua Riwayat</button></div>
       </div>
 
-      <div class="card card-biru" id="progres-card">
+      <div class="card" id="progres-card">
         <h3 id="progres-judul">Progres hari ini</h3>
         <div class="bar" role="img" aria-label="Progres pengeluaran hari ini terhadap jatah"><i id="progres-bar" style="width:0%"></i></div>
         <p style="margin:0" id="progres-teks"></p>
       </div>
 
-      <div class="card card-biru" id="prediksi-card">
+      <div class="card" id="prediksi-card">
         <h3>Prediksi tanggal habis</h3>
         <p style="margin:0" id="prediksi-teks"></p>
       </div>
@@ -566,14 +572,14 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       <p class="kicker">Budget Kategori</p>
       <h2>Budget per kategori</h2>
       <p class="hint" id="budget-penjelasan" style="margin-top:8px"></p>
-      <div class="card card-biru" id="budget-list"></div>
+      <div class="card" id="budget-list"></div>
     </section>
 
     <!-- 06 Paham -->
     <section id="paham" class="lipat">
       <p class="kicker">Paham</p>
       <button class="judul-toggle" id="paham-toggle" type="button" aria-expanded="false"><span>Gambaran dari datamu <span class="paham-jumlah" id="paham-jumlah"></span></span><span class="chev">▾</span></button>
-      <div class="lipat-isi"><div class="card card-biru" id="insight-list"></div></div>
+      <div class="lipat-isi"><div class="card" id="insight-list"></div></div>
     </section>
 
     <!-- 04 Riwayat -->
@@ -588,7 +594,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <span id="filter-teks"></span>
         <button type="button" id="filter-hapus">Tampilkan semua</button>
       </div>
-      <div class="card card-biru"><p class="hint" id="riwayat-total" style="margin:0 0 12px"></p><ul class="riwayat" id="riwayat-list"></ul></div>
+      <div class="card"><p class="hint" id="riwayat-total" style="margin:0 0 12px"></p><ul class="riwayat" id="riwayat-list"></ul></div>
     </section>
 
     <!-- 05 Peta Uang -->
@@ -599,7 +605,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <label for="peta-periode">Pilih Periode</label>
         <select id="peta-periode" aria-label="Pilih periode siklus"></select>
       </div>
-      <div class="card card-biru">
+      <div class="card">
         <div id="peta-kosong" class="fade-masuk" hidden>
           <p style="margin:0">Belum ada pengeluaran di siklus ini. Catat pengeluaran pertamamu lewat tab Catat di bawah.</p>
         </div>
@@ -634,7 +640,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       </div>
 
       <div id="atur-uang">
-      <div class="card">
+      <div class="card card-biru">
         <h3>Gaji &amp; tanggal gajian</h3>
         <label for="set-gaji">Gaji bulanan (Rp)</label>
         <input id="set-gaji" inputmode="numeric" autocomplete="off">
@@ -645,7 +651,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <p class="msg" id="set-pesan" role="status" aria-live="polite"></p>
       </div>
 
-      <div class="card">
+      <div class="card card-biru">
         <h3>Tagihan tetap</h3>
         <div id="tagihan-list"></div>
         <div style="height:12px"></div>
@@ -662,7 +668,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <p class="msg" id="at-pesan" role="status" aria-live="polite"></p>
       </div>
 
-      <div class="card">
+      <div class="card card-biru">
         <h3>Target tabungan</h3>
         <div class="toggle" role="group" aria-label="Jenis target tabungan">
           <button type="button" id="tab-nominal" aria-pressed="true">Nominal (Rp)</button>
@@ -682,7 +688,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       </div>
 
       <div id="atur-profil" hidden>
-      <div class="card">
+      <div class="card card-biru">
         <h3>Profil</h3>
         <p class="hint" style="margin:0 0 12px" id="profil-masuk">Masuk sebagai <b id="profil-email">—</b></p>
         <p class="hint" style="margin:0 0 12px" id="profil-demo" hidden>Kamu sedang memakai data contoh tanpa akun. Masuk dengan Google atau email supaya datamu tersimpan di akunmu.</p>
@@ -704,7 +710,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       </div>
 
       <div id="atur-siklus" hidden>
-      <div class="card">
+      <div class="card card-biru">
         <p id="siklus-aktif" style="margin:0 0 12px"></p>
         <h3 style="margin-bottom:6px">Arsip siklus sebelumnya</h3>
         <ul class="arsip" id="arsip-list"></ul>
