@@ -99,6 +99,13 @@ button{font-family:var(--sans);transition:background-color .2s ease,color .2s ea
 .hitung.buka .hitung-toggle .chev{transform:rotate(180deg)}
 .hitung-isi{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
 .hitung.buka .hitung-isi{max-height:440px}
+/* Judul seksi yang bisa dilipat (Gambaran, 27 Nov 2026) + isi lipatan */
+.judul-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;cursor:pointer;font-size:1.35rem;font-weight:800;color:var(--ink);text-align:left;margin:0 0 12px}
+.judul-toggle .chev{display:inline-block;transition:transform .25s ease;font-size:1rem}
+.judul-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.paham-jumlah{font-size:.85rem;font-weight:600;color:var(--muted)}
+.lipat-isi{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
+.lipat.buka .lipat-isi{max-height:1600px}
 /* Banner gajian */
 .banner{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:8px;padding:18px;margin:14px 0}
 .banner h2{margin-bottom:6px}
@@ -303,6 +310,10 @@ label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
 main section.anim-maju{animation:tabInKanan .35s ease-out}
 main section.anim-mundur{animation:tabInKiri .35s ease-out}
 main section.anim-awal{animation:tabIn .35s ease-out}
+/* Sub-tab Atur: konten masuk searah (maju/mundur), sama seperti pindah tab bawah */
+#atur-uang.anim-maju,#atur-profil.anim-maju,#atur-siklus.anim-maju{animation:tabInKanan .35s ease-out}
+#atur-uang.anim-mundur,#atur-profil.anim-mundur,#atur-siklus.anim-mundur{animation:tabInKiri .35s ease-out}
+#atur-uang.anim-awal,#atur-profil.anim-awal,#atur-siklus.anim-awal{animation:tabIn .35s ease-out}
 .fade-masuk{animation:fadeMasuk .4s ease-out}
 .riwayat li.baru{animation:sorotBaru 1.2s ease-out}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -548,10 +559,10 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     </section>
 
     <!-- 06 Paham -->
-    <section id="paham">
+    <section id="paham" class="lipat">
       <p class="kicker">Paham</p>
-      <h2>Gambaran dari datamu</h2>
-      <div class="card" id="insight-list"></div>
+      <button class="judul-toggle" id="paham-toggle" type="button" aria-expanded="false"><span>Gambaran dari datamu <span class="paham-jumlah" id="paham-jumlah"></span></span><span class="chev">▾</span></button>
+      <div class="lipat-isi"><div class="card" id="insight-list"></div></div>
     </section>
 
     <!-- 04 Riwayat -->
@@ -604,8 +615,14 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     <section id="atur">
       <button class="btn-ghost" id="atur-kembali" type="button" style="margin-bottom:12px">&larr; Kembali ke Beranda</button>
       <p class="kicker">Atur</p>
-      <h2>Gaji, tagihan &amp; tabungan</h2>
+      <h2>Pengaturan</h2>
+      <div class="toggle" role="group" aria-label="Sub tab Atur" id="atur-subtab">
+        <button type="button" id="sub-uang" aria-pressed="true">Uang</button>
+        <button type="button" id="sub-profil" aria-pressed="false">Profil</button>
+        <button type="button" id="sub-siklus" aria-pressed="false">Siklus</button>
+      </div>
 
+      <div id="atur-uang">
       <div class="card">
         <h3>Gaji &amp; tanggal gajian</h3>
         <label for="set-gaji">Gaji bulanan (Rp)</label>
@@ -649,6 +666,11 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <p class="msg" id="tab-pesan" role="status" aria-live="polite"></p>
       </div>
 
+      <div class="peringatan" id="peringatan" hidden></div>
+      <p class="rumus-line" id="rumus-line"></p>
+      </div>
+
+      <div id="atur-profil" hidden>
       <div class="card">
         <h3>Profil</h3>
         <p class="hint" style="margin:0 0 12px" id="profil-masuk">Masuk sebagai <b id="profil-email">—</b></p>
@@ -668,19 +690,14 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         </div>
         <p class="msg" id="hapus-pesan" role="status" aria-live="polite"></p>
       </div>
+      </div>
 
-      <div class="peringatan" id="peringatan" hidden></div>
-      <p class="rumus-line" id="rumus-line"></p>
-    </section>
-
-    <!-- 08 Siklus -->
-    <section id="siklus">
-      <p class="kicker">Siklus</p>
-      <h2>Siklus gajian</h2>
+      <div id="atur-siklus" hidden>
       <div class="card">
         <p id="siklus-aktif" style="margin:0 0 12px"></p>
         <h3 style="margin-bottom:6px">Arsip siklus sebelumnya</h3>
         <ul class="arsip" id="arsip-list"></ul>
+      </div>
       </div>
     </section>
 
@@ -1815,6 +1832,13 @@ $("hitung-toggle").addEventListener("click",function(){
   var buka=box.classList.toggle("buka");
   this.setAttribute("aria-expanded",buka?"true":"false");
 });
+/* Gambaran dilipat (27 Nov 2026, maunya Client + ARIEF: jangan paragraf
+   panjang di Beranda) — tertutup saat muat, ketuk judul untuk buka/tutup. */
+$("paham-toggle").addEventListener("click",function(){
+  var buka=this.getAttribute("aria-expanded")==="true";
+  this.setAttribute("aria-expanded",buka?"false":"true");
+  $("paham").classList.toggle("buka",!buka);
+});
 /* Transaksi Terbaru: Ubah/Hapus langsung di daftar (mode arsip: tidak ada tombol) */
 $("terbaru-list").addEventListener("click",function(e){
   var ub=e.target.closest("[data-ubah]"), hp=e.target.closest("[data-hapus]");
@@ -2044,6 +2068,7 @@ function renderInsight(c,p){
   var cyc=cycleTx(state,hariIni()).filter(function(t){return isKeluar(t);});
   if(cyc.length<3){
     box.innerHTML="<p class=\"fade-masuk\" style=\"margin:0\">Catat minimal 3 pengeluaran supaya Sisa bisa memberi gambaran dari datamu. Saat ini ada "+cyc.length+" catatan di siklus ini.</p>";
+    $("paham-jumlah").textContent="";
     return;
   }
   var urutK=KATEGORI.filter(function(k){return k!=="Tabungan"&&(c.perKat[k]||0)>0;})
@@ -2080,6 +2105,7 @@ function renderInsight(c,p){
       tindakan:"Coba tetapkan target tabungan di Atur, misalnya 10% dari gaji."};
   }
   var list=(c.laju>c.jatah&&c.jatah>0)?[insLaju,insKat,insTab]:[insKat,insLaju,insTab];
+  $("paham-jumlah").textContent=" · "+list.length+" insight";
   box.innerHTML=list.map(function(x){
     return '<div class="insight"><p class="tag">'+esc(x.tag)+'</p>'+
       "<p><b>Fakta:</b> "+esc(x.fakta)+"</p>"+
@@ -2554,6 +2580,40 @@ $("tab-simpan").addEventListener("click",function(){
   $("tab-pesan").className="msg ok";
 });
 
+/* ---------- Sub-tab Atur (27 Nov 2026, maunya ARIEF) ----------
+   Uang (gaji, tagihan, target) | Profil (nama, hapus akun) | Siklus (arsip).
+   Hanya di memori; panel lain tetap dirender walau tersembunyi. */
+var subTabAtur="uang";
+var subAnimToken=0;
+function tampilkanSubAtur(nama){
+  var URUT=["uang","profil","siklus"];
+  var arah=URUT.indexOf(nama)>URUT.indexOf(subTabAtur)?"anim-maju":(URUT.indexOf(nama)<URUT.indexOf(subTabAtur)?"anim-mundur":"anim-awal");
+  subTabAtur=nama;
+  var token=++subAnimToken;
+  URUT.forEach(function(k){
+    var panel=$("atur-"+k);
+    if(panel){
+      panel.classList.remove("anim-maju","anim-mundur","anim-awal");
+      panel.hidden=(k!==nama);
+      if(k===nama){
+        /* Paksa reflow supaya animasi masuk jalan ulang tiap kali panel dibuka. */
+        void panel.offsetWidth;
+        panel.classList.add(arah);
+      }
+    }
+    var btn=$("sub-"+k);
+    if(btn)btn.setAttribute("aria-pressed",k===nama?"true":"false");
+  });
+  setTimeout(function(){
+    if(token!==subAnimToken)return;
+    var panel=$("atur-"+nama);
+    if(panel)panel.classList.remove("anim-maju","anim-mundur","anim-awal");
+  },400);
+}
+$("sub-uang").addEventListener("click",function(){tampilkanSubAtur("uang");});
+$("sub-profil").addEventListener("click",function(){tampilkanSubAtur("profil");});
+$("sub-siklus").addEventListener("click",function(){tampilkanSubAtur("siklus");});
+
 /* ---------- Siklus / arsip ---------- */
 function renderArsip(c){
   $("siklus-aktif").textContent="Siklus aktif: "+fmtTglISO(state.siklusMulai)+" – "+fmtTgl(addDays(c.next,-1))+" · Gaji "+rp(state.gaji)+" · Pengeluaran siklus "+rp(c.keluar)+" · Uang bebas "+rp(c.bebas)+".";
@@ -2641,8 +2701,8 @@ $("hapus-ya").addEventListener("click",async function(){
    Satu halaman panjang diganti tampilan berbasis tab: hanya section tab yang
    aktif yang terlihat, sisanya hidden. Peta Uang = budget + donut;
    Atur = gaji/tagihan/tabungan + arsip siklus (dibuka dari Beranda). */
-var HALAMAN={beranda:["beranda","paham"],catat:["catat"],peta:["budget","peta"],riwayat:["riwayat"],atur:["atur","siklus"]};
-var SEMUA_SEKSI=["beranda","paham","catat","budget","peta","riwayat","atur","siklus"];
+var HALAMAN={beranda:["beranda","paham"],catat:["catat"],peta:["budget","peta"],riwayat:["riwayat"],atur:["atur"]};
+var SEMUA_SEKSI=["beranda","paham","catat","budget","peta","riwayat","atur"];
 /* Urutan tab untuk arah transisi + swipe (beranda → catat → peta → riwayat → atur). */
 var URUTAN_TAB=["beranda","catat","peta","riwayat","atur"];
 var tabAktif="beranda";
