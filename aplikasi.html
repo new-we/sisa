@@ -55,10 +55,12 @@ button{font-family:var(--sans);transition:background-color .2s ease,color .2s ea
 .btn{display:inline-block;background:var(--btn);color:var(--btn-text);font-size:1rem;font-weight:700;border:0;border-radius:12px;padding:13px 22px;cursor:pointer;text-decoration:none}
 .btn:disabled{opacity:.55;cursor:wait}
 .btn-ghost{display:inline-block;background:var(--card);color:var(--ink);font-size:1rem;font-weight:700;border:1.5px solid var(--line);border-radius:12px;padding:12px 20px;cursor:pointer;text-decoration:none}
+.btn-bahaya{display:inline-block;background:#b3261e;color:#fff;font-size:1rem;font-weight:700;border:0;border-radius:12px;padding:13px 22px;cursor:pointer;text-decoration:none}
+.btn-bahaya:disabled{opacity:.6;cursor:wait}
 .btn-block{width:100%;text-align:center}
 .btn:active,.btn-ghost:active,.chip:active{transform:scale(.97)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.row .btn,.row .btn-ghost{flex:1;white-space:nowrap}
+.row .btn,.row .btn-ghost,.row .btn-bahaya{flex:1;white-space:nowrap}
 .msg{margin:10px 0 0;font-weight:600}
 .msg.err{color:var(--bad)}
 .msg.ok{color:var(--ok)}
@@ -627,6 +629,21 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <p class="msg" id="tab-pesan" role="status" aria-live="polite"></p>
       </div>
 
+      <div class="card">
+        <h3>Profil</h3>
+        <p class="hint" style="margin:0 0 12px" id="profil-masuk">Masuk sebagai <b id="profil-email">—</b></p>
+        <p class="hint" style="margin:0 0 12px" id="profil-demo" hidden>Kamu sedang memakai data contoh tanpa akun. Masuk dengan Google atau email supaya datamu tersimpan di akunmu.</p>
+        <button class="btn-bahaya" id="hapus-akun" type="button">Hapus akun</button>
+        <div class="reset-pilihan" id="hapus-pilihan" hidden>
+          <p style="margin:0 0 12px">Semua datamu — gaji, tagihan, target tabungan, dan semua catatan — akan dihapus permanen dan tidak bisa dikembalikan. Kamu akan keluar dari akun ini.</p>
+          <div class="row">
+            <button class="btn-bahaya" id="hapus-ya" type="button">Ya, hapus akunku</button>
+            <button class="btn-ghost" id="hapus-batal" type="button">Batal</button>
+          </div>
+        </div>
+        <p class="msg" id="hapus-pesan" role="status" aria-live="polite"></p>
+      </div>
+
       <div class="peringatan" id="peringatan" hidden></div>
       <p class="rumus-line" id="rumus-line"></p>
     </section>
@@ -1089,6 +1106,7 @@ async function siapkanSb(){
    ulangnya sendiri (tanda dirty + coba lagi saat simpan/online/buka), jadi
    ulangan pustaka hanya menunda deteksi gagal sampai berdetik-detik. */
 var userIdAktif=null;
+var emailAktif=null; /* email akun yang masuk (untuk kartu Profil) */
 var sinkronSiap=false;
 var sinkronTimer=null;
 var capLokalTerakhir=null;
@@ -1218,6 +1236,7 @@ async function masukDenganSesi(session){
     var uid=session.user&&session.user.id;
     aturKunciData(uid);
     userIdAktif=uid||null;
+    emailAktif=(session.user&&session.user.email)||null;
     sinkronSiap=false;capTerkirim=null;
     bersihkanHashAuth();
     load();
@@ -1409,12 +1428,30 @@ function tampilkanOnboarding(){
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
 }
+/* Kartu Profil (Atur): tampilkan email akun yang masuk; bila mode demo
+   (tanpa akun), sembunyikan tombol Hapus akun. */
+function renderProfil(){
+  var em=$("profil-email"), btn=$("hapus-akun");
+  if(!em||!btn)return;
+  if(userIdAktif){
+    em.textContent=emailAktif||"—";
+    $("profil-masuk").hidden=false;
+    $("profil-demo").hidden=true;
+    btn.hidden=false;
+  }else{
+    $("profil-masuk").hidden=true;
+    $("profil-demo").hidden=false;
+    btn.hidden=true;
+    $("hapus-pilihan").hidden=true;
+  }
+}
 function tampilkanApp(){
   sembunyikanAkun();
   $("onboarding").hidden=true;
   $("app").hidden=false;
   $("keluar").hidden=false;
   $("bottomnav").hidden=false;
+  renderProfil();
   tampilkanTab(tabDariHash());
 }
 function tabDariHash(){
@@ -2494,6 +2531,38 @@ $("reset-contoh").addEventListener("click",function(){
   state=seedState();save();
   $("reset-pilihan").hidden=true;
   tampilkanApp();render();
+});
+
+/* ---------- Hapus akun (Pengaturan profil, 27 Nov 2026, maunya Client) ----------
+   Menghapus SEMUA data pengguna (baris user_data di server + salinan lokal),
+   lalu keluar ke layar masuk. Pola konfirmasi 2 ketuk mengikuti Reset.
+   Akun auth di Supabase TIDAK bisa dihapus dari sisi klien (butuh service
+   role — hanya lewat Edge Function); bila email yang sama masuk lagi, ia
+   mulai dari akun kosong yang baru. */
+$("hapus-akun").addEventListener("click",function(){
+  $("hapus-pilihan").hidden=!$("hapus-pilihan").hidden;
+});
+$("hapus-batal").addEventListener("click",function(){$("hapus-pilihan").hidden=true;});
+$("hapus-ya").addEventListener("click",async function(){
+  var btn=$("hapus-ya");
+  btn.disabled=true;btn.textContent="Menghapus…";
+  /* Hapus baris server dulu (bila offline, tandai agar dihapus saat online —
+     pola yang sama seperti Reset "Mulai kosong"; dibatasi 5 detik). */
+  if(userIdAktif){
+    try{if(SYNC_HAPUS_KEY)localStorage.setItem(SYNC_HAPUS_KEY,"1");}catch(e){}
+    try{await Promise.race([hapusServer(),new Promise(function(res){setTimeout(function(){res(false);},SYNC_TIMEOUT_MS);})]);}catch(e){}
+  }
+  try{localStorage.removeItem(KEY);}catch(e){}
+  try{if(SYNC_DIRTY_KEY)localStorage.removeItem(SYNC_DIRTY_KEY);}catch(e){}
+  if(sinkronTimer){clearTimeout(sinkronTimer);sinkronTimer=null;}
+  state=null;filterKat=null;editingId=null;
+  userIdAktif=null;emailAktif=null;sinkronSiap=false;
+  aturKunciData(null);
+  try{if(sb)await sb.auth.signOut();}catch(e){}
+  $("hapus-pilihan").hidden=true;
+  btn.disabled=false;btn.textContent="Ya, hapus akunku";
+  tampilkanLogin();
+  tampilToast("Akun dan semua datamu sudah dihapus.",{sukses:true});
 });
 
 /* ---------- Navigasi tab: tiap tab halaman sendiri ----------
