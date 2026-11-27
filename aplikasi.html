@@ -509,7 +509,7 @@ main section.anim-awal{animation:tabIn .35s ease-out}
       </div>
 
       <div class="card" id="progres-card">
-        <h3>Progres hari ini</h3>
+        <h3 id="progres-judul">Progres hari ini</h3>
         <div class="bar" role="img" aria-label="Progres pengeluaran hari ini terhadap jatah"><i id="progres-bar" style="width:0%"></i></div>
         <p style="margin:0" id="progres-teks"></p>
       </div>
@@ -856,6 +856,35 @@ function calcAll(st,ref){
     bebas:bebas, pemasukan:pemasukan, keluar:keluar, keluarHariIni:keluarHariIni, sisaUang:sisaUang, jatah:jatah,
     hariBerjalan:hariBerjalan, laju:laju, perKat:perKat, disisihkan:disisihkan,
     jumlahCatatan:cyc.length, hariData:Object.keys(distinct).length};
+}
+/* Hitung "sampai tanggal" (27 Nov 2026, maunya Client): hero Beranda mengikuti
+   tanggal yang dipilih — keluar/pemasukan hanya transaksi s.d. tanggal itu,
+   sisa hari dihitung dari tanggal itu ke gajian berikutnya. Tagihan tetap dan
+   target tabungan tetap utuh (pengaturan siklus, bukan per tanggal). */
+function calcSampaiTanggal(st,ref){
+  ref=tengahMalam(ref);
+  var c=calcAll(st,ref); /* next, sisaHari, tagihan, target dihitung dari ref */
+  var refISO=iso(ref);
+  var keluar=0, pemasukan=0, perKat={}, disisihkan=0, distinct={}, jumlah=0;
+  cycleTx(st,ref).forEach(function(t){
+    if(t.tanggal>refISO)return;
+    jumlah++;
+    distinct[t.tanggal]=1;
+    if(isPemasukan(t)){pemasukan+=t.nominal;return;}
+    if(t.kategori==="Tabungan"){disisihkan+=t.nominal;return;}
+    keluar+=t.nominal;
+    perKat[t.kategori]=(perKat[t.kategori]||0)+t.nominal;
+  });
+  /* Uang bebas per tanggal itu: gaji + pemasukan s.d. tanggal itu − tagihan − target. */
+  var bebas=st.gaji+pemasukan-c.tagihan-c.target;
+  var sisaUang=bebas-keluar;
+  var jatah=Math.floor(Math.max(0,sisaUang)/c.sisaHari);
+  var hariBerjalan=Math.max(1,diffDays(parseISO(st.siklusMulai),ref)+1);
+  return {next:c.next, nextISO:c.nextISO, sisaHari:c.sisaHari, tagihan:c.tagihan,
+    target:c.target, bebas:bebas, pemasukan:pemasukan, keluar:keluar,
+    keluarHariIni:0, sisaUang:sisaUang, jatah:jatah, hariBerjalan:hariBerjalan,
+    laju:keluar/hariBerjalan, perKat:perKat, disisihkan:disisihkan,
+    jumlahCatatan:jumlah, hariData:Object.keys(distinct).length};
 }
 /* Prediksi tanggal habis (PRD §9.3): hanya bila >=3 hari data ATAU >=5 catatan. */
 function prediksi(st,ref,c){
@@ -1568,32 +1597,57 @@ function render(){
   $("tanggal").textContent=HARI[ref.getDay()]+", "+fmtTgl(ref);
 
   /* Siklus yang dilihat (berjalan/arsip) + tanggal terpilih di dalamnya.
-     Hero jatah + 4 kartu ringkasan TETAP memakai angka siklus penuh;
-     yang memfilter ke tanggal adalah Kemana, Terbaru, Budget, Peta, Riwayat. */
+     Bila ada tanggal terpilih (siklus berjalan), hero + Progres ikut tanggal
+     itu (maunya Client 27 Nov 2026): pengeluaran s.d. tanggal itu, termasuk
+     transfer Tabungan; 4 kartu ringkasan tetap angka siklus penuh. */
   var idxV=periodeLihat==="berjalan"?null:periodeLihat;
   var vView=tampilanSiklus(state,ref,idxV);
   var arsipAktif=vView.mode==="arsip";
-  var hariAgg=null;
+  var hariAgg=null, hariKum=null;
   if(tanggalLihat!==null){
     /* Tanggal di luar siklus yang dilihat (mis. sisa dari periode lain) -> abaikan. */
     if(tanggalLihat<vView.mulaiISO||tanggalLihat>=vView.akhirISO){tanggalLihat=null;}
-    else hariAgg=agregatSiklus(state,tanggalLihat,iso(addDays(parseISO(tanggalLihat),1)));
+    else{
+      hariAgg=agregatSiklus(state,tanggalLihat,iso(addDays(parseISO(tanggalLihat),1)));
+      /* Kumulatif dari awal siklus s.d. tanggal terpilih (untuk hero + Progres). */
+      hariKum=agregatSiklus(state,vView.mulaiISO,iso(addDays(parseISO(tanggalLihat),1)));
+    }
+  }
+  /* Angka hero: tanpa tanggal = angka hari ini/siklus penuh; dengan tanggal
+     = angka per tanggal itu. Catatan: target tabungan sudah dikurangi di uang
+     bebas, jadi transfer Tabungan yang ikut dihitung di sini terhitung dua
+     kali di tampilan per tanggal — itu maunya Client (pengeluarannya termasuk
+     transfer Tabungan). */
+  var hero={keluar:vView.keluar,sisa:vView.sisaUang,jatah:vView.jatah,hari:vView.sisaHari};
+  if(hariKum&&!arsipAktif){
+    var pengSdTgl=hariKum.keluar+hariKum.disisihkan;
+    hero.keluar=pengSdTgl;
+    hero.sisa=vView.bebas-pengSdTgl;
+    hero.hari=Math.max(1,diffDays(parseISO(tanggalLihat),parseISO(vView.akhirISO)));
+    hero.jatah=Math.floor(Math.max(0,hero.sisa)/hero.hari);
   }
   /* Simpan tampilan terakhir untuk gambar ulang donut saat tab Peta dibuka. */
   terakhirVView=vView;terakhirHariAgg=hariAgg;
 
   /* Beranda (revisi mockup client 26 Nov 2026 + tanggal 27 Nov 2026) */
   renderSalam();
-  renderBeranda(state,ref,c,vView,hariAgg,tanggalLihat,arsipAktif);
+  renderBeranda(state,ref,c,vView,hariAgg,tanggalLihat,arsipAktif,hero);
 
-  /* Progres hari ini */
-  var pct=c.jatah>0?Math.round(c.keluarHariIni/c.jatah*100):(c.keluarHariIni>0?100:0);
+  /* Progres hari ini: ikut tanggal terpilih (sama seperti hero). */
+  var progKeluar=c.keluarHariIni, progJatah=c.jatah, progLabel="Hari ini";
+  if(hariKum&&!arsipAktif){
+    progKeluar=hariAgg.keluar+hariAgg.disisihkan;
+    progJatah=hero.jatah;
+    progLabel=fmtTglISO(tanggalLihat);
+  }
+  var pct=progJatah>0?Math.round(progKeluar/progJatah*100):(progKeluar>0?100:0);
   terakhirPctProgres=pct;
   animasiLebarBar($("progres-bar"),pct);
-  var prog="Hari ini sudah keluar "+rp(c.keluarHariIni)+" dari jatah "+rp(c.jatah)+" ("+pct+"%).";
-  if(c.jatah>0&&c.keluarHariIni>c.jatah)prog+=" Sudah melewati jatah hari ini — pencatatan tetap bisa dilanjutkan.";
-  if(c.jatah===0&&c.keluarHariIni>0)prog="Hari ini sudah keluar "+rp(c.keluarHariIni)+" dan jatah hari ini Rp0.";
+  var prog=progLabel+" sudah keluar "+rp(progKeluar)+" dari jatah "+rp(progJatah)+" ("+pct+"%).";
+  if(progJatah>0&&progKeluar>progJatah)prog+=" Sudah melewati jatah "+(tanggalLihat?"tanggal itu":"hari ini")+" — pencatatan tetap bisa dilanjutkan.";
+  if(progJatah===0&&progKeluar>0)prog=progLabel+" sudah keluar "+rp(progKeluar)+" dan jatah "+(tanggalLihat?"tanggal itu":"hari ini")+" Rp0.";
   $("progres-teks").textContent=prog;
+  $("progres-judul").textContent=tanggalLihat?("Progres "+fmtTglISO(tanggalLihat)):"Progres hari ini";
 
   /* Prediksi */
   var p=prediksi(state,ref,c);
@@ -1641,7 +1695,7 @@ function isiOpsiPeriode(sel,st,c){
   sel.innerHTML=opsi;
   sel.value=periodeLihat==="berjalan"?"berjalan":String(periodeLihat);
 }
-function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
+function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif,hero){
   var arsipMode=arsipAktif;
 
   /* Header: tanggal hari ini + pemilih periode */
@@ -1658,27 +1712,30 @@ function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
   if(arsipMode)$("mode-arsip-teks").textContent="Kamu sedang melihat siklus "+fmtTglISO(v.mulaiISO)+" \u2013 "+fmtTglISO(iso(addDays(parseISO(v.akhirISO),-1)))+" (arsip). Data di bawah ini baca-saja.";
 
   /* Kartu jatah — angka count-up, berakhir tepat di nilai hitung */
-  $("jatah-lbl").textContent=arsipMode?"Jatah harian siklus":"Jatah hari ini";
-  animasiAngka($("jatah"),v.jatah);
+  $("jatah-lbl").textContent=arsipMode?"Jatah harian siklus":(tanggalLihat?("Jatah "+fmtTglISO(tanggalLihat)):"Jatah hari ini");
+  animasiAngka($("jatah"),hero.jatah);
   $("sisa-uang-lbl").textContent=arsipMode?"Sisa akhir siklus":"Sisa sampai gajian";
-  animasiAngka($("sisa-uang"),v.sisaUang);
+  animasiAngka($("sisa-uang"),hero.sisa);
   $("sisa-hari-lbl").textContent=arsipMode?"Hari siklus":"Sisa hari menuju gajian";
-  $("sisa-hari").textContent=(arsipMode?v.totalHari:v.sisaHari)+" hari";
+  $("sisa-hari").textContent=(arsipMode?v.totalHari:hero.hari)+" hari";
   if(!arsipMode){
-    if(v.jatah>0&&v.sisaHari>0)$("artinya").innerHTML="Artinya, uangmu Aman dipakai <b>"+rp(v.jatah)+"</b> per hari untuk "+v.sisaHari+" hari ke depan.";
-    else if(v.sisaUang<0)$("artinya").textContent="Uang bebasmu sudah terpakai \u2014 tidak ada jatah harian untuk "+v.sisaHari+" hari ke depan.";
-    else $("artinya").textContent="Jatah harianmu Rp0 untuk "+v.sisaHari+" hari ke depan.";
+    var artAwal=tanggalLihat?("Artinya, per "+fmtTglISO(tanggalLihat)+" uangmu Aman dipakai "):"Artinya, uangmu Aman dipakai ";
+    if(hero.jatah>0&&hero.hari>0)$("artinya").innerHTML=artAwal+"<b>"+rp(hero.jatah)+"</b> per hari untuk "+hero.hari+" hari ke depan.";
+    else if(hero.sisa<0)$("artinya").textContent="Uang bebasmu sudah terpakai \u2014 tidak ada jatah harian untuk "+hero.hari+" hari ke depan.";
+    else $("artinya").textContent="Jatah harianmu Rp0 untuk "+hero.hari+" hari ke depan.";
   }else{
     if(v.sisaUang>=0)$("artinya").innerHTML="Artinya, di siklus ini uangmu cukup dipakai <b>"+rp(v.jatah)+"</b> per hari selama "+v.totalHari+" hari.";
     else $("artinya").textContent="Di siklus ini kamu memakai "+rp(-v.sisaUang)+" lebih dari uang bebas.";
   }
-  var pctBebas=v.bebas>0?Math.round(v.keluar/v.bebas*100):(v.keluar>0?100:0);
+  var pctBebas=v.bebas>0?Math.round(hero.keluar/v.bebas*100):(hero.keluar>0?100:0);
   terakhirPctTerpakai=pctBebas;
   animasiLebarBar($("terpakai-bar"),pctBebas);
-  $("terpakai-teks").textContent="Terpakai "+rp(v.keluar)+" dari uang bebas "+rp(v.bebas)+" ("+pctBebas+"%).";
+  $("terpakai-teks").textContent="Terpakai "+rp(hero.keluar)+" dari uang bebas "+rp(v.bebas)+" ("+pctBebas+"%).";
   if(!arsipMode){
-    var hariIniTx=st.transaksi.filter(function(t){return t.tanggal===iso(ref);}).sort(function(a,b){return b.id-a.id;});
-    $("terakhir-hari-ini").textContent=hariIniTx.length?("Terakhir hari ini: "+(hariIniTx[0].catatan||hariIniTx[0].kategori)+" \u2014 "+(isPemasukan(hariIniTx[0])?"+":"\u2212")+rp(hariIniTx[0].nominal)):"Belum ada pengeluaran hari ini.";
+    var tglRef=tanggalLihat||iso(ref);
+    var hariTx=st.transaksi.filter(function(t){return t.tanggal===tglRef;}).sort(function(a,b){return b.id-a.id;});
+    var lblTerakhir=tanggalLihat?("Terakhir "+fmtTglISO(tanggalLihat)):"Terakhir hari ini";
+    $("terakhir-hari-ini").textContent=hariTx.length?(lblTerakhir+": "+(hariTx[0].catatan||hariTx[0].kategori)+" \u2014 "+(isPemasukan(hariTx[0])?"+":"\u2212")+rp(hariTx[0].nominal)):(tanggalLihat?("Belum ada pengeluaran "+fmtTglISO(tanggalLihat)+"."):"Belum ada pengeluaran hari ini.");
   }else{
     var urutAkhir=v.tx.slice().sort(function(a,b){if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;return b.id-a.id;});
     $("terakhir-hari-ini").textContent=urutAkhir.length?("Terakhir di siklus ini: "+(urutAkhir[0].catatan||urutAkhir[0].kategori)+" \u2014 "+(isPemasukan(urutAkhir[0])?"+":"\u2212")+rp(urutAkhir[0].nominal)+" ("+fmtTglISO(urutAkhir[0].tanggal)+")"):"Belum ada pengeluaran di siklus ini.";
@@ -1690,7 +1747,7 @@ function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
   }else{
     $("siklus-line").textContent="Siklus "+bulanSiklus+" "+parseISO(v.mulaiISO).getFullYear()+": "+fmtTglPanjangISO(v.mulaiISO)+" sampai "+fmtTglPanjang(akhirSiklus)+" \u00b7 Gajian "+fmtTgl(parseISO(v.akhirISO));
   }
-  $("pesan-negatif").hidden=!(v.sisaUang<0);
+  $("pesan-negatif").hidden=!(hero.sisa<0);
   $("pesan-negatif").textContent=arsipMode?"Di siklus ini uang bebasmu terpakai habis.":"Uang bebasmu sudah terpakai. Yuk lihat sisa hari menuju gajian.";
   $("h-gaji").textContent=rp(v.gaji);
   $("row-pemasukan").hidden=!(v.pemasukan>0);
@@ -1698,10 +1755,10 @@ function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
   $("h-tagihan").textContent=v.tagihan==null?"\u2014":rp(v.tagihan);
   $("h-target").textContent=v.target==null?"\u2014":rp(v.target);
   $("h-bebas").textContent=rp(v.bebas);
-  $("h-keluar").textContent=rp(v.keluar);
-  $("h-sisa").textContent=rp(v.sisaUang);
-  $("h-hari").textContent=(arsipMode?v.totalHari:v.sisaHari)+" hari";
-  $("h-jatah").textContent=rp(v.jatah);
+  $("h-keluar").textContent=rp(hero.keluar);
+  $("h-sisa").textContent=rp(hero.sisa);
+  $("h-hari").textContent=(arsipMode?v.totalHari:hero.hari)+" hari";
+  $("h-jatah").textContent=rp(hero.jatah);
 
   /* 4 kartu ringkasan — nilai count-up */
   var prev=v.prev;
@@ -1718,7 +1775,7 @@ function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
   isiKartu("r-target",v.target,prev?(typeof prev.target==="number"?prev.target:null):null);
   isiKartu("r-bebas",v.bebas,prev?prev.uangBebas:null);
   /* Simpan nilai tampil untuk count-up ulang tiap kunjungan Beranda. */
-  nilaiTampil={jatah:v.jatah,sisa:v.sisaUang,gaji:v.gaji,tagihan:v.tagihan,target:v.target,bebas:v.bebas};
+  nilaiTampil={jatah:hero.jatah,sisa:hero.sisa,gaji:v.gaji,tagihan:v.tagihan,target:v.target,bebas:v.bebas};
 
   /* Kemana uangmu akan pergi? — 3 kategori terbesar (tanggal terpilih bila ada) */
   var perKatTampil=hariAgg?hariAgg.perKat:v.perKat;
