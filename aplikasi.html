@@ -9,11 +9,17 @@
 <style>
 /* Palet prototype revisi 2.0 (Client, 26 Nov 2026): navy gelap + emas.
    Gelap jadi bawaan; terang lewat [data-theme="light"] (tombol #tema).
+   Hero (27 Nov 2026, arahan ARIEF): warna hero ikut tema — gelap = gradasi
+   biru royal yang jelas beda dari latar, terang = gradasi krem emas; teks
+   di dalam hero ikut tema lewat --hero-ink/--hero-muted/--hero-line/
+   --hero-chip/--hero-mint. Jangan hardcode #fff/#aeb9de di dalam hero.
    Font Plus Jakarta Sans via Google Fonts, fallback system-ui bila CDN gagal. */
 :root{
   --bg:#0b1222; --card:#151e38; --ink:#e9edff; --muted:#93a0c4; --line:#243052; --track:#0b1222;
   --accent:#c9a227; --accent-soft:rgba(201,162,39,.14); --ok:#1fb882; --warn:#c9a227; --bad:#f0506e;
-  --field:#1c2748; --btn:#3b5bff; --btn-text:#FFFFFF; --hero:#1b2750;
+  --field:#1c2748; --btn:#3b5bff; --btn-text:#FFFFFF;
+  --hero:linear-gradient(135deg,#2e4390,#1d2c5e); --hero-ink:#ffffff; --hero-muted:#c3cdea;
+  --hero-line:rgba(255,255,255,.18); --hero-chip:rgba(255,255,255,.09); --hero-mint:#7df0c4;
   --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --sans:'Plus Jakarta Sans',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
@@ -22,7 +28,9 @@
 :root[data-theme="light"]{
   --bg:#f3f4f9; --card:#ffffff; --ink:#14213d; --muted:#667089; --line:#e3e6f0; --track:#eceef4;
   --accent:#8a6d00; --accent-soft:#fbf3df; --ok:#1e7f5c; --warn:#8a6d00; --bad:#d0453a;
-  --field:#ffffff; --btn:#3b5bff; --btn-text:#ffffff; --hero:#14213d;
+  --field:#ffffff; --btn:#3b5bff; --btn-text:#ffffff;
+  --hero:linear-gradient(135deg,#fff9e6,#fbeec0); --hero-ink:#14213d; --hero-muted:#667089;
+  --hero-line:rgba(20,33,61,.14); --hero-chip:rgba(255,255,255,.65); --hero-mint:#1e7f5c;
   --blue:#3b5bff; --mint:#1fb882; --rose:#f0506e;
   color-scheme:light;
 }
@@ -68,25 +76,25 @@ button{font-family:var(--sans);transition:background-color .2s ease,color .2s ea
 .hint{color:var(--muted);font-size:.9rem}
 .privasi{color:var(--muted);font-size:.92rem;border-left:3px solid var(--accent);padding-left:10px;margin:4px 0 14px}
 /* 01 Beranda — kartu hero ala prototype (navy, radius 26px, putih di kedua tema) */
-.jatah-card{position:relative;overflow:hidden;background:var(--hero);color:#fff;border:0;border-radius:26px;padding:22px;margin:14px 0;transition:background-color .3s ease}
+.jatah-card{position:relative;overflow:hidden;background:var(--hero);color:var(--hero-ink);border:0;border-radius:26px;padding:22px;margin:14px 0;transition:background-color .3s ease}
 /* Kilau halus sekali saat Beranda tampil (bukan loop). */
 .jatah-card::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);transform:translateX(-160%) skewX(-18deg);pointer-events:none}
 .jatah-card.kilau::after{animation:kilau .8s ease-out}
-.jatah-card .lbl{font:700 .78rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#aeb9de}
+.jatah-card .lbl{font:700 .78rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--hero-muted)}
 .jatah-big{font-size:2.5rem;font-weight:800;line-height:1.05;margin:2px 0 16px;letter-spacing:-.03em}
 .jatah-row{display:flex;justify-content:space-between;gap:12px}
-.jatah-row div span{display:block;font-size:.82rem;color:#aeb9de}
+.jatah-row div span{display:block;font-size:.82rem;color:var(--hero-muted)}
 .jatah-row div b{font-size:1.12rem}
-.siklus-line{color:#aeb9de;font-size:.88rem;margin:12px 0 0}
+.siklus-line{color:var(--hero-muted);font-size:.88rem;margin:12px 0 0}
 .hitung-tabel{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
-.hitung-tabel td{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.12);vertical-align:top;color:#aeb9de}
-.hitung-tabel td:last-child{text-align:right;white-space:nowrap;font-weight:700;color:#fff}
-.hitung-tabel tr.total td{border-bottom:0;font-weight:800;color:#fff}
+.hitung-tabel td{padding:6px 0;border-bottom:1px solid var(--hero-line);vertical-align:top;color:var(--hero-muted)}
+.hitung-tabel td:last-child{text-align:right;white-space:nowrap;font-weight:700;color:var(--hero-ink)}
+.hitung-tabel tr.total td{border-bottom:0;font-weight:800;color:var(--hero-ink)}
 .bar{height:10px;border-radius:9px;background:var(--track);border:1px solid var(--line);overflow:hidden;margin:8px 0 6px}
 .bar i{display:block;height:100%;background:var(--accent);transition:width .6s ease-out}
 /* "Lihat cara hitung" — buka/tutup beranimasi (bukan lompat instan) */
-.hitung{margin-top:14px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
-.hitung-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;cursor:pointer;font-weight:700;color:#aeb9de;font-size:.95rem;text-align:left}
+.hitung{margin-top:14px;border-top:1px solid var(--hero-line);padding-top:12px}
+.hitung-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;cursor:pointer;font-weight:700;color:var(--hero-muted);font-size:.95rem;text-align:left}
 .hitung-toggle .chev{display:inline-block;transition:transform .25s ease}
 .hitung.buka .hitung-toggle .chev{transform:rotate(180deg)}
 .hitung-isi{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
@@ -238,8 +246,8 @@ label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
 .ringkas-card .rk-lbl{font:700 .72rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block}
 .ringkas-card b{display:block;font-size:1.2rem;margin:2px 0 6px}
 .ringkas-card .rk-sub{display:block;font-size:.85rem;color:var(--muted)}
-.artinya{margin:12px 0 0;font-weight:600;background:rgba(255,255,255,.09);border-radius:14px;padding:12px 14px;font-size:.92rem;line-height:1.45}
-.artinya b{color:#7df0c4}
+.artinya{margin:12px 0 0;font-weight:600;background:var(--hero-chip);border-radius:14px;padding:12px 14px;font-size:.92rem;line-height:1.45}
+.artinya b{color:var(--hero-mint)}
 /* Pemilih tanggal dalam siklus (revisi 27 Nov 2026: per-hari, bukan per-minggu) */
 .minggu-row{margin:12px 0 0}
 .minggu-row label{display:block;font-weight:700;margin:0 0 6px}
@@ -256,9 +264,9 @@ label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
 .kemana-row .kn i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:8px;vertical-align:-1px}
 .kemana-row .kj{text-align:right;white-space:nowrap;font-weight:700}
 .kemana-row .kj small{display:block;font-weight:400;color:var(--muted)}
-.terpakai{margin-top:14px;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
-.terpakai p{margin:6px 0 0;font-size:.92rem;color:#aeb9de}
-.terakhir{margin:12px 0 0;font-size:.92rem;color:#aeb9de;border-top:1px solid rgba(255,255,255,.18);padding-top:12px}
+.terpakai{margin-top:14px;border-top:1px solid var(--hero-line);padding-top:12px}
+.terpakai p{margin:6px 0 0;font-size:.92rem;color:var(--hero-muted)}
+.terakhir{margin:12px 0 0;font-size:.92rem;color:var(--hero-muted);border-top:1px solid var(--hero-line);padding-top:12px}
 /* Budget Kategori — bar "batas wajar" ala prototype */
 .budget-row{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:14px 0;cursor:pointer;color:var(--ink);font-size:.97rem;transition:transform .15s ease}
 .budget-row:active{transform:scale(.99)}
