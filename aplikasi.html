@@ -558,6 +558,10 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     <section id="riwayat">
       <p class="kicker">Riwayat</p>
       <h2>Catatanmu</h2>
+      <div class="periode-row">
+        <label for="riwayat-periode">Pilih Periode</label>
+        <select id="riwayat-periode" aria-label="Pilih periode siklus"></select>
+      </div>
       <div class="filterbar" id="filterbar" hidden>
         <span id="filter-teks"></span>
         <button type="button" id="filter-hapus">Tampilkan semua</button>
@@ -569,6 +573,10 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     <section id="peta">
       <p class="kicker">Peta Uang</p>
       <h2>Ke mana uangmu pergi</h2>
+      <div class="periode-row">
+        <label for="peta-periode">Pilih Periode</label>
+        <select id="peta-periode" aria-label="Pilih periode siklus"></select>
+      </div>
       <div class="card">
         <div id="peta-kosong" class="fade-masuk" hidden>
           <p style="margin:0">Belum ada pengeluaran di siklus ini. Catat pengeluaran pertamamu lewat tab Catat di bawah.</p>
@@ -617,6 +625,8 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         <input id="at-nama" autocomplete="off" placeholder="Contoh: Kos">
         <label for="at-nominal">Nominal (Rp)</label>
         <input id="at-nominal" inputmode="numeric" autocomplete="off" placeholder="1.000.000">
+        <label for="at-tanggal">Tanggal tagihan (1&ndash;31, opsional)</label>
+        <input id="at-tanggal" inputmode="numeric" autocomplete="off" placeholder="Contoh: 5">
         <div class="row">
           <button class="btn" id="at-tambah" type="button">Tambah tagihan</button>
           <button class="btn-ghost" id="at-batal" type="button" hidden>Batal</button>
@@ -632,6 +642,8 @@ main section.anim-awal{animation:tabIn .35s ease-out}
         </div>
         <label for="tab-nilai" id="tab-label">Target tabungan (Rp)</label>
         <input id="tab-nilai" inputmode="numeric" autocomplete="off" placeholder="500.000">
+        <label for="tab-tanggal">Tanggal tabungan (1&ndash;31, opsional)</label>
+        <input id="tab-tanggal" inputmode="numeric" autocomplete="off" placeholder="Contoh: 12">
         <button class="btn" id="tab-simpan" type="button">Simpan target</button>
         <p class="hint" style="margin:10px 0 0" id="tab-saat-ini"></p>
         <p class="msg" id="tab-pesan" role="status" aria-live="polite"></p>
@@ -709,6 +721,8 @@ main section.anim-awal{animation:tabIn .35s ease-out}
     <input id="m-jumlah" inputmode="numeric" autocomplete="off" placeholder="0">
     <label class="f">Kategori</label>
     <div class="chips" id="m-chips" role="group" aria-label="Kategori"></div>
+    <label class="f" for="m-tanggal">Tanggal</label>
+    <input id="m-tanggal" type="date">
     <label class="f" for="m-catatan">Catatan (opsional)</label>
     <input id="m-catatan" autocomplete="off" placeholder="Contoh: makan siang">
     <p class="msg" id="m-pesan" role="status" aria-live="polite"></p>
@@ -783,8 +797,8 @@ function seedState(){
   var tx=rows.map(function(r,i){return {id:i+1,tanggal:r[0],kategori:r[1],catatan:r[2],nominal:r[3]};});
   return {
     gaji:5000000, tanggalGajian:12,
-    tagihanTetap:[{id:1,nama:"Kos",nominal:1000000},{id:2,nama:"Langganan",nominal:500000}],
-    targetTabungan:{tipe:"nominal",nilai:500000},
+    tagihanTetap:[{id:1,nama:"Kos",nominal:1000000,tanggal:1},{id:2,nama:"Langganan",nominal:500000,tanggal:15}],
+    targetTabungan:{tipe:"nominal",nilai:500000,tanggal:12},
     transaksi:tx, siklusMulai:"2026-11-12", arsip:[], nextId:14
   };
 }
@@ -1583,7 +1597,7 @@ function render(){
   renderBudget(vView,hariAgg);
   renderPeta(vView,hariAgg);
   renderInsight(c,p);
-  renderRiwayat(hariAgg,arsipAktif);
+  renderRiwayat(vView,hariAgg,arsipAktif);
   renderAtur(c);
   renderArsip(c);
   renderFormDefault();
@@ -1598,18 +1612,26 @@ function deltaVs(cur,prev){
   if(d===0)return "Sama dengan periode sebelumnya";
   return "vs periode sebelumnya: "+(d>0?"+":"\u2212")+rp(Math.abs(d));
 }
-function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
-  var arsipMode=arsipAktif;
-
-  /* Header: tanggal hari ini + pemilih periode */
-  $("beranda-tanggal").textContent=HARI[ref.getDay()]+", "+fmtTglPanjang(ref);
-  var sel=$("periode-pilih");
+/* Pemilih periode (27 Nov 2026, maunya Client): dropdown yang sama ada di
+   Beranda, Peta Uang, dan Riwayat — ketiganya mengubah periodeLihat yang sama
+   (siklus berjalan atau arsip), jadi isi ketiga tab selalu satu periode. */
+function isiOpsiPeriode(sel,st,c){
+  if(!sel)return;
   var opsi='<option value="berjalan">Siklus berjalan: '+fmtTglISO(st.siklusMulai)+' \u2013 '+fmtTgl(addDays(c.next,-1))+'</option>';
   st.arsip.forEach(function(a,i){
     opsi+='<option value="'+i+'">'+fmtTglISO(a.mulai)+' \u2013 '+fmtTglISO(a.selesai)+'</option>';
   });
   sel.innerHTML=opsi;
   sel.value=periodeLihat==="berjalan"?"berjalan":String(periodeLihat);
+}
+function renderBeranda(st,ref,c,v,hariAgg,tanggalLihat,arsipAktif){
+  var arsipMode=arsipAktif;
+
+  /* Header: tanggal hari ini + pemilih periode */
+  $("beranda-tanggal").textContent=HARI[ref.getDay()]+", "+fmtTglPanjang(ref);
+  isiOpsiPeriode($("periode-pilih"),st,c);
+  isiOpsiPeriode($("peta-periode"),st,c);
+  isiOpsiPeriode($("riwayat-periode"),st,c);
 
   /* Pemilih tanggal dalam siklus yang dilihat (revisi 27 Nov 2026) */
   renderTanggalPicker(v,tanggalLihat,hariAgg);
@@ -1741,15 +1763,19 @@ function renderTanggalPicker(v,tanggalLihat,hariAgg){
   }
   $("minggu-semua").classList.toggle("on",tanggalLihat===null);
 }
-$("periode-pilih").addEventListener("change",function(){
-  var val=this.value;
+/* Ganti periode (dipakai dropdown Beranda, Peta Uang, dan Riwayat — ketiganya
+   memanggil yang sama). */
+function gantiPeriode(val){
   periodeLihat=val==="berjalan"?"berjalan":parseInt(val,10);
   tanggalLihat=null;
   render();
   animasiMasukBeranda();
   ulangCountUpBeranda();
   animasiGantiPeriode();
-});
+}
+$("periode-pilih").addEventListener("change",function(){gantiPeriode(this.value);});
+$("peta-periode").addEventListener("change",function(){gantiPeriode(this.value);});
+$("riwayat-periode").addEventListener("change",function(){gantiPeriode(this.value);});
 $("minggu-tanggal").addEventListener("change",function(){
   if(!this.value){tanggalLihat=null;}
   else{
@@ -2063,19 +2089,16 @@ function renderInsight(c,p){
 }
 
 /* ---------- Riwayat ----------
-   Tanpa filter tanggal: semua catatan (perilaku lama). Bila tanggal terpilih:
-   hanya transaksi tanggal itu. Mode arsip: baca-saja (tanpa Ubah/Hapus). */
-function urutanTx(){
-  return state.transaksi.slice().sort(function(a,b){
+   Tanpa filter tanggal: catatan pada periode yang dilihat (siklus berjalan
+   atau arsip yang dipilih lewat dropdown periode di Beranda/Peta/Riwayat).
+   Bila tanggal terpilih: hanya transaksi tanggal itu.
+   Mode arsip: baca-saja (tanpa Ubah/Hapus). */
+function renderRiwayat(v,hariAgg,arsipAktif){
+  var dasar=hariAgg?hariAgg.tx:(v&&v.tx?v.tx:[]);
+  var list=dasar.slice().sort(function(a,b){
     if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
     return b.id-a.id;
   });
-}
-function renderRiwayat(hariAgg,arsipAktif){
-  var list=hariAgg?hariAgg.tx.slice().sort(function(a,b){
-    if(a.tanggal!==b.tanggal)return a.tanggal<b.tanggal?1:-1;
-    return b.id-a.id;
-  }):urutanTx();
   var tampil=filterKat?list.filter(function(t){return t.kategori===filterKat;}):list;
   $("filterbar").hidden=!filterKat;
   if(filterKat)$("filter-teks").textContent="Menampilkan kategori: "+filterKat+" ("+tampil.length+" catatan)";
@@ -2314,6 +2337,7 @@ function bukaModal(){
   setJenisModal("out");
   $("m-jumlah").value="";
   $("m-catatan").value="";
+  $("m-tanggal").value=iso(hariIni());
   $("m-pesan").textContent="";
   $("m-pesan").className="msg";
   $("modal-cepat").classList.add("on");
@@ -2349,7 +2373,8 @@ $("m-simpan").addEventListener("click",function(){
     $("m-jumlah").focus();return;
   }
   var kat=chipModal, jenis=jenisModal;
-  simpanTransaksi({jenis:jenis,kategori:kat,nominal:jml,tanggal:iso(hariIni()),catatan:$("m-catatan").value.trim(),qris:null,editId:null});
+  var tgl=$("m-tanggal").value||iso(hariIni());
+  simpanTransaksi({jenis:jenis,kategori:kat,nominal:jml,tanggal:tgl,catatan:$("m-catatan").value.trim(),qris:null,editId:null});
   tutupModal();
   tampilToast("Tercatat: "+(jenis==="in"?"+":"\u2212")+rp(jml)+" ("+kat+").",{sukses:true});
 });
@@ -2417,7 +2442,7 @@ function renderAtur(c){
     $("tagihan-list").innerHTML="<p class=\"hint fade-masuk\" style=\"margin:0\">Belum ada tagihan tetap. Tambahkan di bawah bila ada kewajiban rutin seperti kos atau langganan.</p>";
   }else{
     $("tagihan-list").innerHTML=state.tagihanTetap.map(function(t){
-      return '<div class="atur-item"><div class="nm">'+esc(t.nama)+'<small><span class="cu" data-nilai="0" data-v="'+t.nominal+'">Rp0</span></small></div>'+
+      return '<div class="atur-item"><div class="nm">'+esc(t.nama)+'<small><span class="cu" data-nilai="0" data-v="'+t.nominal+'">Rp0</span>'+(t.tanggal?' · tgl '+t.tanggal:'')+'</small></div>'+
         '<div class="aksi"><button type="button" data-tag-ubah="'+t.id+'">Ubah</button>'+
         '<button type="button" data-tag-hapus="'+t.id+'">Hapus</button></div></div>';
     }).join("");
@@ -2429,8 +2454,9 @@ function renderAtur(c){
   $("tab-persen").setAttribute("aria-pressed",tabTipe==="persen"?"true":"false");
   $("tab-label").textContent=tabTipe==="persen"?"Target tabungan (% dari gaji)":"Target tabungan (Rp)";
   if(document.activeElement!==$("tab-nilai"))$("tab-nilai").value=fmtNum(state.targetTabungan.nilai);
+  if(document.activeElement!==$("tab-tanggal"))$("tab-tanggal").value=state.targetTabungan.tanggal||"";
   var pctTab=state.gaji>0?Math.round(c.target/state.gaji*100):0;
-  $("tab-saat-ini").innerHTML="Saat ini: <span class=\"cu\" data-nilai=\"0\" data-v=\""+c.target+"\">Rp0</span>"+(state.gaji>0?" ("+pctTab+"% dari gaji)":"")+".";
+  $("tab-saat-ini").innerHTML="Saat ini: <span class=\"cu\" data-nilai=\"0\" data-v=\""+c.target+"\">Rp0</span>"+(state.gaji>0?" ("+pctTab+"% dari gaji)":"")+(state.targetTabungan.tanggal?" · tgl "+state.targetTabungan.tanggal:"")+".";
   animasiSemuaCu($("tab-saat-ini"));
   /* Peringatan + rumus */
   var total=c.tagihan+c.target;
@@ -2461,7 +2487,7 @@ $("tagihan-list").addEventListener("click",function(e){
     var t=null;state.tagihanTetap.forEach(function(x){if(x.id===+ub.getAttribute("data-tag-ubah"))t=x;});
     if(!t)return;
     editingTagihanId=t.id;
-    $("at-nama").value=t.nama;$("at-nominal").value=fmtNum(t.nominal);
+    $("at-nama").value=t.nama;$("at-nominal").value=fmtNum(t.nominal);$("at-tanggal").value=t.tanggal||"";
     $("at-tambah").textContent="Simpan perubahan";
     $("at-batal").hidden=false;
     $("at-nama").focus();
@@ -2473,27 +2499,30 @@ $("tagihan-list").addEventListener("click",function(e){
   }
 });
 $("at-tambah").addEventListener("click",function(){
-  var nama=$("at-nama").value.trim(), nominal=num($("at-nominal").value);
+  var nama=$("at-nama").value.trim(), nominal=num($("at-nominal").value), tg=num($("at-tanggal").value);
   if(!nama){$("at-pesan").textContent="Isi nama tagihannya dulu.";$("at-pesan").className="msg err";return;}
   if(!nominal||nominal<=0){$("at-pesan").textContent="Isi nominal tagihan dengan angka lebih dari Rp0.";$("at-pesan").className="msg err";return;}
+  if($("at-tanggal").value.trim()&&(tg<1||tg>31)){$("at-pesan").textContent="Tanggal tagihan harus 1 sampai 31 (atau kosongkan).";$("at-pesan").className="msg err";return;}
   if(editingTagihanId!==null){
-    state.tagihanTetap.forEach(function(x){if(x.id===editingTagihanId){x.nama=nama;x.nominal=nominal;}});
+    state.tagihanTetap.forEach(function(x){if(x.id===editingTagihanId){x.nama=nama;x.nominal=nominal;if(tg)x.tanggal=tg;else delete x.tanggal;}});
     editingTagihanId=null;
     $("at-tambah").textContent="Tambah tagihan";
     $("at-batal").hidden=true;
     $("at-pesan").textContent="Tagihan diperbarui.";
   }else{
     var nid=1;state.tagihanTetap.forEach(function(x){nid=Math.max(nid,x.id+1);});
-    state.tagihanTetap.push({id:nid,nama:nama,nominal:nominal});
+    var itemBaru={id:nid,nama:nama,nominal:nominal};
+    if(tg)itemBaru.tanggal=tg;
+    state.tagihanTetap.push(itemBaru);
     $("at-pesan").textContent="Tagihan ditambahkan.";
   }
   $("at-pesan").className="msg ok";
-  $("at-nama").value="";$("at-nominal").value="";
+  $("at-nama").value="";$("at-nominal").value="";$("at-tanggal").value="";
   save();render();
 });
 $("at-batal").addEventListener("click",function(){
   editingTagihanId=null;
-  $("at-nama").value="";$("at-nominal").value="";
+  $("at-nama").value="";$("at-nominal").value="";$("at-tanggal").value="";
   $("at-tambah").textContent="Tambah tagihan";
   $("at-batal").hidden=true;
   $("at-pesan").textContent="";
@@ -2514,9 +2543,12 @@ $("tab-persen").addEventListener("click",function(){
 });
 $("tab-simpan").addEventListener("click",function(){
   var v=num($("tab-nilai").value);
+  var tt=num($("tab-tanggal").value);
   if(tabTipe==="persen"&&(v<0||v>100)){$("tab-pesan").textContent="Persentase harus 0 sampai 100.";$("tab-pesan").className="msg err";return;}
   if(v<0){$("tab-pesan").textContent="Isi target tabungan dengan angka 0 atau lebih.";$("tab-pesan").className="msg err";return;}
+  if($("tab-tanggal").value.trim()&&(tt<1||tt>31)){$("tab-pesan").textContent="Tanggal tabungan harus 1 sampai 31 (atau kosongkan).";$("tab-pesan").className="msg err";return;}
   state.targetTabungan={tipe:tabTipe,nilai:v};
+  if(tt)state.targetTabungan.tanggal=tt;
   save();render();
   $("tab-pesan").textContent="Target tabungan tersimpan.";
   $("tab-pesan").className="msg ok";
